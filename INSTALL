@@ -1,0 +1,17 @@
+Installation Instructions
+*************************
+0. Remove the old build cache:
+  If you have previous ibus-chewing, or change between ibus 1.1 and ibus 1.2,
+  You may need to remove CMakeCache.txt
+
+1. Extract source and enter the extracted directory, then:
+cmake . -DCMAKE_INSTALL_PREFIX='/usr' 
+make
+
+Change CMAKE_INSTALL_PREFIX if you want to install
+in different directories.
+
+
+To see other available build targets, use
+
+make help

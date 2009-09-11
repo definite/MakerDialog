@@ -1,0 +1,13 @@
+Developers can easily make an configuration dialog with maker-dialog.
+Maker-dialog generates corresponding UI components for configuration
+properties, such as data type, default value, valid values.
+That is, developers no longer need to worry about the implementation
+details for various toolkit.
+
+Developers, however, need to provide either callback functions or dbus
+messages for value getting and setting to handle such events.
+
+Maker-dialog can also output GConf2 schemas files.
+
+Currently, Gtk toolkit is supported. Will extend to Qt or console mode.
+
