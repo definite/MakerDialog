@@ -2,22 +2,8 @@
 #include <strings.h>
 #include <glib/gi18n.h>
 #include <locale.h>
-#include "MakerDialogProperty.h"
+#include "MakerDialog.h"
 
-#ifndef VERBOSE_LEVEL
-#define VERBOSE_LEVEL 2
-#endif
-
-static gint verboseLevel=VERBOSE_LEVEL;
-
-void MAKER_DIALOG_DEBUG_MSG(gint level, const char *format, ...){
-    va_list ap;
-    if (level<verboseLevel){
-	va_start(ap, format);
-	g_logv("MakerDialog",G_LOG_LEVEL_DEBUG, format, ap);
-	va_end(ap);
-    }
-}
 
 MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType valueType){
     MakerDialogPropertySpec *spec=g_new(MakerDialogPropertySpec,1);
@@ -43,55 +29,43 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
     return spec;
 }
 
-void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec, gboolean freeDeep){
-    if (freeDeep){
-	if (spec->defaultValue){
-	    g_free(spec->defaultValue);
-	}
-	if (spec->validValues){
-	    g_free(spec->validValues);
-	}
-	if (spec->pageName){
-	    g_free(spec->pageName);
-	}
-	if (spec->label){
-	    g_free(spec->label);
-	}
-	if (spec->translationContext){
-	    g_free(spec->translationContext);
-	}
-	if (spec->extraData){
-	    g_free(spec->extraData);
-	}
-    }
+void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec){
     g_free(spec);
 }
 
-MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer userData){
+MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer obj){
     MakerDialogPropertyContext *ctx=g_new(MakerDialogPropertyContext,1);
     if (ctx){
 	ctx->spec=spec;
-	ctx->userData=userData;
+	ctx->obj=obj;
 	memset(&ctx->value, 0, sizeof(GValue));
 	g_value_init(&ctx->value,spec->valueType);
+	ctx->validateFunc=NULL;
+	ctx->setFunc=NULL;
     }
     return ctx;
 }
 
-
-void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx, gboolean freeDeep){
+void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx, gboolean freeSpec){
     g_value_unset (&(ctx->value));
-    if (freeDeep){
-	if (ctx->userData){
-	    g_free(ctx->userData);
-	}
-	maker_dialog_property_spec_free(ctx->spec,freeDeep);
+    if (freeSpec){
+	maker_dialog_property_spec_free(ctx->spec);
     }
     g_free(ctx);
 }
 
-MakerDialogPropertyTable* maker_dialog_property_table_new(){
-    return g_hash_table_new(g_str_hash,g_str_equal);
+void maker_dialog_property_context_free_without_spec(MakerDialogPropertyContext *ctx){
+    maker_dialog_property_context_free(ctx, FALSE);
+}
+
+void maker_dialog_property_context_free_with_spec(MakerDialogPropertyContext *ctx){
+    maker_dialog_property_context_free(ctx, TRUE);
+}
+
+
+MakerDialogPropertyTable* maker_dialog_property_table_new(gboolean freeSpec){
+    return g_hash_table_new_full(g_str_hash,g_str_equal,NULL,
+	    (freeSpec)? maker_dialog_property_context_free_with_spec: maker_dialog_property_context_free_without_spec);
 }
 
 void maker_dialog_property_table_insert(MakerDialogPropertyTable *hTable, const MakerDialogPropertyContext *ctx){
@@ -107,3 +81,6 @@ GValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTabl
     return  &ctx->value;
 }
 
+void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable){
+    g_hash_table_destroy(hTable);
+}

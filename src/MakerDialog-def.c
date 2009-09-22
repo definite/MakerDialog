@@ -322,33 +322,3 @@ static void set_label_width_callback(gpointer key, gpointer value, gpointer user
     gtk_misc_set_alignment (GTK_MISC(widget),wAlignment->xalign,wAlignment->yalign);
 }
 
-/**
- * atob:
- * @string: A string.
- * @returns: Boolean value represented by @string.
- *
- * String to boolean.
- * It returns FALSE if:
- *    1. @string is NULL or have 0 length.
- *    2. @string starts with 'F', 'f', 'N' or 'n'.
- *    3. @string can be converted to a numeric 0.
- *
- * Everything else is TRUE.
- */
-gboolean atob(const gchar *string){
-    if (!string)
-	return FALSE;
-    if (strlen(string)<=0)
-	return FALSE;
-    if (string[0]=='F' || string[0]=='f' || string[0]=='N' ||  string[0]=='n')
-	return FALSE;
-    char *endPtr=NULL;
-    long int longValue=strtol(string, &endPtr, 10);
-
-    if (longValue==0 && *endPtr=='\0'){
-	// 0
-	return FALSE;
-    }
-    return TRUE;
-}
-

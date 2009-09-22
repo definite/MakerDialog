@@ -54,10 +54,8 @@ requires 2.0.0
 %}
 
 %{
-void MAKER_DIALOG_DEBUG_MSG(gint level, const char *format, ...);
 #include "MakerDialogGtk-def.c"
 %}
-
 
 class Maker:Dialog:Gtk from Gtk:Dialog{
     public gboolean vbox_homogeneous=TRUE;

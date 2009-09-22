@@ -8,7 +8,7 @@ INCLUDE(init.CMakeLists.txt)
 # Project basic information
 ####################################################################
 PROJECT(MakerDialog)
-SET(PROJECT_DESCRIPTION "maker-dialog provides a simple way to make a
+SET(PROJECT_DESCRIPTION "MakerDialog provides a simple way to make a
     configuration dialog.")
 SET(CMAKE_C_FLAGS "-Wall")
 
@@ -47,7 +47,7 @@ ENDIF(${NEED_RPM_RELEASE_INFO})
 # Developer setting.
 #
 SET(CVS_DIST_TAGS F-10 F-11)
-SET(HOSTING_SERVICE_PROVIDER "FedoraHosted")
+SET(HOSTING_SERVICE_PROVIDER "GitHub")
 SET(DEVELOPER_SETTING_FILE "DEVELOPER_SETTING_NO_PACK")
 #SET(DEVELOPER_DEPENDS ***USER_DEFINE***)
 ADD_CUSTOM_TARGET(commit

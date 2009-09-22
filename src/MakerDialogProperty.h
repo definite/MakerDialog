@@ -74,7 +74,7 @@ typedef struct _MakerDialogPropertyContext MakerDialogPropertyContext;
  * @value: Value to be set of the property.
  * @returns: TRUE for pass; FALSE for fail.
  *
- * Prototype of check callback function, which is invoked when a property value
+ * Prototype of validate callback function, which is invoked when a property value
  * is changed via UI.
  *
  * @see_also: MakerDialogSetCallbackFunc(), #MakerDialogPropertySpec .
@@ -105,7 +105,6 @@ typedef void (* MakerDialogSetCallbackFunc)(MakerDialogPropertyContext *ctx, GVa
  * @label: Label of this property.
  * @translationContext: Translation message context as for dgettext().
  * @tooltip: Tooltip to be shown when mouse hover over the property.
- * @setFunc: Function to be called when property value is set in UI.
  * @extraData: For storing custom data structure.
  *
  * A MakerDialogPropertySpec determine how UI components be generated.
@@ -122,14 +121,10 @@ struct _MakerDialogPropertySpec{
     gdouble min;
     gdouble max;
 
-
     gchar *pageName;
     gchar *label;
     gchar *translationContext;
     const gchar *tooltip;
-
-    MakerDialogCheckCallbackFunc checkFunc;
-    MakerDialogSetCallbackFunc setFunc;
 
     gpointer extraData;
 };
@@ -138,19 +133,23 @@ struct _MakerDialogPropertySpec{
  * MakerDialogPropertyContext:
  * @spec: Corresponding property spec.
  * @value: Current value of the property.
- * @userData: User data to be used in callback.
+ * @obj: An referencing object.
+ * @validateFunc: Function to be called when property value is set in UI.
+ * @setFunc: Function to be called when property value is set in UI.
  *
- * A MakerDialogPropertyContext is a property context which associates property specification and value.
+ * A MakerDialogPropertyContext is a property context which associates property specification,
+ * a value, and a referencing object.
  *
- * When a value is changed though UI, checkFunc() will be invoked to check whether the values is acceptable.
- * If it is, then
- * correctness of the value.
- * The flag @valueCanFree is
+ * When a value is changed though UI, validateFunc() will be invoked to validate whether the values is acceptable.
+ * If it passes, then the value will be set and the referencing object can be
+ * tuned by calling the setFunc().
  */
 struct _MakerDialogPropertyContext{
     MakerDialogPropertySpec *spec;
     GValue value;
-    gpointer userData;  //<! User data to be used in callback.
+    gpointer obj;
+    MakerDialogCheckCallbackFunc validateFunc;
+    MakerDialogSetCallbackFunc setFunc;
 };
 
 /**
@@ -168,21 +167,6 @@ typedef GHashTable MakerDialogPropertyTable;
 void MAKER_DIALOG_DEBUG_MSG(gint level, const char *format, ...);
 
 /**
- * maker_dialog_atob:
- * @string: A string.
- * @returns: Boolean value represented by @string.
- *
- * String to boolean.
- * It returns FALSE if:
- *    1. @string is NULL or have 0 length.
- *    2. @string starts with 'F', 'f', 'N' or 'n'.
- *    3. @string can be converted to a numeric 0.
- *
- * Everything else is TRUE.
- */
-gboolean maker_dialog_atob(const gchar *string);
-
-/**
  * maker_dialog_property_spec_new:
  * @key: String that identify the property.
  * @valueType: Data type of the property value.
@@ -197,18 +181,17 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
 /**
  * maker_dialog_property_spec_free:
  * @spec: Property specification.
- * @freeDeep: TRUE for free the strings under @spec as well (except key); FALSE
- * for free the @spec itself only.
  *
  * Free a MakerDialogPropertySpec.
+ * Note that this function only free itself, but not string associated with
+ * it.
  */
-void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec,gboolean freeDeep);
+void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec);
 
 /**
  * maker_dialog_property_context_new:
  * @spec: Property specification.
- * @userData: User data to be passed to set and check callback functions. Can
- * be %NULL.
+ * @obj: A referencing object for set callback function. Can be %NULL.
  * @returns: A newly allocated MakerDialogPropertyContext.
  *
  * New a MakerDialogPropertyContext.
@@ -218,13 +201,12 @@ MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropert
 /**
  * maker_dialog_property_context_free:
  * @ctx: Property context.
- * @freeDeep: TRUE for free spec (which also freeDeep); FALSE
- * for free the @ctx itself only.
+ * @freeSpec: TRUE for free spec as well; FALSE for free the @ctx itself only.
  *
  * Free a MakerDialogPropertyContext. The @value under the @ctx will be
  * unset by g_value_unset().
  */
-void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx, gboolean freeDeep);
+void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx, gboolean freeSpec);
 
 /**
  * maker_dialog_property_table_new:
@@ -232,7 +214,7 @@ void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx, gboolea
  *
  * New a maker dialog property table.
  */
-MakerDialogPropertyTable* maker_dialog_property_table_new();
+MakerDialogPropertyTable* maker_dialog_property_table_new(gboolean );
 
 /**
  * maker_dialog_property_table_insert:
@@ -270,6 +252,14 @@ MakerDialogPropertyContext *maker_dialog_property_table_lookup(MakerDialogProper
  * because the hash table and property context are still referencing it.
  */
 GValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTable, const gchar *key);
+
+/**
+ * maker_dialog_property_table_destroy:
+ * @hTable: A MakerDialogPropertyTable.
+ *
+ * Destroys all keys and values in the GHashTable and decrements its reference count by 1.
+ */
+void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
 
 /*=== End Function Definition  ===*/
 
