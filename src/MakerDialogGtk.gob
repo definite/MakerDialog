@@ -30,8 +30,8 @@ requires 2.0.0
 %}
 
 %headertop{
-#ifndef MAKER_DIALOG_H_
-#define MAKER_DIALOG_H_
+#ifndef MAKER_DIALOG_GTK_H_
+#define MAKER_DIALOG_GTK_H_
 /**
  * SECTION: maker-dialog-gtk:
  * @short_description: Gtk binding for maker-dialog.
@@ -41,19 +41,24 @@ requires 2.0.0
  */
 %}
 
-
 %headertop{
 #ifndef WIDGET_ID_PREFIX
 #define WIDGET_ID_PREFIX "+"
 #endif
 
+/**
+ * makerDialogHandlerGtk:
+ *
+ * A Gtk toolkit handler.
+ */
+const MakerDialogToolkitHandler makerDialogHandlerGtk;
+%}
+
+%{
 #ifndef STRING_BUFFER_SIZE_DEFAULT
 #define STRING_BUFFER_SIZE_DEFAULT 1000
 #endif
 
-%}
-
-%{
 #include "MakerDialogGtk-def.c"
 %}
 
@@ -66,12 +71,13 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
     private GHashTable *widgetTable={g_hash_table_new_full(g_str_hash,g_str_equal,NULL,NULL)}
     destroywith g_hash_table_destroy;
-    private GHashTable *notebookContentTable={g_hash_table_new_full(g_str_hash,g_str_equal,NULL,NULL)}
-    destroywith g_hash_table_destroy;
     private GStringChunk *widgetIds={g_string_chunk_new(STRING_BUFFER_SIZE_DEFAULT)}
     destroywith g_string_chunk_free;
-    private MakerDialogPropertyHash *propHTable=NULL
-    destroywith g_hash_table_destory;
+    private GHashTable *notebookContentTable={g_hash_table_new_full(g_str_hash,g_str_equal,NULL,NULL)}
+    destroywith g_hash_table_destroy;
+    /* Hash table for notebook */
+    private GHashTable *notebookTable={g_hash_table_new_full(g_str_hash,g_str_equal,NULL,NULL)}
+    destroywith g_hash_table_destroy;
 
     init(self){
     }
@@ -81,23 +87,62 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	return self;
     }
 
-    public MakerDialogGtk *new_full (const gchar *title,
-	    int notebook_pages,  const gchar **notebook_page_labels,
-	    int button_num, const gchar **button_labels, GtkResponseType *button_responses) {
+    public MakerDialogGtk *new_full (MakerDialog *dlg){
 	Self *self = GET_NEW;
 	GtkDialog *dialog=GTK_DIALOG(self);
-	gtk_window_set_title(GTK_WINDOW(dialog),title);
+	gtk_window_set_title(GTK_WINDOW(dialog),dlg->title);
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(dialog), TRUE);
 	gtk_window_set_type_hint (GTK_WINDOW(dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
 	int i;
-	for(i=0;i<button_num;i++){
-	    GtkWidget *button=gtk_dialog_add_button(dialog,button_labels[i],button_responses[i]);
-	    self_widget_register(self, button, button_labels[i], "button");
+	for(i=0;i<dlg->buttonSpecCount;i++){
+	    char *buttonText=NULL;
+	    if (dlg->buttonSpecs[i].buttonText){
+		buttonText=dlg->buttonSpecs[i].buttonText;
+	    }else{
+		switch(dlg->buttonSpecs[i].responseId){
+		    case MAKER_DIALOG_RESPONSE_NONE:
+		    case MAKER_DIALOG_RESPONSE_REJECT:
+		    case MAKER_DIALOG_RESPONSE_ACCEPT:
+		    case MAKER_DIALOG_RESPONSE_DELETE_EVENT:
+			break;
+		    case MAKER_DIALOG_RESPONSE_OK:
+			buttonText=GTK_STOCK_OK;
+			break;
+		    case MAKER_DIALOG_RESPONSE_CANCEL:
+			buttonText=GTK_STOCK_CANCEL;
+			break;
+		    case MAKER_DIALOG_RESPONSE_CLOSE:
+			buttonText=GTK_STOCK_CLOSE;
+			break;
+		    case MAKER_DIALOG_RESPONSE_YES:
+			buttonText=GTK_STOCK_YES;
+			break;
+		    case MAKER_DIALOG_RESPONSE_NO:
+			buttonText=GTK_STOCK_NO;
+			break;
+		    case MAKER_DIALOG_RESPONSE_APPLY:
+			buttonText=GTK_STOCK_APPLY;
+			break;
+		    case MAKER_DIALOG_RESPONSE_HELP:
+			buttonText=GTK_STOCK_HELP;
+			break;
+		    default:
+			break;
+		}
+	    }
+	    g_assert(buttonText):
+	    GtkWidget *button=gtk_dialog_add_button(dialog,_(buttonText),dlg->buttonSpecs[i].responseId);
+	    self_widget_register(self, button, buttonText, "button");
 	}
 
 	GtkWidget *dialog_vbox = GTK_DIALOG(dialog)->vbox;
-	gtk_widget_show (dialog_vbox);
+//	gtk_widget_show (dialog_vbox);
+
+	/* Add properties and create corresponding notebook pages */
+	g_hash_table_foreach(dlg->propertyTable,);
+
+	G
 
 	if (notebook_pages>0){
 	    self->dialog_notebook = gtk_notebook_new();
@@ -589,6 +634,6 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 }
 
 %headertop{
-#endif /* MAKER_DIALOG_H_ */
+#endif /* MAKER_DIALOG_GTK_H_ */
 %}
 

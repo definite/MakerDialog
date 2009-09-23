@@ -1,4 +1,60 @@
-/*=== Start listStore function ===*/
+/*=== Start toolkit handler definitions ===*/
+gpointer maker_dialog_construct_gtk(MakerDialog *dlg){
+    MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlg);
+    return (gpointer) dlg_gtk;
+}
+
+gint maker_dialog_run_gtk(MakerDialog *dlg){
+    return gtk_dialog_run(GTK_DIALOG (dlg->handler->dialog_obj));
+}
+
+void maker_dialog_show_gtk(MakerDialog *dlg){
+    gtk_dialog_show_all(GTK_DIALOG (dlg->handler->dialog_obj));
+}
+
+void maker_dialog_hide_gtk(MakerDialog *dlg){
+    gtk_dialog_hide(GTK_DIALOG (dlg->handler->dialog_obj));
+}
+
+void maker_dialog_destroy_gtk(MakerDialog *dlg){
+    gtk_widget_destroy(GTK_WIDGET (dlg->handler->dialog_obj));
+}
+
+void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *key, GValue *value){
+    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key,value);
+}
+
+const MakerDialogToolkitHandler makerDialogHandlerGtk={
+    NULL,
+    maker_dialog_construct_gtk,
+    maker_dialog_run_gtk,
+    maker_dialog_show_gtk,
+    maker_dialog_hide_gtk,
+    maker_dialog_destroy_gtk,
+    maker_dialog_component_set_value_gtk
+};
+
+/*=== Start propertyTable foreach functions ===*/
+void maker_dialog_construct_ui_GHFunc(gpointer key, gpointer value, gpointer user_data){
+    gchar *propertyKey=(gchar *) key;
+    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) value;
+    MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(user_data);
+    MAKER_DIALOG_DEBUG_MSG(2,"maker_dialog_construct_ui_GHFunc(%s,-,-)",ctx->spec->key);
+
+    if (ctx->spec->pageName){
+	if (!g_hash_table_lookup(dlg_gtk->_priv->notebookTable, (gconstpointer) ctx->spec->pageName)){
+	    g_hash_table_insert(dlg_gtk->_priv->notebookTable, ctx->spec->pageName, ctx->spec->pageName);
+	}
+	g_hash_table_insert(dlg_gtk->_priv->notebookContentTable, ctx->spec->key, ctx->spec->pageName);
+    }
+
+    maker_dialog_gtk_add_
+    dlg_gtk=0
+
+    fucn
+}
+
+/*=== Start listStore functions ===*/
 static void listStore_append(GtkListStore *listStore,const gchar *str,
 	const gchar *translationContext,
 	MakerDialogPropertyFlags propertyFlags){

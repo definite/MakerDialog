@@ -18,11 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef MAKER_DIALOG_H_
-#define MAKER_DIALOG_H_
-#include <glib.h>
-#include <glib-object.h>
-
 /**
  * SECTION: MakerDialogProperty:
  * @short_description: Property handling.
@@ -32,6 +27,10 @@
  * value. According to property specification, MakerDialog generates
  * corresponding UI component to manipulate the property value.
  */
+#ifndef MAKER_DIALOG_PROPERTY_H_
+#define MAKER_DIALOG_PROPERTY_H_
+#include <glib.h>
+#include <glib-object.h>
 
 /**
  * MAKER_DIALOG_PROPERTY_FLAG:
@@ -101,6 +100,7 @@ typedef void (* MakerDialogSetCallbackFunc)(MakerDialogPropertyContext *ctx, GVa
  * @validValues: Valid values of this dialog. Can be NULL.
  * @min: Minimum value of a number. Irrelevant to other data type.
  * @max: Maximum value of a number. Irrelevant to other data type.
+ * @step: Increment added or subtracted by spinning the widget.
  * @pageName: Page that this property belongs to. It will appear as a tab label in GUI. Can be NULL.
  * @label: Label of this property.
  * @translationContext: Translation message context as for dgettext().
@@ -120,6 +120,7 @@ struct _MakerDialogPropertySpec{
     const gchar **validValues;
     gdouble min;
     gdouble max;
+    gdouble step;
 
     gchar *pageName;
     gchar *label;
@@ -264,5 +265,5 @@ void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
 /*=== End Function Definition  ===*/
 
 
-#endif /* MAKER_DIALOG_H_ */
+#endif /* MAKER_DIALOG_PROPERTY_H_ */
 

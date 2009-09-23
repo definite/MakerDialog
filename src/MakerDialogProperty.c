@@ -4,7 +4,6 @@
 #include <locale.h>
 #include "MakerDialog.h"
 
-
 MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType valueType){
     MakerDialogPropertySpec *spec=g_new(MakerDialogPropertySpec,1);
     if (spec){
@@ -20,9 +19,6 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
 	spec->label=NULL;
 	spec->translationContext=NULL;
 	spec->tooltip=NULL;
-
-	spec->checkFunc=NULL;
-	spec->setFunc=NULL;
 
 	spec->extraData=NULL;
     }
@@ -54,14 +50,13 @@ void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx, gboolea
     g_free(ctx);
 }
 
-void maker_dialog_property_context_free_without_spec(MakerDialogPropertyContext *ctx){
-    maker_dialog_property_context_free(ctx, FALSE);
+static void maker_dialog_property_context_free_without_spec(gpointer ctx){
+    maker_dialog_property_context_free((MakerDialogPropertyContext *) ctx, FALSE);
 }
 
-void maker_dialog_property_context_free_with_spec(MakerDialogPropertyContext *ctx){
-    maker_dialog_property_context_free(ctx, TRUE);
+static void maker_dialog_property_context_free_with_spec(gpointer ctx){
+    maker_dialog_property_context_free((MakerDialogPropertyContext *) ctx, TRUE);
 }
-
 
 MakerDialogPropertyTable* maker_dialog_property_table_new(gboolean freeSpec){
     return g_hash_table_new_full(g_str_hash,g_str_equal,NULL,
