@@ -1,4 +1,12 @@
 /*=== Start toolkit handler definitions ===*/
+GValue *maker_dialog_component_get_value(MakerDialog *dlg, const gchar *key){
+    return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key);
+}
+
+void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *key, GValue *value){
+    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key,value);
+}
+
 gpointer maker_dialog_construct_gtk(MakerDialog *dlg){
     MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlg);
     return (gpointer) dlg_gtk;
@@ -20,38 +28,48 @@ void maker_dialog_destroy_gtk(MakerDialog *dlg){
     gtk_widget_destroy(GTK_WIDGET (dlg->handler->dialog_obj));
 }
 
-void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *key, GValue *value){
-    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key,value);
-}
-
 const MakerDialogToolkitHandler makerDialogHandlerGtk={
     NULL,
+    maker_dialog_component_get_value_gtk,
+    maker_dialog_component_set_value_gtk,
     maker_dialog_construct_gtk,
     maker_dialog_run_gtk,
     maker_dialog_show_gtk,
     maker_dialog_hide_gtk,
     maker_dialog_destroy_gtk,
-    maker_dialog_component_set_value_gtk
 };
 
 /*=== Start propertyTable foreach functions ===*/
-void maker_dialog_construct_ui_GHFunc(gpointer key, gpointer value, gpointer user_data){
+static void maker_dialog_construct_ui_GHFunc(gpointer key, gpointer value, gpointer user_data){
     gchar *propertyKey=(gchar *) key;
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) value;
     MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(user_data);
-    MAKER_DIALOG_DEBUG_MSG(2,"maker_dialog_construct_ui_GHFunc(%s,-,-)",ctx->spec->key);
+    MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_construct_ui_GHFunc(%s,-,-)",ctx->spec->key);
 
     if (ctx->spec->pageName){
 	if (!g_hash_table_lookup(dlg_gtk->_priv->notebookTable, (gconstpointer) ctx->spec->pageName)){
 	    g_hash_table_insert(dlg_gtk->_priv->notebookTable, ctx->spec->pageName, ctx->spec->pageName);
+	    GtkWidget *label=gtk_label_new(_(ctx->spec->pageName));
+	    self_widget_register(dlg_gtk, label, ctx->spec->pageName, "label");
+//	    gtk_widget_show(label);
+
+	    GtkWidget *vbox=gtk_vbox_new(dlg_gtk->vbox_homogeneous,dlg_gtk->vbox_spacing);
+	    self_widget_register(dlg_gtk, vbox, ctx->spec->pageName, "vbox");
+//	    gtk_widget_show(vbox);
+	    gtk_notebook_append_page (GTK_NOTEBOOK(dlg_gtk->dialog_notebook), vbox,label);
+
 	}
 	g_hash_table_insert(dlg_gtk->_priv->notebookContentTable, ctx->spec->key, ctx->spec->pageName);
     }
 
-    maker_dialog_gtk_add_
-    dlg_gtk=0
+    maker_dialog_gtk_add_property_ui(dlg_gtk, ctx);
+}
 
-    fucn
+static void maker_dialog_align_labels_GHFunc(gpointer key, gpointer value, gpointer user_data){
+    gchar *pageName=(gchar *) key;
+    MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(user_data);
+    MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_align_labels_GHFunc(%s,-,-)",pageName);
+    maker_dialog_gtk_align_labels(dlg_gtk, pageName, &(dlg_gtk->dlg->labelAlignment));
 }
 
 /*=== Start listStore functions ===*/
@@ -63,13 +81,13 @@ static void listStore_append(GtkListStore *listStore,const gchar *str,
 
     if (propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
 	if (translationContext || propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_TRANSLATION_WITH_CONTEXT){
-	    MAKER_DIALOG_DEBUG_MSG(5,"*** str=%s, _(str)=%s",str,g_dpgettext2(NULL,translationContext,str));
+	    MAKER_DIALOG_DEBUG_MSG(5,"[I5] str=%s, _(str)=%s",str,g_dpgettext2(NULL,translationContext,str));
 	    gtk_list_store_set (listStore, &iter,
 		    0, str,
 		    1, g_dpgettext2(NULL,translationContext,str),
 		    -1);
 	}else{
-	    MAKER_DIALOG_DEBUG_MSG(5,"*** str=%s, _(str)=%s",str,_(str));
+	    MAKER_DIALOG_DEBUG_MSG(5,"[I5] str=%s, _(str)=%s",str,_(str));
 	    gtk_list_store_set (listStore, &iter,
 		    0, str,
 		    1, _(str),

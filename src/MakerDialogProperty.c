@@ -1,3 +1,22 @@
+/*
+ * Copyright © 2009  Red Hat, Inc. All rights reserved.
+ * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
+ *
+ *  This file is part of MakerDialog.
+ *
+ *  MakerDialog is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  MakerDialog is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include <stdlib.h>
 #include <strings.h>
 #include <glib/gi18n.h>
@@ -13,8 +32,10 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
 	spec->validValues=NULL;
 	spec->min=0.0;
 	spec->max=0.0;
+	spec->step=0.0;
+	spec->decimalDigits=0;
 
-	spec->propertyFlags=0;
+	spec->propertyFlags=MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE;
 	spec->pageName=NULL;
 	spec->label=NULL;
 	spec->translationContext=NULL;
@@ -42,25 +63,20 @@ MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropert
     return ctx;
 }
 
-void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx, gboolean freeSpec){
+void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx){
     g_value_unset (&(ctx->value));
-    if (freeSpec){
+    if (ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
 	maker_dialog_property_spec_free(ctx->spec);
     }
     g_free(ctx);
 }
 
-static void maker_dialog_property_context_free_without_spec(gpointer ctx){
-    maker_dialog_property_context_free((MakerDialogPropertyContext *) ctx, FALSE);
+static void  _maker_dialog_property_context_free_wrap(gpointer obj){
+    maker_dialog_property_context_free((MakerDialogPropertyContext *) obj);
 }
 
-static void maker_dialog_property_context_free_with_spec(gpointer ctx){
-    maker_dialog_property_context_free((MakerDialogPropertyContext *) ctx, TRUE);
-}
-
-MakerDialogPropertyTable* maker_dialog_property_table_new(gboolean freeSpec){
-    return g_hash_table_new_full(g_str_hash,g_str_equal,NULL,
-	    (freeSpec)? maker_dialog_property_context_free_with_spec: maker_dialog_property_context_free_without_spec);
+MakerDialogPropertyTable* maker_dialog_property_table_new(){
+    return g_hash_table_new_full(g_str_hash,g_str_equal,NULL, _maker_dialog_property_context_free_wrap);
 }
 
 void maker_dialog_property_table_insert(MakerDialogPropertyTable *hTable, const MakerDialogPropertyContext *ctx){

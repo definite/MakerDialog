@@ -52,9 +52,6 @@ ENDIF(EXISTS ${DEVELOPER_SETTING_FILE})
 # Configure files
 #
 
-IF (GENERATE_DOXYFILE)
-    CONFIGURE_FILE(Doxyfile.in Doxyfile)
-ENDIF()
 
 IF (GENERATE_UPLOADPKG_BATCH)
     CONFIGURE_FILE(UploadPkg.batch.in UploadPkg.batch)
@@ -98,6 +95,10 @@ ENDIF(EXISTS ${DEVELOPER_SETTING_FILE})
 #====================================================================
 # Doxygen Document generation
 #
+IF (GENERATE_DOXYFILE)
+    CONFIGURE_FILE(Doxyfile.in Doxyfile)
+ENDIF()
+
 IF (EXISTS Doxyfile)
     FIND_PACKAGE(Doxygen)
     ADD_CUSTOM_TARGET(doxygen

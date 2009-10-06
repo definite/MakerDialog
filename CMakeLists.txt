@@ -56,7 +56,6 @@ ADD_CUSTOM_TARGET(commit
     COMMENT "Commit and tag the changes"
     )
 
-
 ####################################################################
 # Includes
 ####################################################################
@@ -64,6 +63,7 @@ ADD_CUSTOM_TARGET(commit
 #==================================================================
 # Include common.CMakeLists.txt
 #
+SET(GENERATE_DOXYFILE TRUE)
 INCLUDE(common.CMakeLists.txt)
 
 ####################################################################
