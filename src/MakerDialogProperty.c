@@ -24,24 +24,37 @@
 #include "MakerDialog.h"
 
 MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType valueType){
+    return maker_dialog_property_spec_new_full(key, valueType,
+	    NULL, NULL,
+	    0.0, 0.0, 0.0, 0,
+	    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE,  NULL, NULL, NULL,
+	    NULL, NULL);
+}
+
+MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key, GType valueType,
+	const gchar *defaultValue, const gchar **validValues,
+	gdouble min, gdouble max, gdouble step, gint decimalDigits,
+	MakerDialogPropertyFlags propertyFlags,
+	const gchar *pageName, const gchar *label, const gchar *translationContext,
+	const gchar *tooltip, gpointer extraData){
     MakerDialogPropertySpec *spec=g_new(MakerDialogPropertySpec,1);
     if (spec){
 	spec->key=key;
 	spec->valueType=valueType;
-	spec->defaultValue=NULL;
-	spec->validValues=NULL;
-	spec->min=0.0;
-	spec->max=0.0;
-	spec->step=0.0;
-	spec->decimalDigits=0;
+	spec->defaultValue=defaultValue;
+	spec->validValues=validValues;
+	spec->min=min;
+	spec->max=max;
+	spec->step=step;
+	spec->decimalDigits=decimalDigits;
 
-	spec->propertyFlags=MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE;
-	spec->pageName=NULL;
-	spec->label=NULL;
-	spec->translationContext=NULL;
-	spec->tooltip=NULL;
+	spec->propertyFlags=propertyFlags | MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE;
+	spec->pageName=pageName;
+	spec->label=label;
+	spec->translationContext=translationContext;
+	spec->tooltip=tooltip;
 
-	spec->extraData=NULL;
+	spec->extraData=extraData;
     }
     return spec;
 }
@@ -50,13 +63,20 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec){
     g_free(spec);
 }
 
-MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer obj){
+MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec,
+	GValue *initValue, gpointer obj){
     MakerDialogPropertyContext *ctx=g_new(MakerDialogPropertyContext,1);
     if (ctx){
 	ctx->spec=spec;
 	ctx->obj=obj;
 	memset(&ctx->value, 0, sizeof(GValue));
 	g_value_init(&ctx->value,spec->valueType);
+	if (initValue){
+	    g_value_copy(initValue, &ctx->value);
+	    ctx->hasValue=TRUE;
+	}else{
+	    ctx->hasValue=FALSE;
+	}
 	ctx->validateFunc=NULL;
 	ctx->setFunc=NULL;
     }

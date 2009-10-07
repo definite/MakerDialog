@@ -30,13 +30,14 @@ SET_SOURCE_FILES_PROPERTIES(${GOB_GENERATED}
 
 # library
 ADD_LIBRARY(MakerDialog ${MAKER_DIALOG_BASE_SRC})
+ADD_LIBRARY(MakerDialogGtk ${GOB_GENERATED})
 
 
 # executable built from some source
-#ADD_EXECUTABLE(generate-gconf-schemas
-#   generate-gconf-schemas.c
-#   maker-dialog.c
-#   )
+ADD_EXECUTABLE(helloWorld
+   helloWorld.c
+)
+
 #ADD_EXECUTABLE(dialogTest dialogTest.c
 #   maker-dialog.c
 #   )
@@ -44,6 +45,10 @@ ADD_LIBRARY(MakerDialog ${MAKER_DIALOG_BASE_SRC})
 # Link the executable to the library.
 
 TARGET_LINK_LIBRARIES(MakerDialog ${GLIB2_LIBRARIES})
+
+TARGET_LINK_LIBRARIES(MakerDialogGtk ${GTK2_LIBRARIES})
+
+TARGET_LINK_LIBRARIES(helloWorld ${GTK2_LIBRARIES} MakerDialog MakerDialogGtk)
 
 #TARGET_LINK_LIBRARIES(generate-gconf-schemas ${GTK2_LIBRARIES})
 

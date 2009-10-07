@@ -44,6 +44,8 @@ typedef enum {
     MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE =0x8, //!< The property does not accept custom input, but only choose among predefined values.
     MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION =0x10, //!< The values of a property is associated.
     MAKER_DIALOG_PROPERTY_FLAG_TRANSLATION_WITH_CONTEXT =0x20, //!< The translation is with context. This flags should be used with ::MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION.
+    MAKER_DIALOG_PROPERTY_FLAG_HAS_DEFAULT_VALUE =0x40,  //!< This property has default value. This flags is set automatically.
+    MAKER_DIALOG_PROPERTY_FLAG_HAS_VALID_VALUES =0x40,  //!< This property has valid values. This flags is set automatically.
 } MAKER_DIALOG_PROPERTY_FLAG;
 
 /**
@@ -51,8 +53,36 @@ typedef enum {
  */
 typedef guint MakerDialogPropertyFlags;
 
-typedef struct _MakerDialogPropertySpec MakerDialogPropertySpec;
 
+/**
+ * A MakerDialogPropertySpec determine how UI components be generated.
+ *
+ * As the name suggests, this data structure stores the specification of a
+ * configuration property.
+ */
+typedef struct _MakerDialogPropertySpec{
+    const gchar *key;		//!< String that identify the property.
+    GType valueType;		//!< Data type of the property value.
+    MakerDialogPropertyFlags 	propertyFlags; //!< Flags for a configuration property.
+    const gchar *defaultValue;	//!< Default value represent in string.
+    const gchar **validValues;	//!< Valid values represent in strings.
+    gdouble min;		//!< Minimum value of a number. Irrelevant to other data type.
+    gdouble max;		//!< Maximum value of a number. Irrelevant to other data type.
+    gdouble step;		//!< Increment added or subtracted by spinning the widget.
+    gint   decimalDigits;	//!< Number of digits after decimal digits.
+
+    const gchar *pageName;		//!< Page that this property belongs to. It will appear as a tab label in GUI. Can be NULL.
+    const gchar *label;		//!< Label of this property.
+    const gchar *translationContext;	//!< Translation message context as for dgettext().
+    const gchar *tooltip;	//!< Tooltip to be shown when mouse hover over the property.
+
+    gpointer extraData;		//!< For storing custom data structure.
+} MakerDialogPropertySpec;
+
+/**
+ * A MakerDialogPropertyContext is a property context which associates property specification,
+ * a value, and a referencing object.
+ */
 typedef struct _MakerDialogPropertyContext MakerDialogPropertyContext;
 
 /**
@@ -77,30 +107,6 @@ typedef gboolean (* MakerDialogCheckCallbackFunc)(MakerDialogPropertySpec *spec,
  */
 typedef void (* MakerDialogSetCallbackFunc)(MakerDialogPropertyContext *ctx, GValue *value);
 
-/**
- * A MakerDialogPropertySpec determine how UI components be generated.
- *
- * As the name suggests, this data structure stores the specification of a
- * configuration property.
- */
-struct _MakerDialogPropertySpec{
-    const gchar *key;		//!< String that identify the property.
-    GType valueType;		//!< Data type of the property value.
-    MakerDialogPropertyFlags 	propertyFlags; //!< Flags for a configuration property.
-    gchar *defaultValue;	//!< Default value represent in string. Can be NULL.
-    const gchar **validValues;	//!< Valid values of this dialog. Can be NULL.
-    gdouble min;		//!< Minimum value of a number. Irrelevant to other data type.
-    gdouble max;		//!< Maximum value of a number. Irrelevant to other data type.
-    gdouble step;		//!< Increment added or subtracted by spinning the widget.
-    gint   decimalDigits;	//!< Number of digits after decimal digits.
-
-    gchar *pageName;		//!< Page that this property belongs to. It will appear as a tab label in GUI. Can be NULL.
-    gchar *label;		//!< Label of this property.
-    gchar *translationContext;	//!< Translation message context as for dgettext().
-    const gchar *tooltip;	//!< Tooltip to be shown when mouse hover over the property.
-
-    gpointer extraData;		//!< For storing custom data structure.
-};
 
 /**
  * A MakerDialogPropertyContext is a property context which associates property specification,
@@ -116,6 +122,10 @@ struct _MakerDialogPropertyContext{
     gpointer obj;				//!< An referencing object.
     MakerDialogCheckCallbackFunc validateFunc;	//!< Function to be called for validating the value.
     MakerDialogSetCallbackFunc setFunc;		//!< Function to be called when property value is set in UI.
+
+    /// @cond
+    gboolean hasValue;			//!< Whether the value is set.
+    /// @endcond
 };
 
 /**
@@ -138,8 +148,41 @@ typedef GHashTable MakerDialogPropertyTable;
  * @param key String that identify the property.
  * @param valueType Data type of the property value.
  * @return A newly allocated MakerDialogPropertyContext.
+ * @see maker_dialog_property_spec_new_full()
  */
 MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType valueType);
+
+
+/**
+ * New a MakerDialogPropertySpec with all information.
+ *
+ * New a MakerDialogPropertySpec.
+ * Note that the key is not duplicated during the construction,
+ * nor it will be freed by maker_dialog_property_spec_free().
+ *
+ * @param key		String that identify the property.
+ * @param valueType	Data type of the property value.
+ * @param propertyFlags	Flags for a configuration property.
+ * @param defaultValue	Default value represent in string.
+ * @param validValues 	Valid values represent in strings.
+ * @param min 		Minimum value of a number. Irrelevant to other data type.
+ * @param max		Maximum value of a number. Irrelevant to other data type.
+ * @param step		Increment added or subtracted by spinning the widget.
+ * @param decimalDigits	Number of digits after decimal digits.
+ * @param pageName	Page that this property belongs to. It will appear as a tab label in GUI. Can be NULL.
+ * @param label		Label of this property.
+ * @param translationContext	Translation message context as for dgettext().
+ * @param tooltip	Tooltip to be shown when mouse hover over the property.
+ * @param extraData	For storing custom data structure.
+ * @return A newly allocated MakerDialogPropertyContext.
+ * @see maker_dialog_property_spec_new()
+ */
+MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key, GType valueType,
+	const gchar *defaultValue, const gchar **validValues,
+	gdouble min, gdouble max, gdouble step, gint decimalDigits,
+	MakerDialogPropertyFlags propertyFlags,
+	const gchar *pageName, const gchar *label, const gchar *translationContext,
+	const gchar *tooltip, gpointer extraData);
 
 /**
  * Free a MakerDialogPropertySpec.
@@ -154,11 +197,18 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec);
 /**
  * New a MakerDialogPropertyContext.
  *
+ * New a MakerDialogPropertyContext, according to the initValue.
+ *
+ * Note that initValue stores the current setting, usually in from configure file;
+ * while default value is used when initValue does not exist.
+ *
  * @param spec Property specification.
+ * @param initValue Initial value for the property.
  * @param obj A referencing object for set callback function. Can be NULL.
  * @return A newly allocated MakerDialogPropertyContext.
  */
-MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer obj);
+MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec,
+       GValue *initValue, gpointer obj);
 
 /**
  * Free a MakerDialogPropertyContext.

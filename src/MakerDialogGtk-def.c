@@ -1,5 +1,5 @@
 /*=== Start toolkit handler definitions ===*/
-GValue *maker_dialog_component_get_value(MakerDialog *dlg, const gchar *key){
+GValue *maker_dialog_component_get_value_gtk(MakerDialog *dlg, const gchar *key){
     return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key);
 }
 
@@ -17,11 +17,11 @@ gint maker_dialog_run_gtk(MakerDialog *dlg){
 }
 
 void maker_dialog_show_gtk(MakerDialog *dlg){
-    gtk_dialog_show_all(GTK_DIALOG (dlg->handler->dialog_obj));
+    gtk_widget_show_all(GTK_WIDGET (dlg->handler->dialog_obj));
 }
 
 void maker_dialog_hide_gtk(MakerDialog *dlg){
-    gtk_dialog_hide(GTK_DIALOG (dlg->handler->dialog_obj));
+    gtk_widget_hide(GTK_WIDGET (dlg->handler->dialog_obj));
 }
 
 void maker_dialog_destroy_gtk(MakerDialog *dlg){
@@ -44,22 +44,23 @@ static void maker_dialog_construct_ui_GHFunc(gpointer key, gpointer value, gpoin
     gchar *propertyKey=(gchar *) key;
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) value;
     MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(user_data);
-    MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_construct_ui_GHFunc(%s,-,-)",ctx->spec->key);
+    MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_construct_ui_GHFunc(%s,-,-)",propertyKey);
 
     if (ctx->spec->pageName){
 	if (!g_hash_table_lookup(dlg_gtk->_priv->notebookTable, (gconstpointer) ctx->spec->pageName)){
-	    g_hash_table_insert(dlg_gtk->_priv->notebookTable, ctx->spec->pageName, ctx->spec->pageName);
+	    g_hash_table_insert(dlg_gtk->_priv->notebookTable, (gpointer) ctx->spec->pageName, (gpointer) ctx->spec->pageName);
 	    GtkWidget *label=gtk_label_new(_(ctx->spec->pageName));
-	    self_widget_register(dlg_gtk, label, ctx->spec->pageName, "label");
+	    maker_dialog_gtk_widget_register(dlg_gtk, label, ctx->spec->pageName, "label");
 //	    gtk_widget_show(label);
 
 	    GtkWidget *vbox=gtk_vbox_new(dlg_gtk->vbox_homogeneous,dlg_gtk->vbox_spacing);
-	    self_widget_register(dlg_gtk, vbox, ctx->spec->pageName, "vbox");
+	    maker_dialog_gtk_widget_register(dlg_gtk, vbox, ctx->spec->pageName, "vbox");
 //	    gtk_widget_show(vbox);
 	    gtk_notebook_append_page (GTK_NOTEBOOK(dlg_gtk->dialog_notebook), vbox,label);
 
 	}
-	g_hash_table_insert(dlg_gtk->_priv->notebookContentTable, ctx->spec->key, ctx->spec->pageName);
+	g_hash_table_insert(dlg_gtk->_priv->notebookContentTable, (gchar *) ctx->spec->key,
+		(gchar *) ctx->spec->pageName);
     }
 
     maker_dialog_gtk_add_property_ui(dlg_gtk, ctx);
@@ -69,7 +70,7 @@ static void maker_dialog_align_labels_GHFunc(gpointer key, gpointer value, gpoin
     gchar *pageName=(gchar *) key;
     MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(user_data);
     MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_align_labels_GHFunc(%s,-,-)",pageName);
-    maker_dialog_gtk_align_labels(dlg_gtk, pageName, &(dlg_gtk->dlg->labelAlignment));
+    maker_dialog_gtk_align_labels(dlg_gtk, pageName, &(dlg_gtk->_priv->dlg->labelAlignment));
 }
 
 /*=== Start listStore functions ===*/
@@ -147,11 +148,6 @@ static const gchar *combo_get_active_text(GtkComboBox *combo,GValue *gValue){
     return g_value_get_string(gValue);
 }
 
-
-static void  propList_free_deep_callback(gpointer data, gpointer user_data){
-    propertyContext_free(data);
-}
-
 static gchar *widget_get_id(gchar *buffer, gint buffer_size,
 	const gchar *widget_label, const gchar *widget_type){
     g_snprintf(buffer,buffer_size,"%s%s%s%s",
@@ -166,26 +162,26 @@ static gchar *widget_get_id(gchar *buffer, gint buffer_size,
 
 static void on_comboBox_changed_wrap (GtkComboBox *comboBox, gpointer    user_data)
 {
-    MakerDialogPropertyContext *ctx=(PropertyContext *)user_data;
+    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     GValue value={0};
     combo_get_active_text(comboBox, &value);
     MAKER_DIALOG_DEBUG_MSG(2,"on_comboBox_changed_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->spec->setFunc(ctx,&value);
+    ctx->setFunc(ctx,&value);
 }
 
 static void on_entry_activate_wrap (GtkEntry *entry, gpointer    user_data)
 {
-    MakerDialogPropertyContext *ctx=(PropertyContext *)user_data;
+    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     GValue value={0};
     g_value_init(&value, ctx->spec->valueType);
     g_value_set_string(&value,gtk_entry_get_text(entry));
     MAKER_DIALOG_DEBUG_MSG(2,"on_entry_activate_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->spec->setFunc(ctx,&value);
+    ctx->setFunc(ctx,&value);
 }
 
 static void on_spinButton_value_changed_wrap (GtkSpinButton *button, gpointer    user_data)
 {
-    MakerDialogPropertyContext *ctx=(PropertyContext *)user_data;
+    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     GValue value={0};
     g_value_init(&value, ctx->spec->valueType);
     switch(ctx->spec->valueType){
@@ -207,17 +203,17 @@ static void on_spinButton_value_changed_wrap (GtkSpinButton *button, gpointer   
 	default:
 	    break;
     }
-    ctx->spec->setFunc(ctx,&value);
+    ctx->setFunc(ctx,&value);
 }
 
 static void on_toggleButton_toggled_wrap (GtkToggleButton *button, gpointer    user_data)
 {
-    MakerDialogPropertyContext *ctx=(PropertyContext *)user_data;
+    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     GValue value={0};
     g_value_init(&value, ctx->spec->valueType);
     g_value_set_boolean(&value, gtk_toggle_button_get_active(button));
     MAKER_DIALOG_DEBUG_MSG(2,"on_entry_activate_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->spec->setFunc(ctx,&value);
+    ctx->setFunc(ctx,&value);
 }
 
 /*=== End of Widget Callback function wraps ===*/
@@ -239,76 +235,76 @@ typedef enum{
 } XmlTagsType;
 #define INDENT_SPACES 4
 
-static void append_indent_space(GString *strBuf, gint indentLevel){
-    int i,indentLen=indentLevel*INDENT_SPACES;
-    for(i=0;i<indentLen;i++){
-	g_string_append_c(strBuf,' ');
-    }
-}
+//static void append_indent_space(GString *strBuf, gint indentLevel){
+//    int i,indentLen=indentLevel*INDENT_SPACES;
+//    for(i=0;i<indentLen;i++){
+//        g_string_append_c(strBuf,' ');
+//    }
+//}
 
-static GString *xml_tags_to_string(const gchar *tagName, XmlTagsType type,
-	const gchar *attribute, const gchar *value,gint indentLevel){
-    GString *strBuf=g_string_new(NULL);
-    append_indent_space(strBuf,indentLevel);
+//static GString *xml_tags_to_string(const gchar *tagName, XmlTagsType type,
+//        const gchar *attribute, const gchar *value,gint indentLevel){
+//    GString *strBuf=g_string_new(NULL);
+//    append_indent_space(strBuf,indentLevel);
 
-    if(type!=XML_TAG_TYPE_NO_TAG){
-	g_string_append_printf(strBuf,"<%s%s%s%s%s>",
-		(type==XML_TAG_TYPE_END_ONLY) ? "/": "",
-		(!isEmptyString(tagName))? tagName : "",
-		(!isEmptyString(attribute)) ? " ":"",  (!isEmptyString(attribute))? attribute : "",
-		(type==XML_TAG_TYPE_EMPTY) ? "/": ""
-	);
-    }
-    if (type==XML_TAG_TYPE_EMPTY)
-	return strBuf;
-    if (type==XML_TAG_TYPE_BEGIN_ONLY)
-	return strBuf;
-    if (type==XML_TAG_TYPE_END_ONLY)
-	return strBuf;
+//    if(type!=XML_TAG_TYPE_NO_TAG){
+//        g_string_append_printf(strBuf,"<%s%s%s%s%s>",
+//                (type==XML_TAG_TYPE_END_ONLY) ? "/": "",
+//                (!isEmptyString(tagName))? tagName : "",
+//                (!isEmptyString(attribute)) ? " ":"",  (!isEmptyString(attribute))? attribute : "",
+//                (type==XML_TAG_TYPE_EMPTY) ? "/": ""
+//        );
+//    }
+//    if (type==XML_TAG_TYPE_EMPTY)
+//        return strBuf;
+//    if (type==XML_TAG_TYPE_BEGIN_ONLY)
+//        return strBuf;
+//    if (type==XML_TAG_TYPE_END_ONLY)
+//        return strBuf;
 
-    if (type==XML_TAG_TYPE_LONG){
-	g_string_append_c(strBuf,'\n');
-    }
+//    if (type==XML_TAG_TYPE_LONG){
+//        g_string_append_c(strBuf,'\n');
+//    }
 
-    if (value){
-	if (type==XML_TAG_TYPE_LONG || type==XML_TAG_TYPE_NO_TAG){
-	    append_indent_space(strBuf,indentLevel+1);
-	    int i, valueLen=strlen(value);
-	    for(i=0;i<valueLen;i++){
-		g_string_append_c(strBuf,value[i]);
-		if (value[i]=='\n'){
-		    append_indent_space(strBuf,indentLevel+1);
-		}
-	    }
-	    g_string_append_c(strBuf,'\n');
-	    if (type==XML_TAG_TYPE_LONG){
-		append_indent_space(strBuf,indentLevel);
-	    }
-	}else{
-	    g_string_append(strBuf,value);
-	}
-    }
+//    if (value){
+//        if (type==XML_TAG_TYPE_LONG || type==XML_TAG_TYPE_NO_TAG){
+//            append_indent_space(strBuf,indentLevel+1);
+//            int i, valueLen=strlen(value);
+//            for(i=0;i<valueLen;i++){
+//                g_string_append_c(strBuf,value[i]);
+//                if (value[i]=='\n'){
+//                    append_indent_space(strBuf,indentLevel+1);
+//                }
+//            }
+//            g_string_append_c(strBuf,'\n');
+//            if (type==XML_TAG_TYPE_LONG){
+//                append_indent_space(strBuf,indentLevel);
+//            }
+//        }else{
+//            g_string_append(strBuf,value);
+//        }
+//    }
 
-    if (type==XML_TAG_TYPE_LONG || type==XML_TAG_TYPE_SHORT){
-	g_string_append_printf(strBuf,"</%s>",tagName);
-    }
-    return strBuf;
-}
+//    if (type==XML_TAG_TYPE_LONG || type==XML_TAG_TYPE_SHORT){
+//        g_string_append_printf(strBuf,"</%s>",tagName);
+//    }
+//    return strBuf;
+//}
 
-static void xml_tags_write(FILE *outF, const gchar *tagName, XmlTagsType type,
-	const gchar *attribute, const gchar *value){
-    static int indentLevel=0;
-    if (type==XML_TAG_TYPE_END_ONLY)
-	indentLevel--;
+//static void xml_tags_write(FILE *outF, const gchar *tagName, XmlTagsType type,
+//        const gchar *attribute, const gchar *value){
+//    static int indentLevel=0;
+//    if (type==XML_TAG_TYPE_END_ONLY)
+//        indentLevel--;
 
-    GString *strBuf=xml_tags_to_string(tagName, type, attribute, value, indentLevel);
-    MAKER_DIALOG_DEBUG_MSG(3,",xml_tags_write:%s",strBuf->str);
-    fprintf(outF,"%s\n",strBuf->str);
+//    GString *strBuf=xml_tags_to_string(tagName, type, attribute, value, indentLevel);
+//    MAKER_DIALOG_DEBUG_MSG(3,",xml_tags_write:%s",strBuf->str);
+//    fprintf(outF,"%s\n",strBuf->str);
 
-    if (type==XML_TAG_TYPE_BEGIN_ONLY)
-	indentLevel++;
-    g_string_free(strBuf,TRUE);
-}
+//    if (type==XML_TAG_TYPE_BEGIN_ONLY)
+//        indentLevel++;
+//    g_string_free(strBuf,TRUE);
+//}
 
 typedef struct{
     const gchar *schemasHome;
@@ -317,50 +313,50 @@ typedef struct{
     FILE *outF;
 } SchemasFileData;
 
-static void ctx_write_locale(MakerDialogPropertyContext *ctx, SchemasFileData *sData, const gchar *localeStr){
-    gchar buf[50];
-    g_snprintf(buf,50,"name=\"%s\"",localeStr);
-    setlocale(LC_MESSAGES,localeStr);
-    xml_tags_write(sData->outF,"locale",XML_TAG_TYPE_BEGIN_ONLY,buf,NULL);
-    xml_tags_write(sData->outF,"short",XML_TAG_TYPE_SHORT,NULL, gettext(ctx->spec->label));
-    xml_tags_write(sData->outF,"long",XML_TAG_TYPE_LONG,NULL, gettext(ctx->spec->tooltip));
-    xml_tags_write(sData->outF,"locale",XML_TAG_TYPE_END_ONLY,NULL,NULL);
-}
+//static void ctx_write_locale(MakerDialogPropertyContext *ctx, SchemasFileData *sData, const gchar *localeStr){
+//    gchar buf[50];
+//    g_snprintf(buf,50,"name=\"%s\"",localeStr);
+//    setlocale(LC_MESSAGES,localeStr);
+//    xml_tags_write(sData->outF,"locale",XML_TAG_TYPE_BEGIN_ONLY,buf,NULL);
+//    xml_tags_write(sData->outF,"short",XML_TAG_TYPE_SHORT,NULL, gettext(ctx->spec->label));
+//    xml_tags_write(sData->outF,"long",XML_TAG_TYPE_LONG,NULL, gettext(ctx->spec->tooltip));
+//    xml_tags_write(sData->outF,"locale",XML_TAG_TYPE_END_ONLY,NULL,NULL);
+//}
 
-static void ctx_write_callback(gpointer data, gpointer user_data){
-    MakerDialogPropertyContext *ctx=(PropertyContext *) data;
-    SchemasFileData *sData=(SchemasFileData *) user_data;
-    xml_tags_write(sData->outF,"schema",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
-    gchar buf[STRING_BUFFER_SIZE_DEFAULT];
-    g_snprintf(buf,STRING_BUFFER_SIZE_DEFAULT,"/schemas%s/%s",sData->schemasHome,ctx->spec->key);
-    xml_tags_write(sData->outF,"key",XML_TAG_TYPE_SHORT,NULL,buf);
-    xml_tags_write(sData->outF,"applyto",XML_TAG_TYPE_SHORT,NULL,buf+strlen("/schemas"));
-    xml_tags_write(sData->outF,"owner",XML_TAG_TYPE_SHORT,NULL,sData->owner);
-    switch(ctx->spec->valueType){
-	case G_TYPE_BOOLEAN:
-	    xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"bool");
-	    break;
-	case G_TYPE_INT:
-	case G_TYPE_UINT:
-	    xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"int");
-	    break;
-	case G_TYPE_STRING:
-	    xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"string");
-	    break;
-	default:
-	    break;
-    }
-    if (ctx->spec->defaultValue){
-	xml_tags_write(sData->outF,"default",XML_TAG_TYPE_SHORT,NULL,ctx->spec->defaultValue);
-    }
-    gchar **localeArray=g_strsplit_set(sData->locales,":;",-1);
-    int i;
-    for(i=0;localeArray[i]!=NULL;i++){
-	ctx_write_locale(ctx,sData,localeArray[i]);
-    }
-    setlocale(LC_ALL,NULL);
-    xml_tags_write(sData->outF,"schema",XML_TAG_TYPE_END_ONLY,NULL,NULL);
-}
+//static void ctx_write_callback(gpointer data, gpointer user_data){
+//    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) data;
+//    SchemasFileData *sData=(SchemasFileData *) user_data;
+//    xml_tags_write(sData->outF,"schema",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
+//    gchar buf[STRING_BUFFER_SIZE_DEFAULT];
+//    g_snprintf(buf,STRING_BUFFER_SIZE_DEFAULT,"/schemas%s/%s",sData->schemasHome,ctx->spec->key);
+//    xml_tags_write(sData->outF,"key",XML_TAG_TYPE_SHORT,NULL,buf);
+//    xml_tags_write(sData->outF,"applyto",XML_TAG_TYPE_SHORT,NULL,buf+strlen("/schemas"));
+//    xml_tags_write(sData->outF,"owner",XML_TAG_TYPE_SHORT,NULL,sData->owner);
+//    switch(ctx->spec->valueType){
+//        case G_TYPE_BOOLEAN:
+//            xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"bool");
+//            break;
+//        case G_TYPE_INT:
+//        case G_TYPE_UINT:
+//            xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"int");
+//            break;
+//        case G_TYPE_STRING:
+//            xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"string");
+//            break;
+//        default:
+//            break;
+//    }
+//    if (ctx->spec->defaultValue){
+//        xml_tags_write(sData->outF,"default",XML_TAG_TYPE_SHORT,NULL,ctx->spec->defaultValue);
+//    }
+//    gchar **localeArray=g_strsplit_set(sData->locales,":;",-1);
+//    int i;
+//    for(i=0;localeArray[i]!=NULL;i++){
+//        ctx_write_locale(ctx,sData,localeArray[i]);
+//    }
+//    setlocale(LC_ALL,NULL);
+//    xml_tags_write(sData->outF,"schema",XML_TAG_TYPE_END_ONLY,NULL,NULL);
+//}
 
 typedef struct{
     MakerDialogGtk *self;
@@ -378,7 +374,7 @@ static void caculate_max_label_width_callback(gpointer key, gpointer value, gpoi
     }
     gchar *keyStr=(gchar *) keyStr;
 
-    GtkWidget *widget=maker_dialog_get_widget(wAlignment->self,key,"label");
+    GtkWidget *widget=maker_dialog_gtk_get_widget(wAlignment->self,key,"label");
     GtkRequisition requisition;
     gtk_widget_size_request (widget,&requisition);
     wAlignment->currentMaxWidth=MAX(wAlignment->currentMaxWidth, requisition.width);
@@ -391,7 +387,7 @@ static void set_label_width_callback(gpointer key, gpointer value, gpointer user
 	    return;
     }
     gchar *keyStr=(gchar *) keyStr;
-    GtkWidget *widget=maker_dialog_get_widget(wAlignment->self,key,"label");
+    GtkWidget *widget=maker_dialog_gtk_get_widget(wAlignment->self,key,"label");
     gtk_widget_set_size_request(widget, wAlignment->currentMaxWidth,-1);
     gtk_misc_set_alignment (GTK_MISC(widget),wAlignment->xalign,wAlignment->yalign);
 }
