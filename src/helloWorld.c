@@ -31,12 +31,22 @@ MakerDialogPropertySpec propSpec=
 
 
 int main(int argc,char *argv[]){
-    MakerDialog *dlg=maker_dialog_init("Hello World!" 1, &buttonSpec);
+    MakerDialog *dlg=maker_dialog_init("Hello World!", 1, &buttonSpec);
+    printf("=== Test 1\n");
+    printf("=== propSpec key=%s validType=%lu,  defaultValue=%s\n",propSpec.key, propSpec.valueType, propSpec.defaultValue);
     maker_dialog_add_property(dlg,
 	    maker_dialog_property_context_new( &propSpec, NULL, NULL));
+    printf("Test 2\n");
     maker_dialog_set_toolkit_handler(dlg, &makerDialogHandlerGtk);
+    printf("Test 3\n");
     maker_dialog_construct(dlg);
-    gint ret=maker_dialog_run(dlg);
+    printf("Test 4\n");
+    gint ret=0;
+    do{
+	printf("Test 5\n");
+	ret=maker_dialog_run(dlg);
+    }while(ret!=MAKER_DIALOG_RESPONSE_DELETE_EVENT && ret!=MAKER_DIALOG_RESPONSE_CLOSE);
     maker_dialog_hide(dlg);
     return 0;
 }
+

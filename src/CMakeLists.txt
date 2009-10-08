@@ -1,4 +1,5 @@
-SET(LINK_TYPE SHARED)
+#SET(LINK_TYPE SHARED)
+SET(LINK_TYPE STATIC)
 
 # Location of library include files
 INCLUDE_DIRECTORIES(${GLIB2_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS} ${GCONF2_INCLUDE_DIRS} )
@@ -7,10 +8,21 @@ INCLUDE_DIRECTORIES(${GLIB2_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS} ${GCONF2_INCLUDE_
 LINK_DIRECTORIES(${GLIB2_LIBRARY_DIRS} ${GTK2_LIBRARY_DIRS} ${GCONF2_LIBRARY_DIRS})
 
 #==================================================================
+# Function check
+#
+INCLUDE (CheckLibraryExists)
+CHECK_LIBRARY_EXISTS(glib-2.0 g_dpgettext2 "" HAVE_G_DPGETTEXT2)
+CHECK_LIBRARY_EXISTS(glib-2.0 g_once_init_enter "" HAVE_G_ONCE_INIT_ENTER)
+CHECK_LIBRARY_EXISTS(gtk+-2.0 gtk_set_tooltip_text "" HAVE_GTK_SET_TOOLTIP_TEXT)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+
+#==================================================================
 # Sources
 #
 SET(MAKER_DIALOG_BASE_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
+${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h)
 
 SET(GOB_GENERATED
@@ -46,9 +58,9 @@ ADD_EXECUTABLE(helloWorld
 
 TARGET_LINK_LIBRARIES(MakerDialog ${GLIB2_LIBRARIES})
 
-TARGET_LINK_LIBRARIES(MakerDialogGtk ${GTK2_LIBRARIES})
+TARGET_LINK_LIBRARIES(MakerDialogGtk MakerDialog ${GTK2_LIBRARIES})
 
-TARGET_LINK_LIBRARIES(helloWorld ${GTK2_LIBRARIES} MakerDialog MakerDialogGtk)
+TARGET_LINK_LIBRARIES(helloWorld MakerDialog MakerDialogGtk)
 
 #TARGET_LINK_LIBRARIES(generate-gconf-schemas ${GTK2_LIBRARIES})
 

@@ -17,11 +17,16 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "MakerDialog.h"
 #include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <glib.h>
+#include <glib-object.h>
+#include "MakerDialog.h"
 
 #ifndef VERBOSE_LEVEL
-#define VERBOSE_LEVEL 2
+#define VERBOSE_LEVEL 5
 #endif
 static gint verboseLevel=VERBOSE_LEVEL;
 
@@ -34,26 +39,14 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
     }
 }
 
-const MakerDialogToolkitHandler makerDialogHandlerNone={
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
-
-MakerDialog *maker_dialog_init(const gchar *title, gboolean freeSpec,
+MakerDialog *maker_dialog_init(const gchar *title,
 	guint buttonSpecCount, MakerDialogButtonSpec *buttonSpecs){
     MakerDialog *dlg=g_new(MakerDialog,1);
     dlg->title=g_strdup(title);
-    dlg->handler=&makerDialogHandlerNone;
-    dlg->freeSpec=freeSpec;
+    dlg->handler=NULL;
     dlg->buttonSpecCount=buttonSpecCount;
     dlg->buttonSpecs=buttonSpecs;
-    dlg->propertyTable=maker_dialog_property_table_new(freeSpec);
+    dlg->propertyTable=maker_dialog_property_table_new();
     dlg->maxSizeInPixel.width=-1;
     dlg->maxSizeInPixel.height=-1;
     dlg->maxSizeInChar.width=-1;
@@ -65,43 +58,36 @@ MakerDialog *maker_dialog_init(const gchar *title, gboolean freeSpec,
     return dlg;
 }
 
-void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx, const gchar *initValue){
+void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx){
+    printf("=== maker_dialog_add_property\n");
     maker_dialog_property_table_insert(dlg->propertyTable, ctx);
-    g_value_init(&ctx->value,ctx->spec->valueType);
+//    g_value_init(&ctx->value,ctx->spec->valueType);
+    gboolean bValue=FALSE;
+    guint uintValue=0;
+    gint intValue=0;
+    gdouble doubleValue=0.0;
 
     switch(ctx->spec->valueType){
 	case G_TYPE_BOOLEAN:
-	    gboolean bValue=FALSE;
-	    if(initValue){
-		bValue=atob(initValue);
-	    }else if (ctx->spec->defaultValue){
-		bValue=atob(ctx->spec->defaultValue);
+	    if (!ctx->hasValue && ctx->spec->defaultValue){
+		bValue=maker_dialog_atob(ctx->spec->defaultValue);
 	    }
 	    g_value_set_boolean(&ctx->value,bValue);
 	    break;
 	case G_TYPE_UINT:
-	    guint uintValue=0;
-	    if(initValue){
-		uintValue=atoi(initValue);
-	    }else if (ctx->spec->defaultValue){
+	    if (!ctx->hasValue && ctx->spec->defaultValue){
 		uintValue=atoi(ctx->spec->defaultValue);
 	    }
 	    g_value_set_uint(&ctx->value,uintValue);
 	    break;
 	case G_TYPE_INT:
-	    gint intValue=0;
-	    if(initValue){
-		intValue=atoi(initValue);
-	    }else if (ctx->spec->defaultValue){
+	    if (!ctx->hasValue && ctx->spec->defaultValue){
 		intValue=atoi(ctx->spec->defaultValue);
 	    }
 	    g_value_set_int(&ctx->value,intValue);
 	    break;
 	case G_TYPE_DOUBLE:
-	    gdouble doubleValue=0;
-	    if(initValue){
-		doubleValue=atof(initValue);
-	    }else if (ctx->spec->defaultValue){
+	    if (!ctx->hasValue && ctx->spec->defaultValue){
 		doubleValue=atof(ctx->spec->defaultValue);
 	    }
 	    g_value_set_int(&ctx->value,doubleValue);
@@ -110,33 +96,29 @@ void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx
 	    if (ctx->spec->validValues){
 		gint index=-1;
 		/* Make sure init value and default value is in valid values */
-		if (initValue){
-		    index=maker_dialog_find_string(initValue,ctx->spec->validValues,-1);
+		if (ctx->hasValue){
+		    index=maker_dialog_find_string(g_value_get_string(&ctx->value),ctx->spec->validValues,-1);
 		}
 		if (index<0 && ctx->spec->defaultValue){
 		    index=maker_dialog_find_string(ctx->spec->defaultValue,ctx->spec->validValues,-1);
 		}
 
 		if (index<0 && (ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE)){
-		    index=0
+		    index=0;
 		}
 
 		if (index<0){
 		    /* Allow to edit, so we can use init and default value
 		     * anyway
 		     */
-		    if (initValue){
-			g_value_set_string(&ctx->value,initValue);
-		    }else (ctx->spec->defaultValue){
+		    if (!ctx->hasValue && ctx->spec->defaultValue){
 			g_value_set_string(&ctx->value,ctx->spec->defaultValue);
 		    }
 		}else{
 		    g_value_set_string(&ctx->value,ctx->spec->validValues[index]);
 		}
 	    }else{
-		if (initValue){
-		    g_value_set_string(&ctx->value,initValue);
-		}else (ctx->spec->defaultValue){
+		if (!ctx->hasValue && ctx->spec->defaultValue){
 		    g_value_set_string(&ctx->value,ctx->spec->defaultValue);
 		}
 	    }
@@ -144,6 +126,7 @@ void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx
 	default:
 	    break;
     }
+
 }
 
 void maker_dialog_set_toolkit_handler(MakerDialog *dlg, MakerDialogToolkitHandler *handler){
@@ -175,7 +158,7 @@ void maker_dialog_destroy(MakerDialog *dlg){
 	g_assert(dlg->handler->dialog_destroy);
 	dlg->handler->dialog_destroy(dlg);
 	if (dlg->handler->dialog_obj)
-	    g_free(dialog_obj);
+	    g_free(dlg->handler->dialog_obj);
     }
     maker_dialog_property_table_destroy(dlg->propertyTable);
     g_free(dlg->title);
@@ -186,10 +169,9 @@ GValue *maker_dialog_get_value(MakerDialog *dlg, const gchar *key){
     return maker_dialog_property_table_lookup_value(dlg->propertyTable, key);
 }
 
-static void _propertyContext_call_set_value(MakerDialogPropertyContext *ctx, GValue *value){
-    g_value_copy(value,ctx->valule);
+static void _propertyContext_call_setFunc(MakerDialogPropertyContext *ctx){
     if (ctx->setFunc){
-	ctx->setFunc(ctx,ctx->value);
+	ctx->setFunc(ctx,&ctx->value);
     }
 }
 
@@ -207,13 +189,14 @@ static gboolean  _propertyContext_apply_value(MakerDialog *dlg, const gchar *key
 	/* Value is invalid. */
 	ret=FALSE;
     }else{
-	_propertyContext_call_set_value(ctx, value);
+	g_value_copy(value,&ctx->value);
+	_propertyContext_call_setFunc(ctx);
     }
     g_value_unset(value);
     g_free(value);
 
     return ret;
-    g_value_copy(value,ctx->valule);
+    g_value_copy(value,&ctx->value);
 
 }
 
@@ -225,36 +208,16 @@ gboolean maker_dialog_validate_and_apply_value(MakerDialog *dlg, const gchar *ke
     return _propertyContext_apply_value(dlg, key, TRUE);
 }
 
-gboolean maker_dialog_validate_and_apply_value(MakerDialog *dlg, const gchar *key){
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-    if (!ctx->validateFunc){
-	/* No validation function */
-	return FALSE;
-    }
-    g_assert(dlg->handler->component_get_value);
-    GValue *value=dlg->handler->component_get_value(dlg,key);
-    gboolean ret=FALSE;
-    if (ctx->validateFunc(ctx->spec, value)){
-	_propertyContext_apply_value(ctx, value);
-	ret=TRUE;
-    }else{
-	/* Value is invalid. */
-    }
-    g_value_unset(value);
-    g_free(value);
-
-    return ret;
-}
-
-static _propertyContext_set_value(MakerDialogPropertyContext *ctx, GValue *value){
+static void _propertyContext_set_value(MakerDialog *dlg, MakerDialogPropertyContext *ctx, GValue *value){
     g_assert(dlg->handler->component_set_value);
-    dlg->handler->component_call_set_value(dlg, key, value);
-    _propertyContext_apply_value(ctx, value);
+    dlg->handler->component_set_value(dlg, ctx->spec->key, value);
+    g_value_copy(value,&ctx->value);
+    _propertyContext_call_setFunc(ctx);
 }
 
 void maker_dialog_set_value(MakerDialog *dlg, const gchar *key, GValue *value){
     MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-    _propertyContext_call_value(ctx, value);
+    _propertyContext_set_value(dlg, ctx, value);
 }
 
 gboolean maker_dialog_validate_and_set_value(MakerDialog *dlg, const gchar *key, GValue *value){
@@ -267,7 +230,7 @@ gboolean maker_dialog_validate_and_set_value(MakerDialog *dlg, const gchar *key,
 	/* Value is invalid. */
 	return FALSE;
     }
-    _propertyContext_set_value(ctx, value);
+    _propertyContext_set_value(dlg, ctx, value);
     return TRUE;
 }
 

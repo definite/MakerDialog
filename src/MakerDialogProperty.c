@@ -18,6 +18,8 @@
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <strings.h>
 #include <glib/gi18n.h>
 #include <locale.h>
@@ -65,6 +67,7 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec){
 
 MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec,
 	GValue *initValue, gpointer obj){
+    printf("=== maker_dialog_property_context_new\n");
     MakerDialogPropertyContext *ctx=g_new(MakerDialogPropertyContext,1);
     if (ctx){
 	ctx->spec=spec;

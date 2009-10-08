@@ -121,13 +121,6 @@ typedef struct _MakerDialogToolkitHandler{
     void (* dialog_destroy)(MakerDialog *dlg);		//!< Destroy (free) the dialog UI.
 } MakerDialogToolkitHandler;
 
-/**
- * A dummy toolkit handler.
- *
- * This is the default if no handler is specified.
- */
-const MakerDialogToolkitHandler makerDialogHandlerNone;
-
 struct _MakerDialog{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.
     MakerDialogPropertyTable *propertyTable;	//!< Hash table that stores property context.
@@ -175,7 +168,7 @@ MakerDialog *maker_dialog_init(const gchar *title,
  * If you only have property spec, use following example code:
  * @code
  *    maker_dialog_add_property(dlg,
- *       maker_dialog_property_context_new( propertySpec, NULL, NULL));
+ *       maker_dialog_property_context_new( propertySpec, NULL));
  * @endcode
  * Where @code propertySpec @endcode is the property spec.
  *
@@ -185,7 +178,7 @@ MakerDialog *maker_dialog_init(const gchar *title,
  *
  * @see maker_dialog_property_table_insert().
  */
-void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx, const gchar *initValue);
+void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx);
 
 /**
  * Set toolkit of choice.

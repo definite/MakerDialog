@@ -1,34 +1,34 @@
 /*=== Start toolkit handler definitions ===*/
-GValue *maker_dialog_component_get_value_gtk(MakerDialog *dlg, const gchar *key){
+static GValue *maker_dialog_component_get_value_gtk(MakerDialog *dlg, const gchar *key){
     return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key);
 }
 
-void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *key, GValue *value){
+static void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *key, GValue *value){
     maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key,value);
 }
 
-gpointer maker_dialog_construct_gtk(MakerDialog *dlg){
+static gpointer maker_dialog_construct_gtk(MakerDialog *dlg){
     MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlg);
     return (gpointer) dlg_gtk;
 }
 
-gint maker_dialog_run_gtk(MakerDialog *dlg){
+static gint maker_dialog_run_gtk(MakerDialog *dlg){
     return gtk_dialog_run(GTK_DIALOG (dlg->handler->dialog_obj));
 }
 
-void maker_dialog_show_gtk(MakerDialog *dlg){
+static void maker_dialog_show_gtk(MakerDialog *dlg){
     gtk_widget_show_all(GTK_WIDGET (dlg->handler->dialog_obj));
 }
 
-void maker_dialog_hide_gtk(MakerDialog *dlg){
+static void maker_dialog_hide_gtk(MakerDialog *dlg){
     gtk_widget_hide(GTK_WIDGET (dlg->handler->dialog_obj));
 }
 
-void maker_dialog_destroy_gtk(MakerDialog *dlg){
+static void maker_dialog_destroy_gtk(MakerDialog *dlg){
     gtk_widget_destroy(GTK_WIDGET (dlg->handler->dialog_obj));
 }
 
-const MakerDialogToolkitHandler makerDialogHandlerGtk={
+MakerDialogToolkitHandler makerDialogHandlerGtk={
     NULL,
     maker_dialog_component_get_value_gtk,
     maker_dialog_component_set_value_gtk,
@@ -72,6 +72,157 @@ static void maker_dialog_align_labels_GHFunc(gpointer key, gpointer value, gpoin
     MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_align_labels_GHFunc(%s,-,-)",pageName);
     maker_dialog_gtk_align_labels(dlg_gtk, pageName, &(dlg_gtk->_priv->dlg->labelAlignment));
 }
+
+#ifndef HAVE_G_ONCE_INIT_ENTER
+static GMutex*   g_once_mutex=NULL;
+static GCond    *g_once_cond = NULL;
+static GSList*   g_once_init_list = NULL;
+
+/**
+ * Modified From glib=2.22.0
+ */
+gboolean
+g_once_init_enter(volatile gsize *value_location)
+{
+    gboolean need_init = FALSE;
+    if (!g_once_mutex)
+	g_once_mutex=g_mutex_new();
+    g_mutex_lock (g_once_mutex);
+    if (!g_atomic_pointer_get (value_location))
+    {
+	if (!g_slist_find (g_once_init_list, (void*) value_location))
+	{
+	    need_init = TRUE;
+	    g_once_init_list = g_slist_prepend (g_once_init_list, (void*) value_location);
+	}
+	else
+	    do
+		g_cond_wait (g_once_cond, g_once_mutex);
+	    while (g_slist_find (g_once_init_list, (void*) value_location));
+    }
+    g_mutex_unlock (g_once_mutex);
+    return need_init;
+}
+
+/**
+ * From glib=2.22.0
+ */
+void
+g_once_init_leave (volatile gsize *value_location,
+	gsize           initialization_value)
+{
+    g_return_if_fail (!g_atomic_pointer_get (value_location));
+    g_return_if_fail (initialization_value != 0);
+    g_return_if_fail (g_once_init_list != NULL);
+
+    g_atomic_pointer_set ((void**)value_location, (void*) initialization_value);
+    g_mutex_lock (g_once_mutex);
+    g_once_init_list = g_slist_remove (g_once_init_list, (void*) value_location);
+    g_cond_broadcast (g_once_cond);
+    g_mutex_unlock (g_once_mutex);
+}
+#endif /* HAVE_G_ONCE_INIT_ENTER */
+
+#ifndef HAVE_G_DPGETTEXT2
+/**
+ * From glib=2.22.0
+ */
+
+static gboolean
+_g_dgettext_should_translate (void)
+{
+    static gsize translate = 0;
+    enum {
+	SHOULD_TRANSLATE = 1,
+	SHOULD_NOT_TRANSLATE = 2
+    };
+
+    if (G_UNLIKELY (g_once_init_enter (&translate)))
+    {
+	gboolean should_translate = TRUE;
+
+	const char *default_domain     = textdomain (NULL);
+	const char *translator_comment = gettext ("");
+#ifndef G_OS_WIN32
+	const char *translate_locale   = setlocale (LC_MESSAGES, NULL);
+#else
+	const char *translate_locale   = g_win32_getlocale ();
+#endif
+	/* We should NOT translate only if all the following hold:
+	 *   - user has called textdomain() and set textdomain to non-default
+	 *   - default domain has no translations
+	 *   - locale does not start with "en_" and is not "C"
+	 *
+	 * Rationale:
+	 *   - If text domain is still the default domain, maybe user calls
+	 *     it later. Continue with old behavior of translating.
+	 *   - If locale starts with "en_", we can continue using the
+	 *     translations even if the app doesn't have translations for
+	 *     this locale.  That is, en_UK and en_CA for example.
+	 *   - If locale is "C", maybe user calls setlocale(LC_ALL,"") later.
+	 *     Continue with old behavior of translating.
+	 */
+	if (0 != strcmp (default_domain, "messages") &&
+		'\0' == *translator_comment &&
+		0 != strncmp (translate_locale, "en_", 3) &&
+		0 != strcmp (translate_locale, "C"))
+	    should_translate = FALSE;
+
+	g_once_init_leave (&translate,
+		should_translate ?
+		SHOULD_TRANSLATE :
+		SHOULD_NOT_TRANSLATE);
+    }
+
+    return translate == SHOULD_TRANSLATE;
+}
+
+/**
+ * From glib=2.22.0
+ */
+static G_CONST_RETURN gchar * g_dgettext (const gchar *domain,
+	const gchar *msgid)
+{
+    if (domain && G_UNLIKELY (!_g_dgettext_should_translate ()))
+	return msgid;
+
+    return dgettext (domain, msgid);
+}
+
+/**
+ * From glib=2.22.0
+ */
+static G_CONST_RETURN char *
+g_dpgettext2 (const char *domain,
+	const char *msgctxt,
+	const char *msgid)
+{
+    size_t msgctxt_len = strlen (msgctxt) + 1;
+    size_t msgid_len = strlen (msgid) + 1;
+    const char *translation;
+    char* msg_ctxt_id;
+
+    msg_ctxt_id = g_alloca (msgctxt_len + msgid_len);
+
+    memcpy (msg_ctxt_id, msgctxt, msgctxt_len - 1);
+    msg_ctxt_id[msgctxt_len - 1] = '\004';
+    memcpy (msg_ctxt_id + msgctxt_len, msgid, msgid_len);
+
+    translation = g_dgettext (domain, msg_ctxt_id);
+
+    if (translation == msg_ctxt_id)
+    {
+	/* try the old way of doing message contexts, too */
+	msg_ctxt_id[msgctxt_len - 1] = '|';
+	translation = g_dgettext (domain, msg_ctxt_id);
+
+	if (translation == msg_ctxt_id)
+	    return msgid;
+    }
+
+    return translation;
+}
+#endif  /* HAVE_G_DPGETTEXT2 */
 
 /*=== Start listStore functions ===*/
 static void listStore_append(GtkListStore *listStore,const gchar *str,
