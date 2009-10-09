@@ -67,7 +67,13 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec){
 
 MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec,
 	GValue *initValue, gpointer obj){
-    printf("=== maker_dialog_property_context_new\n");
+    return maker_dialog_property_context_new_full(spec, initValue, obj, NULL, NULL);
+}
+
+MakerDialogPropertyContext *maker_dialog_property_context_new_full(MakerDialogPropertySpec *spec,
+	GValue *initValue, gpointer obj,
+	MakerDialogValidateCallbackFunc validateFunc,
+	MakerDialogApplyCallbackFunc applyFunc){
     MakerDialogPropertyContext *ctx=g_new(MakerDialogPropertyContext,1);
     if (ctx){
 	ctx->spec=spec;
@@ -80,8 +86,8 @@ MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropert
 	}else{
 	    ctx->hasValue=FALSE;
 	}
-	ctx->validateFunc=NULL;
-	ctx->setFunc=NULL;
+	ctx->validateFunc=validateFunc;
+	ctx->applyFunc=applyFunc;
     }
     return ctx;
 }

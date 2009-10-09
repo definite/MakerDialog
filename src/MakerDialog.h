@@ -124,13 +124,15 @@ typedef struct _MakerDialogToolkitHandler{
 struct _MakerDialog{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.
     MakerDialogPropertyTable *propertyTable;	//!< Hash table that stores property context.
-    MakerDialogToolkitHandler *handler;		//!< The handler that define how the UI to be handled.
     guint buttonSpecCount;			//!< Number of button specs.
     MakerDialogButtonSpec *buttonSpecs;		//!< Button specs.
     MakerDialogDimension maxSizeInPixel;	//!< The maximum size in pixel. Default is (-1, -1).
     MakerDialogDimension maxSizeInChar;		//!< The maximum size in characters. Default is (-1, -1).
     MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0);
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0);
+    /// @cond
+    MakerDialogToolkitHandler *handler;		//!< The handler that define how the UI to be handled.
+    /// @endcond
 };
 
 /*=== Start Function Definition  ===*/
@@ -179,18 +181,6 @@ MakerDialog *maker_dialog_init(const gchar *title,
  * @see maker_dialog_property_table_insert().
  */
 void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx);
-
-/**
- * Set toolkit of choice.
- *
- * So maker_dialog generates UI components accordingly.
- * @param dlg A MakerDialog.
- * @param handler The handler that define how the UI to be handled.
- * @return TRUE if succeed; FALSE otherwise.
- *
- * Set toolkit of choice. So maker_dialog generates UI components accordingly.
- */
-void maker_dialog_set_toolkit_handler(MakerDialog *dlg, MakerDialogToolkitHandler *handler);
 
 /**
  * Construct a toolkit dialog object (such as GtkDialog or QDialog) for later use.
@@ -246,77 +236,74 @@ GValue *maker_dialog_get_value(MakerDialog *dlg, const gchar *key);
 
 
 /**
- * Apply the value of a property.
+ * Apply a property value by calling the apply callback function.
  *
- * Apply the value in UI component to property.
- * If setFunc() is defined in property context, then it will be called as well,
- * but validateFunc() will not be called in this function. i.e. No validating.
+ * This function applies the current property value by calling
+ * the applyFunc() defined in property context.
  *
- * The difference between maker_dialog_apply_value() and maker_dialog_set_value() is:
- * maker_dialog_apply_value() copy the value in UI component to property value;
- * while maker_dialog_set_value() copy the parameter value to property value and UI
- * component.
+ * If validateFunc() is also defined, then the value will be checked with it,
+ * if it does not pass, this function returns FALSE.
+ *
+ * If applyFunc() is not defined, this function returns FALSE as well.
+ *
+ *
+ * The difference between maker_dialog_apply_value(), maker_dialog_set_value(), and
+ * maker_dialog_update_value() are:
+ *
+ * - maker_dialog_apply_value() applies the property value to the system by calling the applyFunc();
+ * - maker_dialog_set_value() copies argument value to the property value and UI component value.
+ * - maker_dialog_update_value() copies UI component value to property value.
  *
  * @param dlg A MakerDialog.
  * @param key A property key.
- * @return Value of the property; or NULL if no such property.
+ * @return TRUE if succeed, FALSE if the property value does not pass
+ * validation, or applyFunc() does not exist.
  * @see maker_dialog_set_value()
- * @see maker_dialog_validate_and_apply_value()
- * @see maker_dialog_validate_and_set_value()
+ * @see maker_dialog_update_value()
  */
-void maker_dialog_apply_value(MakerDialog *dlg, const gchar *key);
+gboolean maker_dialog_apply_value(MakerDialog *dlg, const gchar *key);
 
 /**
- * Set the value of a property.
+ * Set the value to the property and corresponding UI component.
  *
- * Value in UI component will be updated.
- * If setFunc() is defined in property context, then it will be called as well,
- * but validateFunc() will not be called in this function. i.e. No validating.
+ * This function copies the argument value to the property value and UI component value.
  *
- * @param dlg A MakerDialog.
- * @param key A property key.
- * @param value Value to be set.
- * @see maker_dialog_apply_value()
- * @see maker_dialog_validate_and_apply_value()
- * @see maker_dialog_validate_and_set_value()
- */
-void maker_dialog_set_value(MakerDialog *dlg, const gchar *key, GValue *value);
-
-/**
- * Validate and apply the value of a property.
+ * If validateFunc() is also defined, then the argument value will be checked with it,
+ * if it does not pass, this function returns FALSE.
  *
- * Apply the value in UI component to property.
- * First validateFunc() is called to validate the value,
- * if pass, then set the value and call setFunc() if defined.
- * Note this function also returns FALSE if validateFunc() is undefined.
- *
+ * If component_set_value() in MakerToolkitHandler is not defined,
+ * this function returns FALSE as well.
  *
  * @param dlg A MakerDialog.
  * @param key A property key.
- * @return Value of the property; or NULL if no such property.
+ * @param value Argument value to be set.
+ * @return TRUE if succeed, FALSE if the property value does not pass
+ *  validation, or component_set_value() does not exist.
  * @see maker_dialog_apply_value()
  * @see maker_dialog_set_value()
- * @see maker_dialog_validate_and_set_value()
+ * @see maker_dialog_update_value()
  */
-gboolean maker_dialog_validate_and_apply_value(MakerDialog *dlg, const gchar *key);
+gboolean maker_dialog_set_value(MakerDialog *dlg, const gchar *key, GValue *value);
 
 /**
- * Validate and set the value of a property.
+ * Update the property value using the value in UI component.
  *
- * Value in UI component will be updated.
- * First validateFunc() is called to validate the value,
- * if pass, then set the value and call setFunc() if defined.
- * Note this function also returns FALSE if validateFunc() is undefined.
+ * This function copies UI component value to property value.
+ *
+ * If validateFunc() is also defined, then the argument value will be checked with it,
+ * if it does not pass, this function returns FALSE.
+ *
+ * If component_get_value() in MakerToolkitHandler is not defined,
+ * this function returns FALSE as well.
  *
  * @param dlg A MakerDialog.
  * @param key A property key.
- * @param value Value to be set.
- * @return TRUE if succeed; FALSE if validateFunc() is not defined or the value is not valid.
+ * @return TRUE if succeed, FALSE if the property value does not pass
+ *  validation, or component_get_value() does not exist.
  * @see maker_dialog_apply_value()
  * @see maker_dialog_set_value()
- * @see maker_dialog_validate_and_apply_value()
  */
-gboolean maker_dialog_validate_and_set_value(MakerDialog *dlg, const gchar *key, GValue *value);
+gboolean maker_dialog_update_value(MakerDialog *dlg, const gchar *key);
 
 /**
  * String to boolean.

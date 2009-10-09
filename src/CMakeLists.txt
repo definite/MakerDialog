@@ -1,5 +1,5 @@
-#SET(LINK_TYPE SHARED)
-SET(LINK_TYPE STATIC)
+SET(LINK_TYPE SHARED)
+#SET(LINK_TYPE STATIC)
 
 # Location of library include files
 INCLUDE_DIRECTORIES(${GLIB2_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS} ${GCONF2_INCLUDE_DIRS} )
@@ -46,8 +46,8 @@ ADD_LIBRARY(MakerDialogGtk ${GOB_GENERATED})
 
 
 # executable built from some source
-ADD_EXECUTABLE(helloWorld
-   helloWorld.c
+ADD_EXECUTABLE(md-example
+   md-example.c
 )
 
 #ADD_EXECUTABLE(dialogTest dialogTest.c
@@ -60,7 +60,7 @@ TARGET_LINK_LIBRARIES(MakerDialog ${GLIB2_LIBRARIES})
 
 TARGET_LINK_LIBRARIES(MakerDialogGtk MakerDialog ${GTK2_LIBRARIES})
 
-TARGET_LINK_LIBRARIES(helloWorld MakerDialog MakerDialogGtk)
+TARGET_LINK_LIBRARIES(md-example MakerDialog MakerDialogGtk)
 
 #TARGET_LINK_LIBRARIES(generate-gconf-schemas ${GTK2_LIBRARIES})
 

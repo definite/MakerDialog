@@ -129,10 +129,6 @@ void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx
 
 }
 
-void maker_dialog_set_toolkit_handler(MakerDialog *dlg, MakerDialogToolkitHandler *handler){
-    dlg->handler=handler;
-}
-
 void maker_dialog_construct(MakerDialog *dlg){
     g_assert(dlg->handler->dialog_construct);
     dlg->handler->dialog_obj=dlg->handler->dialog_construct(dlg);
@@ -169,69 +165,56 @@ GValue *maker_dialog_get_value(MakerDialog *dlg, const gchar *key){
     return maker_dialog_property_table_lookup_value(dlg->propertyTable, key);
 }
 
-static void _propertyContext_call_setFunc(MakerDialogPropertyContext *ctx){
-    if (ctx->setFunc){
-	ctx->setFunc(ctx,&ctx->value);
+gboolean maker_dialog_apply_value(MakerDialog *dlg, const gchar *key){
+    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
+
+    gboolean ret=TRUE;
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
+	/* Value is invalid. */
+	ret=FALSE;
     }
+    if (ret && ctx->applyFunc){
+	ctx->applyFunc(ctx,&ctx->value);
+    }else{
+	ret=FALSE;
+    }
+
+    return ret;
 }
 
-static gboolean  _propertyContext_apply_value(MakerDialog *dlg, const gchar *key, gboolean needValidate){
+gboolean maker_dialog_set_value(MakerDialog *dlg, const gchar *key, GValue *value){
     MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-    if (needValidate && (!ctx->validateFunc)){
-	/* No validation function */
-	return FALSE;
-    }
 
+    gboolean ret=TRUE;
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
+	/* Value is invalid. */
+	ret=FALSE;
+    }
+    if (ret && dlg->handler->component_set_value){
+	dlg->handler->component_set_value(dlg, ctx->spec->key, value);
+	g_value_copy(value,&ctx->value);
+    }else{
+	ret=FALSE;
+    }
+    return ret;
+}
+
+gboolean maker_dialog_update_value(MakerDialog *dlg, const gchar *key){
     g_assert(dlg->handler->component_get_value);
+    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
+
     GValue *value=dlg->handler->component_get_value(dlg,key);
     gboolean ret=TRUE;
-    if (needValidate && (!ctx->validateFunc(ctx->spec, value))){
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
 	/* Value is invalid. */
 	ret=FALSE;
     }else{
 	g_value_copy(value,&ctx->value);
-	_propertyContext_call_setFunc(ctx);
     }
     g_value_unset(value);
     g_free(value);
 
     return ret;
-    g_value_copy(value,&ctx->value);
-
-}
-
-void maker_dialog_apply_value(MakerDialog *dlg, const gchar *key){
-    _propertyContext_apply_value(dlg, key, FALSE);
-}
-
-gboolean maker_dialog_validate_and_apply_value(MakerDialog *dlg, const gchar *key){
-    return _propertyContext_apply_value(dlg, key, TRUE);
-}
-
-static void _propertyContext_set_value(MakerDialog *dlg, MakerDialogPropertyContext *ctx, GValue *value){
-    g_assert(dlg->handler->component_set_value);
-    dlg->handler->component_set_value(dlg, ctx->spec->key, value);
-    g_value_copy(value,&ctx->value);
-    _propertyContext_call_setFunc(ctx);
-}
-
-void maker_dialog_set_value(MakerDialog *dlg, const gchar *key, GValue *value){
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-    _propertyContext_set_value(dlg, ctx, value);
-}
-
-gboolean maker_dialog_validate_and_set_value(MakerDialog *dlg, const gchar *key, GValue *value){
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-    if (!ctx->validateFunc){
-	/* No validation function */
-	return FALSE;
-    }
-    if (!ctx->validateFunc(ctx->spec, value)){
-	/* Value is invalid. */
-	return FALSE;
-    }
-    _propertyContext_set_value(dlg, ctx, value);
-    return TRUE;
 }
 
 gboolean maker_dialog_atob(const gchar *string){

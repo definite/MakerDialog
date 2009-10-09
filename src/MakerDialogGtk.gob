@@ -25,6 +25,7 @@ requires 2.0.0
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <locale.h>
+#include "config.h"
 #include "MakerDialog.h"
 %}
 
@@ -42,26 +43,15 @@ requires 2.0.0
 #endif
 
 /**
- * MakerDialog toolkit handler for Gtk.
+ * Use Gtk as toolkit.
+ * @param dlg A MakeDialog instance.
+ * @param argc Pointer to number of arguments from command-line.
+ * @param argv Pointer to arguments from command-line.
+ * @return TRUE for succeed; FALSE otherwise.
+ *
+ * Set the toolkit handler as Gtk.
  */
-MakerDialogToolkitHandler makerDialogHandlerGtk;
-
-/* initialize-once guards, keyed by value_location */
-G_INLINE_FUNC gboolean  g_once_init_enter       (volatile gsize *value_location);
-gboolean                g_once_init_enter_impl  (volatile gsize *value_location);
-void                    g_once_init_leave       (volatile gsize *value_location,
-	gsize           initialization_value);
-#if defined (G_CAN_INLINE) || defined (__G_THREAD_C__)
-G_INLINE_FUNC gboolean
-    g_once_init_enter (volatile gsize *value_location)
-    {
-	if G_LIKELY ((gpointer) g_atomic_pointer_get (value_location) != NULL)
-	    return FALSE;
-	else
-	    return g_once_init_enter_impl (value_location);
-    }
-#endif /* G_CAN_INLINE || __G_THREAD_C__ */
-
+gboolean maker_dialog_set_toolkit_handler_gtk(MakerDialog *dlg, gint *argc, gchar ***argv);
 %}
 
 %{
@@ -76,7 +66,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
     public gboolean vbox_homogeneous=TRUE;
     public gint hbox_spacing=2;
     public gint vbox_spacing=2;
-    public GtkWidget *dialog_notebook=NULL
+    protected GtkWidget *dialog_notebook=NULL
     destroywith gtk_widget_destroy;
 
     private MakerDialog *dlg=NULL;
@@ -99,7 +89,12 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
     }
 
     public MakerDialogGtk *new_full (MakerDialog *dlg){
-	Self *self = GET_NEW;
+	MAKER_DIALOG_DEBUG_MSG(2,"[I2] MakerDialogGtk:new_full");
+
+	MAKER_DIALOG_DEBUG_MSG(2,"[I2] MakerDialogGtk:new_full 1 type=%lu",maker_dialog_gtk_get_type());
+	Self *self= (MakerDialogGtk *)g_object_new(maker_dialog_gtk_get_type(), NULL);
+//	Self *self = GET_NEW;
+	MAKER_DIALOG_DEBUG_MSG(2,"[I2] MakerDialogGtk:new_full 2 %s", (self)? "Self": "NONE");
 	GtkDialog *dialog=GTK_DIALOG(self);
 	gtk_window_set_title(GTK_WINDOW(dialog),dlg->title);
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(dialog), TRUE);
@@ -108,6 +103,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
 	int i;
 	for(i=0;i<dlg->buttonSpecCount;i++){
+	    MAKER_DIALOG_DEBUG_MSG(3,"[I3] MakerDialogGtk:new_full i=%d",i);
 	    gchar *buttonText=NULL;
 	    if (dlg->buttonSpecs[i].buttonText){
 		buttonText=(gchar *) dlg->buttonSpecs[i].buttonText;
@@ -164,7 +160,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
     }
 
     protected gboolean add_property_ui(self, MakerDialogPropertyContext *ctx){
-	MAKER_DIALOG_DEBUG_MSG(2,"::add_property_ui(%s,%s,-)",ctx->spec->key,ctx->value);
+	MAKER_DIALOG_DEBUG_MSG(3,"[I3] MakerDialog:add_property_ui(%s,%s,-)",ctx->spec->key,ctx->value);
 
 	GtkWidget *vbox=self_get_base_vbox(self, ctx->spec->pageName);
 	g_assert(vbox);
@@ -195,7 +191,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    bValue=maker_dialog_atob(ctx->spec->defaultValue);
 		}
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),bValue);
-		if (ctx->setFunc){
+		if (ctx->applyFunc){
 		    g_signal_connect(widget, "toggled", G_CALLBACK(on_toggleButton_toggled_wrap),ctx);
 		}
 		break;
@@ -214,7 +210,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),atoi(ctx->spec->defaultValue));
 		}
 
-		if (ctx->setFunc){
+		if (ctx->applyFunc){
 		    g_signal_connect(widget, "value-changed", G_CALLBACK(on_spinButton_value_changed_wrap),ctx);
 		}
 		break;
@@ -230,7 +226,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),atof(ctx->spec->defaultValue));
 		}
 
-		if (ctx->setFunc){
+		if (ctx->applyFunc){
 		    g_signal_connect(widget, "value-changed", G_CALLBACK(on_spinButton_value_changed_wrap),ctx);
 		}
 		break;
@@ -285,7 +281,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    gtk_combo_box_set_active(GTK_COMBO_BOX(widget),index);
 
 
-		    if (ctx->setFunc){
+		    if (ctx->applyFunc){
 			g_signal_connect(widget, "changed", G_CALLBACK(on_comboBox_changed_wrap),ctx);
 		    }
 
@@ -309,7 +305,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    gtk_editable_set_editable (GTK_EDITABLE(widget),
 			    !(ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE));
 
-		    if (ctx->setFunc){
+		    if (ctx->applyFunc){
 			g_signal_connect(widget, "activate", G_CALLBACK(on_entry_activate_wrap),ctx);
 		    }
 		}
@@ -323,7 +319,6 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
 	gtk_box_pack_start (GTK_BOX(hbox), widget, FALSE, FALSE, 0);
 	gtk_box_pack_start (GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
 	return TRUE;
     }
 
@@ -413,8 +408,8 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	}
 	GValue *gValue=self_get_widget_value(self,key);
 
-	if (ctx->setFunc){
-	    ctx->setFunc(ctx,gValue);
+	if (ctx->applyFunc){
+	    ctx->applyFunc(ctx,gValue);
 	}
 	g_value_unset(gValue);
 	g_free(gValue);
@@ -527,10 +522,8 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
 
     protected GtkWidget *get_base_vbox(self, const gchar *notebook_page_label){
-	gchar buf[STRING_BUFFER_SIZE_DEFAULT];
 	GtkWidget *ret;
 	if (notebook_page_label){
-	    widget_get_id(buf, STRING_BUFFER_SIZE_DEFAULT, notebook_page_label, "vbox");
 	    ret=self_get_widget(self, notebook_page_label, "vbox");
 	}else{
 	    ret=GTK_DIALOG(self)->vbox;
@@ -548,7 +541,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	widget_get_id(buf, STRING_BUFFER_SIZE_DEFAULT, widget_label, widget_type);
 	gchar *chunk_ret=g_string_chunk_insert(self->_priv->widgetIds,buf);
 	g_hash_table_insert(self->_priv->widgetTable, chunk_ret,widget);
-	MAKER_DIALOG_DEBUG_MSG(3,"[I3] MakerDialogGtk:widget_register(-,%s,%s) widget registered as %s",
+	MAKER_DIALOG_DEBUG_MSG(4,"[I4] MakerDialogGtk:widget_register(-,%s,%s) widget registered as %s",
 		widget_label,(widget_type)? (widget_type) : "", chunk_ret);
     }
 

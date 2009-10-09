@@ -8,7 +8,9 @@ static void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *
 }
 
 static gpointer maker_dialog_construct_gtk(MakerDialog *dlg){
+    printf("maker_dialog_construct_gtk title=%s 1\n",dlg->title);
     MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlg);
+    printf("maker_dialog_construct_gtk 2\n");
     return (gpointer) dlg_gtk;
 }
 
@@ -28,7 +30,7 @@ static void maker_dialog_destroy_gtk(MakerDialog *dlg){
     gtk_widget_destroy(GTK_WIDGET (dlg->handler->dialog_obj));
 }
 
-MakerDialogToolkitHandler makerDialogHandlerGtk={
+static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
     NULL,
     maker_dialog_component_get_value_gtk,
     maker_dialog_component_set_value_gtk,
@@ -36,8 +38,18 @@ MakerDialogToolkitHandler makerDialogHandlerGtk={
     maker_dialog_run_gtk,
     maker_dialog_show_gtk,
     maker_dialog_hide_gtk,
-    maker_dialog_destroy_gtk,
+    maker_dialog_destroy_gtk
 };
+
+gboolean maker_dialog_set_toolkit_handler_gtk(MakerDialog *dlg, gint *argc, gchar ***argv){
+    if (gtk_init_check(argc, argv)){
+	dlg->handler=&makerDialogToolkitHandler_gtk;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+/*=== End toolkit handler definitions ===*/
 
 /*=== Start propertyTable foreach functions ===*/
 static void maker_dialog_construct_ui_GHFunc(gpointer key, gpointer value, gpointer user_data){
@@ -47,17 +59,21 @@ static void maker_dialog_construct_ui_GHFunc(gpointer key, gpointer value, gpoin
     MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_construct_ui_GHFunc(%s,-,-)",propertyKey);
 
     if (ctx->spec->pageName){
+	if (!dlg_gtk->dialog_notebook){
+	    dlg_gtk->dialog_notebook=gtk_notebook_new();
+	    gtk_box_pack_start (GTK_BOX(GTK_DIALOG(dlg_gtk)->vbox), dlg_gtk->dialog_notebook, TRUE, TRUE, 0);
+	}
 	if (!g_hash_table_lookup(dlg_gtk->_priv->notebookTable, (gconstpointer) ctx->spec->pageName)){
-	    g_hash_table_insert(dlg_gtk->_priv->notebookTable, (gpointer) ctx->spec->pageName, (gpointer) ctx->spec->pageName);
 	    GtkWidget *label=gtk_label_new(_(ctx->spec->pageName));
 	    maker_dialog_gtk_widget_register(dlg_gtk, label, ctx->spec->pageName, "label");
-//	    gtk_widget_show(label);
+	    gtk_widget_show(label);
 
 	    GtkWidget *vbox=gtk_vbox_new(dlg_gtk->vbox_homogeneous,dlg_gtk->vbox_spacing);
 	    maker_dialog_gtk_widget_register(dlg_gtk, vbox, ctx->spec->pageName, "vbox");
-//	    gtk_widget_show(vbox);
+	    gtk_widget_show(vbox);
 	    gtk_notebook_append_page (GTK_NOTEBOOK(dlg_gtk->dialog_notebook), vbox,label);
-
+	    g_hash_table_insert(dlg_gtk->_priv->notebookTable,
+		    (gpointer) ctx->spec->pageName, (gpointer) vbox);
 	}
 	g_hash_table_insert(dlg_gtk->_priv->notebookContentTable, (gchar *) ctx->spec->key,
 		(gchar *) ctx->spec->pageName);
@@ -317,7 +333,7 @@ static void on_comboBox_changed_wrap (GtkComboBox *comboBox, gpointer    user_da
     GValue value={0};
     combo_get_active_text(comboBox, &value);
     MAKER_DIALOG_DEBUG_MSG(2,"on_comboBox_changed_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->setFunc(ctx,&value);
+    ctx->applyFunc(ctx,&value);
 }
 
 static void on_entry_activate_wrap (GtkEntry *entry, gpointer    user_data)
@@ -327,7 +343,7 @@ static void on_entry_activate_wrap (GtkEntry *entry, gpointer    user_data)
     g_value_init(&value, ctx->spec->valueType);
     g_value_set_string(&value,gtk_entry_get_text(entry));
     MAKER_DIALOG_DEBUG_MSG(2,"on_entry_activate_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->setFunc(ctx,&value);
+    ctx->applyFunc(ctx,&value);
 }
 
 static void on_spinButton_value_changed_wrap (GtkSpinButton *button, gpointer    user_data)
@@ -354,7 +370,7 @@ static void on_spinButton_value_changed_wrap (GtkSpinButton *button, gpointer   
 	default:
 	    break;
     }
-    ctx->setFunc(ctx,&value);
+    ctx->applyFunc(ctx,&value);
 }
 
 static void on_toggleButton_toggled_wrap (GtkToggleButton *button, gpointer    user_data)
@@ -364,7 +380,7 @@ static void on_toggleButton_toggled_wrap (GtkToggleButton *button, gpointer    u
     g_value_init(&value, ctx->spec->valueType);
     g_value_set_boolean(&value, gtk_toggle_button_get_active(button));
     MAKER_DIALOG_DEBUG_MSG(2,"on_entry_activate_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->setFunc(ctx,&value);
+    ctx->applyFunc(ctx,&value);
 }
 
 /*=== End of Widget Callback function wraps ===*/

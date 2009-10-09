@@ -29,21 +29,19 @@ MakerDialogPropertySpec propSpec=
 	NULL
     };
 
+void KBType_applyFunc(MakerDialogPropertyContext *ctx, GValue *value){
+    printf("KBType_apply: %s\n", g_value_get_string(value));
+}
 
 int main(int argc,char *argv[]){
+    g_type_init();
     MakerDialog *dlg=maker_dialog_init("Hello World!", 1, &buttonSpec);
-    printf("=== Test 1\n");
-    printf("=== propSpec key=%s validType=%lu,  defaultValue=%s\n",propSpec.key, propSpec.valueType, propSpec.defaultValue);
     maker_dialog_add_property(dlg,
-	    maker_dialog_property_context_new( &propSpec, NULL, NULL));
-    printf("Test 2\n");
-    maker_dialog_set_toolkit_handler(dlg, &makerDialogHandlerGtk);
-    printf("Test 3\n");
+	    maker_dialog_property_context_new_full( &propSpec, NULL, NULL, NULL, KBType_applyFunc));
+    maker_dialog_set_toolkit_handler_gtk(dlg, &argc, &argv);
     maker_dialog_construct(dlg);
-    printf("Test 4\n");
     gint ret=0;
     do{
-	printf("Test 5\n");
 	ret=maker_dialog_run(dlg);
     }while(ret!=MAKER_DIALOG_RESPONSE_DELETE_EVENT && ret!=MAKER_DIALOG_RESPONSE_CLOSE);
     maker_dialog_hide(dlg);
