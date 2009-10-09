@@ -8,9 +8,7 @@ static void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *
 }
 
 static gpointer maker_dialog_construct_gtk(MakerDialog *dlg){
-    printf("maker_dialog_construct_gtk title=%s 1\n",dlg->title);
     MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlg);
-    printf("maker_dialog_construct_gtk 2\n");
     return (gpointer) dlg_gtk;
 }
 
@@ -66,11 +64,11 @@ static void maker_dialog_construct_ui_GHFunc(gpointer key, gpointer value, gpoin
 	if (!g_hash_table_lookup(dlg_gtk->_priv->notebookTable, (gconstpointer) ctx->spec->pageName)){
 	    GtkWidget *label=gtk_label_new(_(ctx->spec->pageName));
 	    maker_dialog_gtk_widget_register(dlg_gtk, label, ctx->spec->pageName, "label");
-	    gtk_widget_show(label);
+//	    gtk_widget_show(label);
 
 	    GtkWidget *vbox=gtk_vbox_new(dlg_gtk->vbox_homogeneous,dlg_gtk->vbox_spacing);
 	    maker_dialog_gtk_widget_register(dlg_gtk, vbox, ctx->spec->pageName, "vbox");
-	    gtk_widget_show(vbox);
+//	    gtk_widget_show(vbox);
 	    gtk_notebook_append_page (GTK_NOTEBOOK(dlg_gtk->dialog_notebook), vbox,label);
 	    g_hash_table_insert(dlg_gtk->_priv->notebookTable,
 		    (gpointer) ctx->spec->pageName, (gpointer) vbox);

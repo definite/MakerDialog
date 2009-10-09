@@ -44,6 +44,7 @@ int main(int argc,char *argv[]){
     do{
 	ret=maker_dialog_run(dlg);
     }while(ret!=MAKER_DIALOG_RESPONSE_DELETE_EVENT && ret!=MAKER_DIALOG_RESPONSE_CLOSE);
+
     maker_dialog_hide(dlg);
     return 0;
 }

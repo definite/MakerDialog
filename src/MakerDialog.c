@@ -52,9 +52,9 @@ MakerDialog *maker_dialog_init(const gchar *title,
     dlg->maxSizeInChar.width=-1;
     dlg->maxSizeInChar.height=-1;
     dlg->labelAlignment.x=0.0f;
-    dlg->labelAlignment.y=0.0f;
+    dlg->labelAlignment.y=0.5f;
     dlg->componentAlignment.x=0.0f;
-    dlg->componentAlignment.y=0.0f;
+    dlg->componentAlignment.y=0.5f;
     return dlg;
 }
 

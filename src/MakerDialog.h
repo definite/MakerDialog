@@ -128,8 +128,8 @@ struct _MakerDialog{
     MakerDialogButtonSpec *buttonSpecs;		//!< Button specs.
     MakerDialogDimension maxSizeInPixel;	//!< The maximum size in pixel. Default is (-1, -1).
     MakerDialogDimension maxSizeInChar;		//!< The maximum size in characters. Default is (-1, -1).
-    MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0);
-    MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0);
+    MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0.5);
+    MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     /// @cond
     MakerDialogToolkitHandler *handler;		//!< The handler that define how the UI to be handled.
     /// @endcond
