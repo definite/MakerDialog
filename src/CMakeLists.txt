@@ -10,10 +10,12 @@ LINK_DIRECTORIES(${GLIB2_LIBRARY_DIRS} ${GTK2_LIBRARY_DIRS} ${GCONF2_LIBRARY_DIR
 #==================================================================
 # Function check
 #
+INCLUDE (CheckSymbolExists)
+# CHECK_SYMBOL_EXISTS(gtk_widget_set_tooltip_text "gtk/gtk.h" HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT)
+# CHECK_LIBRARY_EXISTS(gtkx11-2.0 gtk_widget_set_tooltip_text "" HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT)
 INCLUDE (CheckLibraryExists)
 CHECK_LIBRARY_EXISTS(glib-2.0 g_dpgettext2 "" HAVE_G_DPGETTEXT2)
 CHECK_LIBRARY_EXISTS(glib-2.0 g_once_init_enter "" HAVE_G_ONCE_INIT_ENTER)
-CHECK_LIBRARY_EXISTS(gtk+-2.0 gtk_set_tooltip_text "" HAVE_GTK_SET_TOOLTIP_TEXT)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
 
 #==================================================================

@@ -168,9 +168,9 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	GtkWidget *label=gtk_label_new(_(ctx->spec->label));
 	self_widget_register(self, label, ctx->spec->key, "label");
 	if (ctx->spec->tooltip){
-#ifdef HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT
+//#ifdef HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT
 	    gtk_widget_set_tooltip_text (label,_(ctx->spec->tooltip));
-#endif
+//#endif
 	}
 	//	gtk_widget_show(label);
 	gtk_box_pack_start (GTK_BOX(hbox), label, FALSE, FALSE, 0);
