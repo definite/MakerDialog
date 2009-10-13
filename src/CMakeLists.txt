@@ -10,10 +10,8 @@ LINK_DIRECTORIES(${GLIB2_LIBRARY_DIRS} ${GTK2_LIBRARY_DIRS} ${GCONF2_LIBRARY_DIR
 #==================================================================
 # Function check
 #
-INCLUDE (CheckSymbolExists)
-# CHECK_SYMBOL_EXISTS(gtk_widget_set_tooltip_text "gtk/gtk.h" HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT)
-# CHECK_LIBRARY_EXISTS(gtkx11-2.0 gtk_widget_set_tooltip_text "" HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT)
 INCLUDE (CheckLibraryExists)
+CHECK_LIBRARY_EXISTS(gtk-x11-2.0 gtk_widget_set_tooltip_text "" HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT)
 CHECK_LIBRARY_EXISTS(glib-2.0 g_dpgettext2 "" HAVE_G_DPGETTEXT2)
 CHECK_LIBRARY_EXISTS(glib-2.0 g_once_init_enter "" HAVE_G_ONCE_INIT_ENTER)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
@@ -24,19 +22,19 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DI
 SET(MAKER_DIALOG_BASE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
-${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h)
 
 SET(GOB_GENERATED
-    ${CMAKE_CURRENT_SOURCE_DIR}/maker-dialog-gtk.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/maker-dialog-gtk.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/maker-dialog-gtk-private.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/gtk/maker-dialog-gtk.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/gtk/maker-dialog-gtk.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/gtk/maker-dialog-gtk-private.h
     )
 
 ADD_CUSTOM_COMMAND(OUTPUT ${GOB_GENERATED}
-    COMMAND ${GOB2} ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogGtk.gob -o ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS MakerDialogGtk.gob
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${GOB2} ${CMAKE_CURRENT_SOURCE_DIR}/gtk/MakerDialogGtk.gob -o ${CMAKE_CURRENT_SOURCE_DIR}/gtk
+    DEPENDS gtk/MakerDialogGtk.gob
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/gtk
 )
 
 SET_SOURCE_FILES_PROPERTIES(${GOB_GENERATED}
@@ -44,7 +42,7 @@ SET_SOURCE_FILES_PROPERTIES(${GOB_GENERATED}
 
 # library
 ADD_LIBRARY(MakerDialog ${MAKER_DIALOG_BASE_SRC})
-ADD_LIBRARY(MakerDialogGtk ${GOB_GENERATED})
+ADD_LIBRARY(MakerDialogGtk MakerDialogGtk.h ${GOB_GENERATED})
 
 
 # executable built from some source

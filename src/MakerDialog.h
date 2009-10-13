@@ -176,7 +176,6 @@ MakerDialog *maker_dialog_init(const gchar *title,
  *
  * @param dlg A MakerDialog.
  * @param ctx The property context to be added.
- * @param initValue String represented initial value. Non-NULL value overrides the default value defined in spec.
  *
  * @see maker_dialog_property_table_insert().
  */

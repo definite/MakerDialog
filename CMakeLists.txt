@@ -63,6 +63,7 @@ ADD_CUSTOM_TARGET(commit
 #==================================================================
 # Include common.CMakeLists.txt
 #
+SET(DOXYGEN_EXCLUDE "src/gtk")
 SET(GENERATE_DOXYFILE TRUE)
 INCLUDE(common.CMakeLists.txt)
 
@@ -88,7 +89,7 @@ ADD_DEFINITIONS(-DSYSTEMDIR='"${PROJECT_DATADIR}"')
 ####################################################################
 FIND_PACKAGE(PkgConfig)
 PKG_CHECK_MODULES(GLIB2 REQUIRED glib-2.0)
-PKG_CHECK_MODULES(GTK2 REQUIRED gtk+-2.0)
+PKG_CHECK_MODULES(GTK2 REQUIRED gtk+-2.0>=2.10)
 PKG_CHECK_MODULES(GCONF2 REQUIRED gconf-2.0)
 
 FIND_PROGRAM(GOB2 gob2)

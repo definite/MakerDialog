@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include "MakerDialog.h"
-#include "maker-dialog-gtk.h"
+#include "MakerDialogGtk.h"
 
 MakerDialogButtonSpec buttonSpec={MAKER_DIALOG_RESPONSE_CLOSE, NULL};
 const gchar *kbType_ids[]={

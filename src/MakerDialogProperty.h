@@ -207,7 +207,7 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec);
  * while default value is used when initValue does not exist.
  *
  * @param spec Property specification.
- * @param initValue Initial value for the property.
+ * @param initValue String represented initial value. Non-NULL value overrides the default value defined in spec.
  * @param obj A referencing object for set callback function. Can be NULL.
  * @return A newly allocated MakerDialogPropertyContext.
  * @see maker_dialog_property_context_new_full()

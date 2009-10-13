@@ -25,8 +25,9 @@ requires 2.0.0
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <locale.h>
-#include "config.h"
-#include "MakerDialog.h"
+#include "../config.h"
+#include "../MakerDialog.h"
+#include "../MakerDialogGtk.h"
 %}
 
 %headertop{
@@ -36,22 +37,11 @@ requires 2.0.0
  * This module provides convenient function to build a Gtk dialog.
  */
 
-#ifndef MAKER_DIALOG_GTK_H_
-#define MAKER_DIALOG_GTK_H_
+#ifndef MAKER_DIALOG_GTK_GOB_H_
+#define MAKER_DIALOG_GTK_GOB_H_
 #ifndef WIDGET_ID_PREFIX
 #define WIDGET_ID_PREFIX "+"
 #endif
-
-/**
- * Use Gtk as toolkit.
- * @param dlg A MakeDialog instance.
- * @param argc Pointer to number of arguments from command-line.
- * @param argv Pointer to arguments from command-line.
- * @return TRUE for succeed; FALSE otherwise.
- *
- * Set the toolkit handler as Gtk.
- */
-gboolean maker_dialog_set_toolkit_handler_gtk(MakerDialog *dlg, gint *argc, gchar ***argv);
 %}
 
 %{
@@ -168,11 +158,10 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	GtkWidget *label=gtk_label_new(_(ctx->spec->label));
 	self_widget_register(self, label, ctx->spec->key, "label");
 	if (ctx->spec->tooltip){
-//#ifdef HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT
+#ifdef HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT
 	    gtk_widget_set_tooltip_text (label,_(ctx->spec->tooltip));
-//#endif
+#endif
 	}
-	//	gtk_widget_show(label);
 	gtk_box_pack_start (GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 	GtkWidget *widget=NULL;
@@ -547,6 +536,6 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 }
 
 %headertop{
-#endif /* MAKER_DIALOG_GTK_H_ */
+#endif /* MAKER_DIALOG_GTK_GOB_H_ */
 %}
 
