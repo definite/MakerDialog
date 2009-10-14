@@ -22,8 +22,12 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DI
 SET(MAKER_DIALOG_BASE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigHandler.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
+    )
 
 SET(GOB_GENERATED
     ${CMAKE_CURRENT_SOURCE_DIR}/gtk/maker-dialog-gtk.c

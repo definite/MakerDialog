@@ -29,97 +29,21 @@
  *
  * Developers, however, need to provide either callback functions or dbus
  * messages for value getting and setting to handle such events.
+ *
+ * @todo Implement functions that uses maxSizeInPixel.
+ * @todo Implement functions that uses maxSizeInChar.
  */
 #ifndef MAKER_DIALOG_H_
 #define MAKER_DIALOG_H_
 #include <glib.h>
 #include <glib-object.h>
 #include "MakerDialogProperty.h"
-
-/**
- * Describe the dimension (size) of a visible component.
- *
- * Note that -1 in either width or height means it can expend indefinitely.
- */
-typedef struct _MakerDialogDimension{
-    gint width;		//!< Width of a visible component.
-    gint height;	//!< Height of a visible component.
-}MakerDialogDimension;
-
-/**
- * Describe the alignment (size) of a visible component.
- *
- */
-typedef struct _MakerDialogAlignment{
-    gfloat x;	//!< Alignment in X axis. 0 for Left; 0.5 for Center; 1.0 for Right.
-    gfloat y;	//!< Alignment in Y axis. 0 for Top; 0.5 for Center; 1.0 for Right.
-}MakerDialogAlignment;
-
-/**
- * Predefined values for use as response ids in MakerDialog.
- * All predefined values are negative, where application developer can uses positive
- * values for application-defined response ids.
- *
- * These ids are actually coming from GTK_RESPONSE ids.
- */
-typedef enum{
-    MAKER_DIALOG_RESPONSE_NONE=-1,		//!< Returned if an action widget has no response id, or if the dialog gets programmatically hidden or destroyed.
-    MAKER_DIALOG_RESPONSE_REJECT=-2,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
-    MAKER_DIALOG_RESPONSE_ACCEPT=-3,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
-    MAKER_DIALOG_RESPONSE_DELETE_EVENT=-4,	//!< Returned if the dialog is deleted.
-    MAKER_DIALOG_RESPONSE_OK=-5,		//!< Returned when an "OK" button is pressed.
-    MAKER_DIALOG_RESPONSE_CANCEL=-6,		//!< Returned when a "Cancel" button is pressed.
-    MAKER_DIALOG_RESPONSE_CLOSE=-7,		//!< Returned when a "Close" button is pressed.
-    MAKER_DIALOG_RESPONSE_YES=-8,		//!< Returned when a "Yes" button is pressed.
-    MAKER_DIALOG_RESPONSE_NO=-9,		//!< Returned when a "No" button is pressed.
-    MAKER_DIALOG_RESPONSE_APPLY=-10,		//!< Returned when a "Apply" button is pressed.
-    MAKER_DIALOG_RESPONSE_HELP=11,		//!< Returned when a "Help" button is pressed.
-} MakerDialogResponsePredefined;
-
-/**
- * Response id for UI components.
- */
-typedef gint MakerDialogResponse;
-
-/**
- * Specification of buttons.
- *
- * The buttons will be appeared on the bottom of the dialog, label with the
- * button text provide.
- *
- * If using the predefined button, the button text can be set to NULL to
- * use the default text provide by the toolkit.
- */
-typedef struct _MakerDialogButtonSpec{
-    MakerDialogResponse responseId;	//!< Response Id when this button is pressed.
-    const char *buttonText;		//!< The text on the button. Can be NULL.
-} MakerDialogButtonSpec;
-
 /**
  * Data structure of a MakerDialog.
  *
- * @todo Implement functions that uses maxSizeInPixel.
- * @todo Implement functions that uses maxSizeInChar.
  */
 typedef struct _MakerDialog MakerDialog;
-
-/**
- * Toolkit handler for a MakerDialog.
- *
- * A wrapper structure for toolkit such as Gtk or Qt.
- * Normally this structure will be automatically filled
- * by the toolkit front-end.
- */
-typedef struct _MakerDialogToolkitHandler{
-    gpointer dialog_obj;				//!< The toolkit dialog object. Initially this is NULL until maker_dialog_construct() is called.
-    GValue * (* component_get_value)(MakerDialog *dlg, const gchar *key);	//!< Get the value in UI component. The GValue is newly allocated. So remember to free it.
-    void (* component_set_value)(MakerDialog *dlg, const gchar *key, GValue *value);	//!< Set a value to a property, so the corresponding UI component can show the value.
-    gpointer (* dialog_construct)(MakerDialog *dlg);	//!< Construct the toolkit dialog. Called by maker_dialog_construct().
-    gint (* dialog_run)(MakerDialog *dlg);		//!< Blocks in a recursive main loop until the dialog either emits the "response" signal, or is destroyed.
-    void (* dialog_show)(MakerDialog *dlg);		//!< Show the dialog UI.
-    void (* dialog_hide)(MakerDialog *dlg);		//!< Hide the dialog UI.
-    void (* dialog_destroy)(MakerDialog *dlg);		//!< Destroy (free) the dialog UI.
-} MakerDialogToolkitHandler;
+#include "MakerDialogUi.h"
 
 struct _MakerDialog{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.
@@ -131,7 +55,11 @@ struct _MakerDialog{
     MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0.5);
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     /// @cond
-    MakerDialogToolkitHandler *handler;		//!< The handler that define how the UI to be handled.
+    /**
+     * The list of hook function for destroying the instances that attached to the MakerDialog instance.
+     * So they can be free.
+     */
+    GHookList	*destroyHookList;
     /// @endcond
 };
 
@@ -174,135 +102,21 @@ MakerDialog *maker_dialog_init(const gchar *title,
  * @endcode
  * Where @code propertySpec @endcode is the property spec.
  *
- * @param dlg A MakerDialog.
+ * @param mDialog A MakerDialog.
  * @param ctx The property context to be added.
  *
  * @see maker_dialog_property_table_insert().
  */
-void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx);
+void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext *ctx);
 
 /**
- * Construct a toolkit dialog object (such as GtkDialog or QDialog) for later use.
+ * Destroy the MakerDialog.
+ * @param mDialog A MakerDialog.
  *
- * @param dlg A MakerDialog.
- *
- * @see maker_dialog_init().
+ * Free all associate memory.
+ * Title in the MakerDialog will also be freed.
  */
-void maker_dialog_construct(MakerDialog *dlg);
-
-/**
- * Blocks in a recursive main loop until the dialog either emits the "response" signal, or is destroyed.
- *
- * This function aspires gtk_dialog_run().
- * Show the dialog by using dialog_show().
- * @param dlg A MakerDialog.
- * @return The respond ID.
- */
-gint maker_dialog_run(MakerDialog *dlg);
-
-/**
- * Show the dialog by using dialog_show().
- *
- * @param dlg A MakerDialog.
- */
-void maker_dialog_show(MakerDialog *dlg);
-
-/**
- * Hide the dialog.
- *
- * @param dlg A MakerDialog.
- */
-void maker_dialog_hide(MakerDialog *dlg);
-
-/**
- * Destroy and free the dialog.
- *
- * Title in dialog will also be freed.
- * @param dlg A MakerDialog.
- */
-void maker_dialog_destroy(MakerDialog *dlg);
-
-/**
- * Get the value of a property.
- *
- * The returned value is still useful for property context, so DO NOT free it.
- *
- * @param dlg A MakerDialog.
- * @param key A property key.
- * @return Value of the property; or NULL if no such property.
- */
-GValue *maker_dialog_get_value(MakerDialog *dlg, const gchar *key);
-
-
-/**
- * Apply a property value by calling the apply callback function.
- *
- * This function applies the current property value by calling
- * the applyFunc() defined in property context.
- *
- * If validateFunc() is also defined, then the value will be checked with it,
- * if it does not pass, this function returns FALSE.
- *
- * If applyFunc() is not defined, this function returns FALSE as well.
- *
- *
- * The difference between maker_dialog_apply_value(), maker_dialog_set_value(), and
- * maker_dialog_update_value() are:
- *
- * - maker_dialog_apply_value() applies the property value to the system by calling the applyFunc();
- * - maker_dialog_set_value() copies argument value to the property value and UI component value.
- * - maker_dialog_update_value() copies UI component value to property value.
- *
- * @param dlg A MakerDialog.
- * @param key A property key.
- * @return TRUE if succeed, FALSE if the property value does not pass
- * validation, or applyFunc() does not exist.
- * @see maker_dialog_set_value()
- * @see maker_dialog_update_value()
- */
-gboolean maker_dialog_apply_value(MakerDialog *dlg, const gchar *key);
-
-/**
- * Set the value to the property and corresponding UI component.
- *
- * This function copies the argument value to the property value and UI component value.
- *
- * If validateFunc() is also defined, then the argument value will be checked with it,
- * if it does not pass, this function returns FALSE.
- *
- * If component_set_value() in MakerToolkitHandler is not defined,
- * this function returns FALSE as well.
- *
- * @param dlg A MakerDialog.
- * @param key A property key.
- * @param value Argument value to be set.
- * @return TRUE if succeed, FALSE if the property value does not pass
- *  validation, or component_set_value() does not exist.
- * @see maker_dialog_apply_value()
- * @see maker_dialog_set_value()
- * @see maker_dialog_update_value()
- */
-gboolean maker_dialog_set_value(MakerDialog *dlg, const gchar *key, GValue *value);
-
-/**
- * Update the property value using the value in UI component.
- *
- * This function copies UI component value to property value.
- *
- * If validateFunc() is also defined, then the argument value will be checked with it,
- * if it does not pass, this function returns FALSE.
- *
- * If component_get_value() in MakerToolkitHandler is not defined,
- * this function returns FALSE as well.
- *
- * @param dlg A MakerDialog.
- * @param key A property key.
- * @return TRUE if succeed, FALSE if the property value does not pass
- *  validation, or component_get_value() does not exist.
- * @see maker_dialog_apply_value()
- * @see maker_dialog_set_value()
- */
-gboolean maker_dialog_update_value(MakerDialog *dlg, const gchar *key);
+void maker_dialog_destroy(MakerDialog *mDialog);
 
 /**
  * String to boolean.
@@ -328,6 +142,7 @@ gboolean maker_dialog_atob(const gchar *str);
  * @return Index of the string if str is in strlist before max_find; or -1 if on such string.
  */
 gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_find);
+
 /*=== End Function Definition  ===*/
 
 

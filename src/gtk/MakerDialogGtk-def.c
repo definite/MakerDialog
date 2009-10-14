@@ -1,35 +1,34 @@
 /*=== Start toolkit handler definitions ===*/
-static GValue *maker_dialog_component_get_value_gtk(MakerDialog *dlg, const gchar *key){
-    return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key);
+static GValue *maker_dialog_component_get_value_gtk(MakerDialogUi *dlgUi, const gchar *key){
+    return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlgUi->dialogObj),key);
 }
 
-static void maker_dialog_component_set_value_gtk(MakerDialog *dlg, const gchar *key, GValue *value){
-    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlg->handler->dialog_obj),key,value);
+static void maker_dialog_component_set_value_gtk(MakerDialogUi *dlgUi, const gchar *key, GValue *value){
+    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlgUi->dialogObj),key,value);
 }
 
-static gpointer maker_dialog_construct_gtk(MakerDialog *dlg){
-    MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlg);
+static gpointer maker_dialog_construct_gtk(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal){
+    MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlgUi,parentWindow,modal);
     return (gpointer) dlg_gtk;
 }
 
-static gint maker_dialog_run_gtk(MakerDialog *dlg){
-    return gtk_dialog_run(GTK_DIALOG (dlg->handler->dialog_obj));
+static gint maker_dialog_run_gtk(MakerDialogUi *dlgUi){
+    return gtk_dialog_run(GTK_DIALOG (dlgUi->dialogObj));
 }
 
-static void maker_dialog_show_gtk(MakerDialog *dlg){
-    gtk_widget_show_all(GTK_WIDGET (dlg->handler->dialog_obj));
+static void maker_dialog_show_gtk(MakerDialogUi *dlgUi){
+    gtk_widget_show_all(GTK_WIDGET (dlgUi->dialogObj));
 }
 
-static void maker_dialog_hide_gtk(MakerDialog *dlg){
-    gtk_widget_hide(GTK_WIDGET (dlg->handler->dialog_obj));
+static void maker_dialog_hide_gtk(MakerDialogUi *dlgUi){
+    gtk_widget_hide(GTK_WIDGET (dlgUi->dialogObj));
 }
 
-static void maker_dialog_destroy_gtk(MakerDialog *dlg){
-    gtk_widget_destroy(GTK_WIDGET (dlg->handler->dialog_obj));
+static void maker_dialog_destroy_gtk(MakerDialogUi *dlgUi){
+    maker_dialog_gtk_destroy(MAKER_DIALOG_GTK( dlgUi->dialogObj));
 }
 
 static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
-    NULL,
     maker_dialog_component_get_value_gtk,
     maker_dialog_component_set_value_gtk,
     maker_dialog_construct_gtk,
@@ -39,12 +38,16 @@ static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
     maker_dialog_destroy_gtk
 };
 
-gboolean maker_dialog_set_toolkit_handler_gtk(MakerDialog *dlg, gint *argc, gchar ***argv){
+MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar ***argv){
     if (gtk_init_check(argc, argv)){
-	dlg->handler=&makerDialogToolkitHandler_gtk;
-	return TRUE;
+	MakerDialogUi *dlgUi=g_new(MakerDialogUi,1);
+	dlgUi->toolkitHandler=&makerDialogToolkitHandler_gtk;
+	dlgUi->dialogObj=NULL;
+	dlgUi->mDialog=mDialog;
+
+	return dlgUi;
     }
-    return FALSE;
+    return NULL;
 }
 
 /*=== End toolkit handler definitions ===*/
@@ -84,7 +87,7 @@ static void maker_dialog_align_labels_GHFunc(gpointer key, gpointer value, gpoin
     gchar *pageName=(gchar *) key;
     MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(user_data);
     MAKER_DIALOG_DEBUG_MSG(3,"[I3] maker_dialog_align_labels_GHFunc(%s,-,-)",pageName);
-    maker_dialog_gtk_align_labels(dlg_gtk, pageName, &(dlg_gtk->_priv->dlg->labelAlignment));
+    maker_dialog_gtk_align_labels(dlg_gtk, pageName, &(dlg_gtk->_priv->mDialog->labelAlignment));
 }
 
 #ifndef HAVE_G_ONCE_INIT_ENTER

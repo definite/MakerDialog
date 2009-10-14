@@ -35,17 +35,17 @@ void KBType_applyFunc(MakerDialogPropertyContext *ctx, GValue *value){
 
 int main(int argc,char *argv[]){
     g_type_init();
-    MakerDialog *dlg=maker_dialog_init("Hello World!", 1, &buttonSpec);
-    maker_dialog_add_property(dlg,
+    MakerDialog *mDialog=maker_dialog_init("Hello World!", 1, &buttonSpec);
+    maker_dialog_add_property(mDialog,
 	    maker_dialog_property_context_new_full( &propSpec, NULL, NULL, NULL, KBType_applyFunc));
-    maker_dialog_set_toolkit_handler_gtk(dlg, &argc, &argv);
-    maker_dialog_construct(dlg);
+    MakerDialogUi *dlgUi=maker_dialog_ui_use_gtk(mDialog, &argc, &argv);
+    maker_dialog_ui_construct(dlgUi,NULL,TRUE);
     gint ret=0;
     do{
-	ret=maker_dialog_run(dlg);
+	ret=maker_dialog_ui_run(dlgUi);
     }while(ret!=MAKER_DIALOG_RESPONSE_DELETE_EVENT && ret!=MAKER_DIALOG_RESPONSE_CLOSE);
 
-    maker_dialog_hide(dlg);
+    maker_dialog_ui_destroy(dlgUi);
     return 0;
 }
 

@@ -24,11 +24,8 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "MakerDialog.h"
-
-#ifndef VERBOSE_LEVEL
-#define VERBOSE_LEVEL 5
-#endif
-static gint verboseLevel=VERBOSE_LEVEL;
+#define MAKER_DLALOG_VERBOSE_ENV "MAKER_DIALOG_VERBOSE"
+static gint verboseLevel=0;
 
 void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
     va_list ap;
@@ -41,27 +38,29 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
 
 MakerDialog *maker_dialog_init(const gchar *title,
 	guint buttonSpecCount, MakerDialogButtonSpec *buttonSpecs){
-    MakerDialog *dlg=g_new(MakerDialog,1);
-    dlg->title=g_strdup(title);
-    dlg->handler=NULL;
-    dlg->buttonSpecCount=buttonSpecCount;
-    dlg->buttonSpecs=buttonSpecs;
-    dlg->propertyTable=maker_dialog_property_table_new();
-    dlg->maxSizeInPixel.width=-1;
-    dlg->maxSizeInPixel.height=-1;
-    dlg->maxSizeInChar.width=-1;
-    dlg->maxSizeInChar.height=-1;
-    dlg->labelAlignment.x=0.0f;
-    dlg->labelAlignment.y=0.5f;
-    dlg->componentAlignment.x=0.0f;
-    dlg->componentAlignment.y=0.5f;
-    return dlg;
+    MakerDialog *mDialog=g_new(MakerDialog,1);
+    mDialog->title=g_strdup(title);
+    mDialog->toolkitHandler=NULL;
+    mDialog->buttonSpecCount=buttonSpecCount;
+    mDialog->buttonSpecs=buttonSpecs;
+    mDialog->propertyTable=maker_dialog_property_table_new();
+    mDialog->maxSizeInPixel.width=-1;
+    mDialog->maxSizeInPixel.height=-1;
+    mDialog->maxSizeInChar.width=-1;
+    mDialog->maxSizeInChar.height=-1;
+    mDialog->labelAlignment.x=0.0f;
+    mDialog->labelAlignment.y=0.5f;
+    mDialog->componentAlignment.x=0.0f;
+    mDialog->componentAlignment.y=0.5f;
+    if (getenv(MAKER_DLALOG_VERBOSE_ENV)){
+	verboseLevel=atoi(getenv(MAKER_DLALOG_VERBOSE_ENV));
+    }
+    mDialog->destroyHookList=g_hook_list_init(mDialog->destroyHookLit,sizeof(GHook));
+    return mDialog;
 }
 
-void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx){
-    printf("=== maker_dialog_add_property\n");
-    maker_dialog_property_table_insert(dlg->propertyTable, ctx);
-//    g_value_init(&ctx->value,ctx->spec->valueType);
+void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext *ctx){
+    maker_dialog_property_table_insert(mDialog->propertyTable, ctx);
     gboolean bValue=FALSE;
     guint uintValue=0;
     gint intValue=0;
@@ -126,96 +125,15 @@ void maker_dialog_add_property(MakerDialog *dlg, MakerDialogPropertyContext *ctx
 	default:
 	    break;
     }
-
 }
 
-void maker_dialog_construct(MakerDialog *dlg){
-    g_assert(dlg->handler->dialog_construct);
-    dlg->handler->dialog_obj=dlg->handler->dialog_construct(dlg);
+void maker_dialog_destroy(MakerDialog *mDialog){
+//    maker_dialog_ui_destroy(mDialog);
+    maker_dialog_property_table_destroy(mDialog->propertyTable);
+    g_free(mDialog->title);
+    g_free(mDialog);
 }
 
-gint maker_dialog_run(MakerDialog *dlg){
-    g_assert(dlg->handler->dialog_run);
-    return dlg->handler->dialog_run(dlg);
-}
-
-void maker_dialog_show(MakerDialog *dlg){
-    g_assert(dlg->handler->dialog_show);
-    dlg->handler->dialog_show(dlg);
-}
-
-void maker_dialog_hide(MakerDialog *dlg){
-    g_assert(dlg->handler->dialog_hide);
-    dlg->handler->dialog_hide(dlg);
-}
-
-void maker_dialog_destroy(MakerDialog *dlg){
-    if (dlg->handler->dialog_obj){
-	g_assert(dlg->handler->dialog_destroy);
-	dlg->handler->dialog_destroy(dlg);
-	if (dlg->handler->dialog_obj)
-	    g_free(dlg->handler->dialog_obj);
-    }
-    maker_dialog_property_table_destroy(dlg->propertyTable);
-    g_free(dlg->title);
-    g_free(dlg);
-}
-
-GValue *maker_dialog_get_value(MakerDialog *dlg, const gchar *key){
-    return maker_dialog_property_table_lookup_value(dlg->propertyTable, key);
-}
-
-gboolean maker_dialog_apply_value(MakerDialog *dlg, const gchar *key){
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-
-    gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
-	/* Value is invalid. */
-	ret=FALSE;
-    }
-    if (ret && ctx->applyFunc){
-	ctx->applyFunc(ctx,&ctx->value);
-    }else{
-	ret=FALSE;
-    }
-
-    return ret;
-}
-
-gboolean maker_dialog_set_value(MakerDialog *dlg, const gchar *key, GValue *value){
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-
-    gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
-	/* Value is invalid. */
-	ret=FALSE;
-    }
-    if (ret && dlg->handler->component_set_value){
-	dlg->handler->component_set_value(dlg, ctx->spec->key, value);
-	g_value_copy(value,&ctx->value);
-    }else{
-	ret=FALSE;
-    }
-    return ret;
-}
-
-gboolean maker_dialog_update_value(MakerDialog *dlg, const gchar *key){
-    g_assert(dlg->handler->component_get_value);
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlg->propertyTable, key);
-
-    GValue *value=dlg->handler->component_get_value(dlg,key);
-    gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
-	/* Value is invalid. */
-	ret=FALSE;
-    }else{
-	g_value_copy(value,&ctx->value);
-    }
-    g_value_unset(value);
-    g_free(value);
-
-    return ret;
-}
 
 gboolean maker_dialog_atob(const gchar *string){
     if (!string)

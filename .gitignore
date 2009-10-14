@@ -39,4 +39,5 @@ SOURCES/
 doc/
 Doxyfile
 src/gtk/maker-dialog*
+src/config.h
 

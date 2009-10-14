@@ -33,15 +33,17 @@
 #include "gtk/maker-dialog-gtk.h"
 
 /**
- * Use Gtk as toolkit.
- * @param dlg A MakeDialog instance.
+ * Use Gtk as UI front-end.
+ *
+ * It calls maker_dialog_ui_init() and gtk_init_check(),
+ * so no need to initialize gtk again.
+ *
+ * @param mDialog A MakeDialog.
  * @param argc Pointer to number of arguments from command-line.
  * @param argv Pointer to arguments from command-line.
- * @return TRUE for succeed; FALSE otherwise.
- *
- * Set the toolkit handler as Gtk.
+ * @return A newly allocated MakerDialogUi instance; NULL if failed.
  */
-gboolean maker_dialog_set_toolkit_handler_gtk(MakerDialog *dlg, gint *argc, gchar ***argv);
+MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar ***argv);
 
 #endif /* MAKER_DIALOG_GTK_H_ */
 
