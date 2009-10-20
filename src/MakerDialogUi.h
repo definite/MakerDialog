@@ -149,17 +149,18 @@ typedef struct {
 struct _MakerDialogUi{
     MakerDialog	*mDialog;		//!< Referring MakerDialog.
     gpointer dialogObj;			//!< The toolkit dialog object.
-    MakerDialogToolkitHandler *toolkitHandler; //!< The toolkit hander that handle the actual UI.
+    MakerDialogToolkitHandler *toolkitHandler; //!< The toolkit handler which connects to UI toolkit front-end.
 };
 
 /**
- * Initialize an UI front-end.
+ * Initialize a MakerDialogUi, the UI front-end of MakerDialog.
  *
- * MakerDialog initializes an UI front-end by configuring the toolkit handler.
+ * This function initializes an UI front-end using the given toolkit handler
+ * for the MakerDialog.
+ * During initialization, the new MakerDialogUi is associated to the #mDialog.
+ * Thus, maker_dialog_destroy() can free the associated MakerDialogUi as well.
  *
- * It also append a hook for freeing the memory,
- * so maker_dialog_destroy() can automatically free the UI components as well.
- *
+ * This function is meant for toolkit handler developers.
  * For Gtk or Qt users, it is more convenient to call
  * maker_dialog_ui_use_gtk() or maker_dialog_ui_use_qt4() than using this
  * function directly.
@@ -174,125 +175,42 @@ MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHand
 /**
  * Construct an UI dialog object (such as GtkDialog or QDialog) for later use.
  *
- * @param dlgUi A MakerDialogUi.
+ * @param mDialog A MakerDialog.
  * @param parentWindow The parent window which can invoke this dialog. Can be
  * NULL.
  * @param modal Whether the dialog is modal.
  * @return TRUE if succeeded; FALSE otherwise.
  */
-gboolean maker_dialog_ui_construct(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal);
+gboolean maker_dialog_ui_construct(MakerDialog *mDialog, gpointer parentWindow, gboolean modal);
 
 /**
  * Blocks in a recursive main loop until the dialog either emits the "response" signal, or is destroyed.
  *
  * This function aspires gtk_dialog_run().
  * Show the dialog by using dialog_show().
- * @param dlgUi A MakerDialogUi.
+ * @param mDialog A MakerDialog.
  * @return The respond ID.
  */
-gint maker_dialog_ui_run(MakerDialogUi *dlgUi);
+gint maker_dialog_ui_run(MakerDialog *mDialog);
 
 /**
  * Show the dialog by using dialog_show().
  *
- * @param dlgUi A MakerDialogUi.
+ * @param mDialog A MakerDialog.
  */
-void maker_dialog_ui_show(MakerDialogUi *dlgUi);
+void maker_dialog_ui_show(MakerDialog *mDialog);
 
 /**
  * Hide the dialog.
  *
- * @param dlgUi A MakerDialogUi.
+ * @param mDialog A MakerDialog.
  */
-void maker_dialog_ui_hide(MakerDialogUi *dlgUi);
+void maker_dialog_ui_hide(MakerDialog *mDialog);
 
 /**
  * Destroy and free the UI.
  *
- * @param dlgUi A MakerDialogUi.
+ * @param mDialog A MakerDialog.
  */
-void maker_dialog_ui_destroy(MakerDialogUi *dlgUi);
-
-/**
- * Get the value of a property.
- *
- * The returned value is still useful for property context, so DO NOT free it.
- *
- * @param dlgUi A MakerDialogUi.
- * @param key A property key.
- * @return Value of the property; or NULL if no such property.
- */
-GValue *maker_dialog_ui_get_value(MakerDialogUi *dlgUi, const gchar *key);
-
-
-/**
- * Apply a property value by calling the apply callback function.
- *
- * This function applies the current property value by calling
- * the applyFunc() defined in property context.
- *
- * If validateFunc() is also defined, then the value will be checked with it,
- * if it does not pass, this function returns FALSE.
- *
- * If applyFunc() is not defined, this function returns FALSE as well.
- *
- *
- * The difference between maker_dialog_ui_apply_value(), maker_dialog_ui_set_value(), and
- * maker_dialog_ui_update_value() are:
- *
- * - maker_dialog_ui_apply_value() applies the property value to the system by calling the applyFunc();
- * - maker_dialog_ui_set_value() copies argument value to the property value and UI component value.
- * - maker_dialog_ui_update_value() copies UI component value to property value.
- *
- * @param dlgUi A MakerDialogUi.
- * @param key A property key.
- * @return TRUE if succeed, FALSE if the property value does not pass
- * validation, or applyFunc() does not exist.
- * @see maker_dialog_ui_set_value()
- * @see maker_dialog_ui_update_value()
- */
-gboolean maker_dialog_ui_apply_value(MakerDialogUi *dlgUi, const gchar *key);
-
-/**
- * Set the value to the property and corresponding UI component.
- *
- * This function copies the argument value to the property value and UI component value.
- *
- * If validateFunc() is also defined, then the argument value will be checked with it,
- * if it does not pass, this function returns FALSE.
- *
- * If component_set_value() in MakerToolkitHandler is not defined,
- * this function returns FALSE as well.
- *
- * @param dlgUi A MakerDialogUi.
- * @param key A property key.
- * @param value Argument value to be set.
- * @return TRUE if succeed, FALSE if the property value does not pass
- *  validation, or component_set_value() does not exist.
- * @see maker_dialog_ui_apply_value()
- * @see maker_dialog_ui_set_value()
- * @see maker_dialog_ui_update_value()
- */
-gboolean maker_dialog_ui_set_value(MakerDialogUi *dlgUi, const gchar *key, GValue *value);
-
-/**
- * Update the property value using the value in UI component.
- *
- * This function copies UI component value to property value.
- *
- * If validateFunc() is also defined, then the argument value will be checked with it,
- * if it does not pass, this function returns FALSE.
- *
- * If component_get_value() in MakerToolkitHandler is not defined,
- * this function returns FALSE as well.
- *
- * @param dlgUi A MakerDialogUi.
- * @param key A property key.
- * @return TRUE if succeed, FALSE if the property value does not pass
- *  validation, or component_get_value() does not exist.
- * @see maker_dialog_ui_apply_value()
- * @see maker_dialog_ui_set_value()
- */
-gboolean maker_dialog_ui_update_value(MakerDialogUi *dlgUi, const gchar *key);
-
+void maker_dialog_ui_destroy(MakerDialog *mDialog);
 

@@ -40,7 +40,6 @@ MakerDialog *maker_dialog_init(const gchar *title,
 	guint buttonSpecCount, MakerDialogButtonSpec *buttonSpecs){
     MakerDialog *mDialog=g_new(MakerDialog,1);
     mDialog->title=g_strdup(title);
-    mDialog->toolkitHandler=NULL;
     mDialog->buttonSpecCount=buttonSpecCount;
     mDialog->buttonSpecs=buttonSpecs;
     mDialog->propertyTable=maker_dialog_property_table_new();
@@ -55,7 +54,8 @@ MakerDialog *maker_dialog_init(const gchar *title,
     if (getenv(MAKER_DLALOG_VERBOSE_ENV)){
 	verboseLevel=atoi(getenv(MAKER_DLALOG_VERBOSE_ENV));
     }
-    mDialog->destroyHookList=g_hook_list_init(mDialog->destroyHookLit,sizeof(GHook));
+    mDialog->dlgUi=NULL;
+//    mDialog->dlgCfg=NULL;
     return mDialog;
 }
 
@@ -128,12 +128,73 @@ void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext 
 }
 
 void maker_dialog_destroy(MakerDialog *mDialog){
-//    maker_dialog_ui_destroy(mDialog);
+    if (mDialog->dlgUi){
+	maker_dialog_ui_destroy(mDialog);
+    }
+//    if (mDialog->dlgCfg){
+//        maker_dialog_config_destroy(mDialog);
+//    }
+
     maker_dialog_property_table_destroy(mDialog->propertyTable);
     g_free(mDialog->title);
     g_free(mDialog);
 }
 
+GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key){
+    return maker_dialog_property_table_lookup_value(mDialog->propertyTable, key);
+}
+
+gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key){
+    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(mDialog->propertyTable, key);
+
+    gboolean ret=TRUE;
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
+	/* Value is invalid. */
+	ret=FALSE;
+    }
+    if (ret && ctx->applyFunc){
+	ctx->applyFunc(ctx,&ctx->value);
+    }else{
+	ret=FALSE;
+    }
+
+    return ret;
+}
+
+gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value){
+    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(mDialog->propertyTable, key);
+
+    gboolean ret=TRUE;
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
+	/* Value is invalid. */
+	ret=FALSE;
+    }
+    if (ret && mDialog->dlgUi->toolkitHandler->component_set_value){
+	mDialog->dlgUi->toolkitHandler->component_set_value(mDialog->dlgUi, ctx->spec->key, value);
+	g_value_copy(value,&ctx->value);
+    }else{
+	ret=FALSE;
+    }
+    return ret;
+}
+
+gboolean maker_dialog_update_value(MakerDialog *mDialog, const gchar *key){
+    g_assert(mDialog->dlgUi->toolkitHandler->component_get_value);
+    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(mDialog->propertyTable, key);
+
+    GValue *value=mDialog->dlgUi->toolkitHandler->component_get_value(mDialog->dlgUi,key);
+    gboolean ret=TRUE;
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
+	/* Value is invalid. */
+	ret=FALSE;
+    }else{
+	g_value_copy(value,&ctx->value);
+    }
+    g_value_unset(value);
+    g_free(value);
+
+    return ret;
+}
 
 gboolean maker_dialog_atob(const gchar *string){
     if (!string)

@@ -38,14 +38,17 @@ int main(int argc,char *argv[]){
     MakerDialog *mDialog=maker_dialog_init("Hello World!", 1, &buttonSpec);
     maker_dialog_add_property(mDialog,
 	    maker_dialog_property_context_new_full( &propSpec, NULL, NULL, NULL, KBType_applyFunc));
-    MakerDialogUi *dlgUi=maker_dialog_ui_use_gtk(mDialog, &argc, &argv);
-    maker_dialog_ui_construct(dlgUi,NULL,TRUE);
+    if (!maker_dialog_ui_use_gtk(mDialog, &argc, &argv)){
+	exit(1);
+    }
+
+    maker_dialog_ui_construct(mDialog,NULL,TRUE);
     gint ret=0;
     do{
-	ret=maker_dialog_ui_run(dlgUi);
+	ret=maker_dialog_ui_run(mDialog);
     }while(ret!=MAKER_DIALOG_RESPONSE_DELETE_EVENT && ret!=MAKER_DIALOG_RESPONSE_CLOSE);
 
-    maker_dialog_ui_destroy(dlgUi);
-    return 0;
+    maker_dialog_destroy(mDialog);
+    exit(0);
 }
 

@@ -40,11 +40,8 @@ static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
 
 MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar ***argv){
     if (gtk_init_check(argc, argv)){
-	MakerDialogUi *dlgUi=g_new(MakerDialogUi,1);
-	dlgUi->toolkitHandler=&makerDialogToolkitHandler_gtk;
+	MakerDialogUi *dlgUi=maker_dialog_ui_init(mDialog, &makerDialogToolkitHandler_gtk);
 	dlgUi->dialogObj=NULL;
-	dlgUi->mDialog=mDialog;
-
 	return dlgUi;
     }
     return NULL;
@@ -284,6 +281,7 @@ static gint listStore_find_string(GtkListStore *listStore,const gchar *str,
 	    gtk_tree_model_get_value (GTK_TREE_MODEL(listStore), &iter,0,&gValue);
 	    if (strcmp(str,g_value_get_string(&gValue))==0){
 		index= i;
+		g_value_unset(&gValue);
 		break;
 	    }
 	    i++;

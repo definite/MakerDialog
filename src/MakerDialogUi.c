@@ -19,17 +19,6 @@
  */
 #include "MakerDialog.h"
 
-static void maker_dialog_ui_destroy_hook(gpointer dlgUi){
-    maker_dialog_ui_destroy((MakerDialogUi *) dlgUi);
-}
-
-static void maker_dialog_ui_add_destroy_hook(MakerDialogUi *dlgUi){
-    GHook *hook=g_hook_alloc(dlgUi->mDialog->destroyHookList);
-    hook->data=dlgUi;
-    hook->func=maker_dialog_ui_destroy_hook;
-    g_hook_append (dlgUi->mDialog->destroyHookList, hook);
-
-}
 
 MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHandler *toolkitHandler){
     g_assert(mDialog);
@@ -38,93 +27,37 @@ MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHand
     dlgUi->toolkitHandler=toolkitHandler;
     dlgUi->dialogObj=NULL;
     dlgUi->mDialog=mDialog;
-    maker_dialog_ui_add_destroy_hook(dlgUi);
+    mDialog->dlgUi=dlgUi;
     return dlgUi;
 }
 
-gboolean maker_dialog_ui_construct(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal){
-    g_assert(dlgUi->toolkitHandler->dialog_construct);
-    dlgUi->dialogObj=dlgUi->toolkitHandler->dialog_construct(dlgUi, parentWindow, modal);
-    if (dlgUi->dialogObj)
+gboolean maker_dialog_ui_construct(MakerDialog *mDialog, gpointer parentWindow, gboolean modal){
+    g_assert(mDialog->dlgUi->toolkitHandler->dialog_construct);
+    mDialog->dlgUi->dialogObj=mDialog->dlgUi->toolkitHandler->dialog_construct(mDialog->dlgUi, parentWindow, modal);
+    if (mDialog->dlgUi->dialogObj)
 	return TRUE;
     return FALSE;
 }
 
-gint maker_dialog_ui_run(MakerDialogUi *dlgUi){
-    g_assert(dlgUi->toolkitHandler->dialog_run);
-    return dlgUi->toolkitHandler->dialog_run(dlgUi);
+gint maker_dialog_ui_run(MakerDialog *mDialog){
+    g_assert(mDialog->dlgUi->toolkitHandler->dialog_run);
+    return mDialog->dlgUi->toolkitHandler->dialog_run(mDialog->dlgUi);
 }
 
-void maker_dialog_ui_show(MakerDialogUi *dlgUi){
-    g_assert(dlgUi->toolkitHandler->dialog_show);
-    dlgUi->toolkitHandler->dialog_show(dlgUi);
+void maker_dialog_ui_show(MakerDialog *mDialog){
+    g_assert(mDialog->dlgUi->toolkitHandler->dialog_show);
+    mDialog->dlgUi->toolkitHandler->dialog_show(mDialog->dlgUi);
 }
 
-void maker_dialog_ui_hide(MakerDialogUi *dlgUi){
-    g_assert(dlgUi->toolkitHandler->dialog_hide);
-    dlgUi->toolkitHandler->dialog_hide(dlgUi);
+void maker_dialog_ui_hide(MakerDialog *mDialog){
+    g_assert(mDialog->dlgUi->toolkitHandler->dialog_hide);
+    mDialog->dlgUi->toolkitHandler->dialog_hide(mDialog->dlgUi);
 }
 
-void maker_dialog_ui_destroy(MakerDialogUi *dlgUi){
-    g_assert(dlgUi->dialogObj);
-    g_assert(dlgUi->toolkitHandler->dialog_destroy);
-    dlgUi->toolkitHandler->dialog_destroy(dlgUi);
-    g_free(dlgUi->dialogObj);
-}
-
-GValue *maker_dialog_ui_get_value(MakerDialogUi *dlgUi, const gchar *key){
-    return maker_dialog_property_table_lookup_value(dlgUi->mDialog->propertyTable, key);
-}
-
-gboolean maker_dialog_ui_apply_value(MakerDialogUi *dlgUi, const gchar *key){
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlgUi->mDialog->propertyTable, key);
-
-    gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
-	/* Value is invalid. */
-	ret=FALSE;
-    }
-    if (ret && ctx->applyFunc){
-	ctx->applyFunc(ctx,&ctx->value);
-    }else{
-	ret=FALSE;
-    }
-
-    return ret;
-}
-
-gboolean maker_dialog_ui_set_value(MakerDialogUi *dlgUi, const gchar *key, GValue *value){
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlgUi->mDialog->propertyTable, key);
-
-    gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
-	/* Value is invalid. */
-	ret=FALSE;
-    }
-    if (ret && dlgUi->toolkitHandler->component_set_value){
-	dlgUi->toolkitHandler->component_set_value(dlgUi, ctx->spec->key, value);
-	g_value_copy(value,&ctx->value);
-    }else{
-	ret=FALSE;
-    }
-    return ret;
-}
-
-gboolean maker_dialog_ui_update_value(MakerDialogUi *dlgUi, const gchar *key){
-    g_assert(dlgUi->toolkitHandler->component_get_value);
-    MakerDialogPropertyContext *ctx=maker_dialog_property_table_lookup(dlgUi->mDialog->propertyTable, key);
-
-    GValue *value=dlgUi->toolkitHandler->component_get_value(dlgUi,key);
-    gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
-	/* Value is invalid. */
-	ret=FALSE;
-    }else{
-	g_value_copy(value,&ctx->value);
-    }
-    g_value_unset(value);
-    g_free(value);
-
-    return ret;
+void maker_dialog_ui_destroy(MakerDialog *mDialog){
+    g_assert(mDialog->dlgUi->dialogObj);
+    g_assert(mDialog->dlgUi->toolkitHandler->dialog_destroy);
+    mDialog->dlgUi->toolkitHandler->dialog_destroy(mDialog->dlgUi);
+//    g_free(mDialog->dlgUi->dialogObj);
 }
 

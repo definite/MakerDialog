@@ -55,10 +55,8 @@ struct _MakerDialog{
     MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0.5);
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     /// @cond
-    /**
-     * The list of hook function for destroying the instances that attached to the MakerDialog instance.
-     * So they can be free.
-     */
+    MakerDialogUi *dlgUi;			//!< UI Instance.
+//    MakerDialogConfig *dlgCfg;			//!< Config Instance.
     GHookList	*destroyHookList;
     /// @endcond
 };
@@ -117,6 +115,88 @@ void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext 
  * Title in the MakerDialog will also be freed.
  */
 void maker_dialog_destroy(MakerDialog *mDialog);
+
+/**
+ * Get the value of a property.
+ *
+ * The returned value is still useful for property context, so DO NOT free it.
+ *
+ * @param mDialog A MakerDialog.
+ * @param key A property key.
+ * @return Value of the property; or NULL if no such property.
+ */
+GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key);
+
+/**
+ * Apply a property value by calling the apply callback function.
+ *
+ * This function applies the current property value by calling
+ * the applyFunc() defined in property context.
+ *
+ * If validateFunc() is also defined, then the value will be checked with it,
+ * if it does not pass, this function returns FALSE.
+ *
+ * If applyFunc() is not defined, this function returns FALSE as well.
+ *
+ *
+ * The difference between maker_dialog_ui_apply_value(), maker_dialog_ui_set_value(), and
+ * maker_dialog_ui_update_value() are:
+ *
+ * - maker_dialog_ui_apply_value() applies the property value to the system by calling the applyFunc();
+ * - maker_dialog_ui_set_value() copies argument value to the property value and UI component value.
+ * - maker_dialog_ui_update_value() copies UI component value to property value.
+ *
+ * @param mDialog A MakerDialog.
+ * @param key A property key.
+ * @return TRUE if succeed, FALSE if the property value does not pass
+ * validation, or applyFunc() does not exist.
+ * @see maker_dialog_ui_set_value()
+ * @see maker_dialog_ui_update_value()
+ */
+gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
+
+/**
+ * Set the value to the property and corresponding UI component.
+ *
+ * This function copies the argument value to the property value and UI component value.
+ *
+ * If validateFunc() is also defined, then the argument value will be checked with it,
+ * if it does not pass, this function returns FALSE.
+ *
+ * If component_set_value() in MakerToolkitHandler is not defined,
+ * this function returns FALSE as well.
+ *
+ * @param mDialog A MakerDialog.
+ * @param key A property key.
+ * @param value Argument value to be set.
+ * @return TRUE if succeed, FALSE if the property value does not pass
+ *  validation, or component_set_value() does not exist.
+ * @see maker_dialog_ui_apply_value()
+ * @see maker_dialog_ui_set_value()
+ * @see maker_dialog_ui_update_value()
+ */
+gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value);
+
+/**
+ * Update the property value using the value in UI component.
+ *
+ * This function copies UI component value to property value.
+ *
+ * If validateFunc() is also defined, then the argument value will be checked with it,
+ * if it does not pass, this function returns FALSE.
+ *
+ * If component_get_value() in MakerToolkitHandler is not defined,
+ * this function returns FALSE as well.
+ *
+ * @param mDialog A MakerDialog.
+ * @param key A property key.
+ * @return TRUE if succeed, FALSE if the property value does not pass
+ *  validation, or component_get_value() does not exist.
+ * @see maker_dialog_ui_apply_value()
+ * @see maker_dialog_ui_set_value()
+ */
+gboolean maker_dialog_update_value(MakerDialog *mDialog, const gchar *key);
+
 
 /**
  * String to boolean.
