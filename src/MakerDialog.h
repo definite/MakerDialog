@@ -56,7 +56,7 @@ struct _MakerDialog{
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     /// @cond
     MakerDialogUi *dlgUi;			//!< UI Instance.
-//    MakerDialogConfig *dlgCfg;			//!< Config Instance.
+    MakerDialogConfig *dlgCfg;			//!< Config Instance.
     GHookList	*destroyHookList;
     /// @endcond
 };
