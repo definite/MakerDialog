@@ -173,7 +173,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		widget = gtk_check_button_new();
 		self_widget_register(self, widget, ctx->spec->key, NULL);
 		gboolean bValue=FALSE;
-		if(ctx->hasValue){
+		if(ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE){
 		    bValue=g_value_get_boolean (&ctx->value);
 		}else if (ctx->spec->defaultValue){
 		    bValue=maker_dialog_atob(ctx->spec->defaultValue);
@@ -190,7 +190,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		widget = gtk_spin_button_new (gAdjust, ctx->spec->step, ctx->spec->decimalDigits);
 		self_widget_register(self, widget, ctx->spec->key, NULL);
 
-		if (ctx->hasValue){
+		if (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE){
 		    gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),
 			    (ctx->spec->valueType==G_TYPE_UINT)?
 			    g_value_get_uint (&ctx->value): g_value_get_int (&ctx->value));
@@ -208,7 +208,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		widget = gtk_spin_button_new (gAdjust, ctx->spec->step, ctx->spec->decimalDigits);
 		self_widget_register(self, widget, ctx->spec->key, NULL);
 
-		if (ctx->hasValue){
+		if (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE){
 		    gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),g_value_get_double (&ctx->value));
 		}else if (ctx->spec->defaultValue){
 		    gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget),atof(ctx->spec->defaultValue));
@@ -222,7 +222,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		if (ctx->spec->validValues){
 		    GtkListStore *listStore=NULL;
 
-		    if (ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
+		    if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
 			listStore=gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
 		    }else{
 			listStore=gtk_list_store_new (1, G_TYPE_STRING);
@@ -232,25 +232,25 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    for(i=0;ctx->spec->validValues[i]!=NULL;i++){
 			/* Add new item*/
 			listStore_append(listStore, ctx->spec->validValues[i],
-				ctx->spec->translationContext,ctx->spec->propertyFlags);
+				ctx->spec->translationContext,ctx->spec->flags);
 		    }
 		    int index=-1;
 
-		    if (ctx->hasValue){
+		    if (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE){
 			index=listStore_find_string(listStore,g_value_get_string (&ctx->value),
-				ctx->spec->translationContext,ctx->spec->propertyFlags);
+				ctx->spec->translationContext,ctx->spec->flags);
 		    }
 
 		    if (index<0 && ctx->spec->defaultValue){
 			index=listStore_find_string(listStore,ctx->spec->defaultValue,
-				ctx->spec->translationContext,ctx->spec->propertyFlags);
+				ctx->spec->translationContext,ctx->spec->flags);
 		    }
 
-		    if (ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE){
+		    if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE){
 			widget=gtk_combo_box_new_with_model (GTK_TREE_MODEL(listStore));
 			GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
 			gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widget), renderer, FALSE);
-			if (ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
+			if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
 			    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget), renderer,
 				    "text", 1,
 				    NULL);
@@ -262,7 +262,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
 		    }else{
 			widget=gtk_combo_box_entry_new_with_model (GTK_TREE_MODEL(listStore),
-				(ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION)? 1:0);
+				(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION)? 1:0);
 		    }
 
 		    self_widget_register(self, widget, ctx->spec->key, NULL);
@@ -282,7 +282,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
 		    const char *sValue=NULL;
 
-		    if (ctx->hasValue){
+		    if (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE){
 			sValue=g_value_get_string (&ctx->value);
 		    }else if (ctx->spec->defaultValue){
 			sValue=ctx->spec->defaultValue;
@@ -291,7 +291,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    }
 		    gtk_entry_set_text(GTK_ENTRY(widget),sValue);
 		    gtk_editable_set_editable (GTK_EDITABLE(widget),
-			    !(ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE));
+			    !(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE));
 
 		    if (ctx->applyFunc){
 			g_signal_connect(widget, "activate", G_CALLBACK(on_entry_activate_wrap),ctx);
@@ -418,18 +418,21 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	}
 	GtkWidget *widget=self_get_widget_by_key(self,key);
 	GValue *gValue=g_new0(GValue, 1);
-	g_value_init(gValue,ctx->spec->valueType);
 	switch(ctx->spec->valueType){
 	    case G_TYPE_BOOLEAN:
+		g_value_init(gValue,ctx->spec->valueType);
 		g_value_set_boolean(gValue, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)));
 		break;
 	    case G_TYPE_INT:
+		g_value_init(gValue,ctx->spec->valueType);
 		g_value_set_int(gValue, (gint) gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
 		break;
 	    case G_TYPE_UINT:
+		g_value_init(gValue,ctx->spec->valueType);
 		g_value_set_uint(gValue, (guint) gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
 		break;
 	    case G_TYPE_DOUBLE:
+		g_value_init(gValue,ctx->spec->valueType);
 		g_value_set_double(gValue, (guint) gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
 		break;
 	    case G_TYPE_STRING:
@@ -438,6 +441,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    MAKER_DIALOG_DEBUG_MSG(3,"::get_widget_value(%s) %s",
 			    key,str);
 		}else{
+		    g_value_init(gValue,ctx->spec->valueType);
 		    g_value_set_string(gValue, gtk_entry_get_text (GTK_ENTRY(widget)));
 		}
 
@@ -481,7 +485,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		if (ctx->spec->validValues){
 		    const gchar *str=g_value_get_string(value);
 		    index=combo_find_string_index(GTK_COMBO_BOX(widget),str,
-			    ctx->spec->translationContext,ctx->spec->propertyFlags);
+			    ctx->spec->translationContext,ctx->spec->flags);
 		    gtk_combo_box_set_active (GTK_COMBO_BOX(widget),index);
 		}else{
 		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));

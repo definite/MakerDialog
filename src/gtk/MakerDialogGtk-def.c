@@ -1,9 +1,9 @@
 /*=== Start toolkit handler definitions ===*/
-static GValue *maker_dialog_component_get_value_gtk(MakerDialogUi *dlgUi, const gchar *key){
+static GValue *maker_dialog_widget_get_value_gtk(MakerDialogUi *dlgUi, const gchar *key){
     return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlgUi->dialogObj),key);
 }
 
-static void maker_dialog_component_set_value_gtk(MakerDialogUi *dlgUi, const gchar *key, GValue *value){
+static void maker_dialog_widget_set_value_gtk(MakerDialogUi *dlgUi, const gchar *key, GValue *value){
     maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlgUi->dialogObj),key,value);
 }
 
@@ -29,8 +29,8 @@ static void maker_dialog_destroy_gtk(MakerDialogUi *dlgUi){
 }
 
 static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
-    maker_dialog_component_get_value_gtk,
-    maker_dialog_component_set_value_gtk,
+    maker_dialog_widget_get_value_gtk,
+    maker_dialog_widget_set_value_gtk,
     maker_dialog_construct_gtk,
     maker_dialog_run_gtk,
     maker_dialog_show_gtk,
@@ -326,13 +326,42 @@ static gchar *widget_get_id(gchar *buffer, gint buffer_size,
 
 /*=== Start Widget Callback function wraps ===*/
 
+static void validate_and_apply(MakerDialogPropertyContext *ctx, GValue *value){
+    if (maker_dialog_ui_update(ctx->mDialog, ctx)){
+	ctx->applyFunc(ctx, &ctx->value);
+    }else{
+	switch(ctx->spec->valueType){
+	    case G_TYPE_BOOLEAN:
+		g_warning(_("Invalid value: %s, Fall back to previous value: %s"),
+			(g_value_get_boolean(value))? "TRUE" : "FALSE" ,
+			(g_value_get_boolean(&ctx->value))? "TRUE" : "FALSE");
+		break;
+	    case G_TYPE_INT:
+		g_warning(_("Invalid value: %d, Fall back to previous value: %d"), g_value_get_int(value), g_value_get_int(&ctx->value));
+		break;
+	    case G_TYPE_UINT:
+		g_warning(_("Invalid value: %u, Fall back to previous value: %u"), g_value_get_uint(value), g_value_get_uint(&ctx->value));
+		break;
+	    case G_TYPE_DOUBLE:
+		g_warning(_("Invalid value: %g, Fall back to previous value: %g"), g_value_get_double(value), g_value_get_double(&ctx->value));
+		break;
+	    case G_TYPE_STRING:
+		g_warning(_("Invalid value: %s, Fall back to previous value: %s"), g_value_get_string(value), g_value_get_string(&ctx->value));
+		break;
+	    default:
+		break;
+	}
+	maker_dialog_widget_set_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key, &ctx->value);
+    }
+    g_value_unset(value);
+}
+
 static void on_comboBox_changed_wrap (GtkComboBox *comboBox, gpointer    user_data)
 {
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     GValue value={0};
     combo_get_active_text(comboBox, &value);
-    MAKER_DIALOG_DEBUG_MSG(2,"on_comboBox_changed_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->applyFunc(ctx,&value);
+    validate_and_apply(ctx, &value);
 }
 
 static void on_entry_activate_wrap (GtkEntry *entry, gpointer    user_data)
@@ -341,8 +370,7 @@ static void on_entry_activate_wrap (GtkEntry *entry, gpointer    user_data)
     GValue value={0};
     g_value_init(&value, ctx->spec->valueType);
     g_value_set_string(&value,gtk_entry_get_text(entry));
-    MAKER_DIALOG_DEBUG_MSG(2,"on_entry_activate_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->applyFunc(ctx,&value);
+    validate_and_apply(ctx, &value);
 }
 
 static void on_spinButton_value_changed_wrap (GtkSpinButton *button, gpointer    user_data)
@@ -350,26 +378,7 @@ static void on_spinButton_value_changed_wrap (GtkSpinButton *button, gpointer   
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     GValue value={0};
     g_value_init(&value, ctx->spec->valueType);
-    switch(ctx->spec->valueType){
-	case G_TYPE_INT:
-	    g_value_set_int(&value,(gint) gtk_spin_button_get_value(button));
-	    MAKER_DIALOG_DEBUG_MSG(2,"on_spinButton_value_changed_wrap(), key=%s value=%d",
-		    ctx->spec->key,g_value_get_int(&value));
-	    break;
-	case G_TYPE_UINT:
-	    g_value_set_uint(&value,(guint) gtk_spin_button_get_value(button));
-	    MAKER_DIALOG_DEBUG_MSG(2,"on_spinButton_value_changed_wrap(), key=%s value=%u",
-		    ctx->spec->key,g_value_get_uint(&value));
-	    break;
-	case G_TYPE_DOUBLE:
-	    g_value_set_uint(&value, gtk_spin_button_get_value(button));
-	    MAKER_DIALOG_DEBUG_MSG(2,"on_spinButton_value_changed_wrap(), key=%s value=%g",
-		    ctx->spec->key,g_value_get_double(&value));
-	    break;
-	default:
-	    break;
-    }
-    ctx->applyFunc(ctx,&value);
+    validate_and_apply(ctx, &value);
 }
 
 static void on_toggleButton_toggled_wrap (GtkToggleButton *button, gpointer    user_data)
@@ -378,8 +387,7 @@ static void on_toggleButton_toggled_wrap (GtkToggleButton *button, gpointer    u
     GValue value={0};
     g_value_init(&value, ctx->spec->valueType);
     g_value_set_boolean(&value, gtk_toggle_button_get_active(button));
-    MAKER_DIALOG_DEBUG_MSG(2,"on_entry_activate_wrap(), key=%s value=%s",ctx->spec->key,g_value_get_string(&value));
-    ctx->applyFunc(ctx,&value);
+    validate_and_apply(ctx, &value);
 }
 
 /*=== End of Widget Callback function wraps ===*/

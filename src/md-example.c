@@ -37,7 +37,7 @@ int main(int argc,char *argv[]){
     g_type_init();
     MakerDialog *mDialog=maker_dialog_init("Hello World!", 1, &buttonSpec);
     maker_dialog_add_property(mDialog,
-	    maker_dialog_property_context_new_full( &propSpec, NULL, NULL, NULL, KBType_applyFunc));
+	    maker_dialog_property_context_new_full( &propSpec, NULL, NULL, KBType_applyFunc));
     if (!maker_dialog_ui_use_gtk(mDialog, &argc, &argv)){
 	exit(1);
     }

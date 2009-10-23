@@ -50,7 +50,7 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key, G
 	spec->step=step;
 	spec->decimalDigits=decimalDigits;
 
-	spec->propertyFlags=propertyFlags | MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE;
+	spec->flags=propertyFlags | MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE;
 	spec->pageName=pageName;
 	spec->label=label;
 	spec->translationContext=translationContext;
@@ -65,36 +65,32 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec){
     g_free(spec);
 }
 
-MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec,
-	GValue *initValue, gpointer obj){
-    return maker_dialog_property_context_new_full(spec, initValue, obj, NULL, NULL);
+MakerDialogPropertyContext *maker_dialog_property_context_new(
+	MakerDialogPropertySpec *spec,gpointer obj){
+    return maker_dialog_property_context_new_full(spec, obj, NULL, NULL);
 }
 
-MakerDialogPropertyContext *maker_dialog_property_context_new_full(MakerDialogPropertySpec *spec,
-	GValue *initValue, gpointer obj,
+MakerDialogPropertyContext *maker_dialog_property_context_new_full(
+	MakerDialogPropertySpec *spec,	gpointer obj,
 	MakerDialogValidateCallbackFunc validateFunc,
 	MakerDialogApplyCallbackFunc applyFunc){
     MakerDialogPropertyContext *ctx=g_new(MakerDialogPropertyContext,1);
     if (ctx){
+	ctx->flags=0;
 	ctx->spec=spec;
 	ctx->obj=obj;
 	memset(&ctx->value, 0, sizeof(GValue));
 	g_value_init(&ctx->value,spec->valueType);
-	if (initValue){
-	    g_value_copy(initValue, &ctx->value);
-	    ctx->hasValue=TRUE;
-	}else{
-	    ctx->hasValue=FALSE;
-	}
 	ctx->validateFunc=validateFunc;
 	ctx->applyFunc=applyFunc;
+	ctx->mDialog=NULL;
     }
     return ctx;
 }
 
 void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx){
     g_value_unset (&(ctx->value));
-    if (ctx->spec->propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
+    if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
 	maker_dialog_property_spec_free(ctx->spec);
     }
     g_free(ctx);
@@ -124,3 +120,8 @@ GValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTabl
 void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable){
     g_hash_table_destroy(hTable);
 }
+
+void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData){
+    g_hash_table_foreach(mDialog->propertyTable, func, userData);
+}
+

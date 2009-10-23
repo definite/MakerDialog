@@ -37,13 +37,14 @@
 #define MAKER_DIALOG_H_
 #include <glib.h>
 #include <glib-object.h>
-#include "MakerDialogProperty.h"
 /**
  * Data structure of a MakerDialog.
  *
  */
 typedef struct _MakerDialog MakerDialog;
+#include "MakerDialogProperty.h"
 #include "MakerDialogUi.h"
+#include "MakerDialogConfig.h"
 
 struct _MakerDialog{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.
@@ -57,7 +58,6 @@ struct _MakerDialog{
     /// @cond
     MakerDialogUi *dlgUi;			//!< UI Instance.
     MakerDialogConfig *dlgCfg;			//!< Config Instance.
-    GHookList	*destroyHookList;
     /// @endcond
 };
 
@@ -128,6 +128,17 @@ void maker_dialog_destroy(MakerDialog *mDialog);
 GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key);
 
 /**
+ * Get the property context.
+ *
+ * The returned value is still useful for property context, so DO NOT free it.
+ *
+ * @param mDialog A MakerDialog.
+ * @param key A property key.
+ * @return Context of the property; or NULL if no such property.
+ */
+MakerDialogPropertyContext *maker_dialog_get_property_context(MakerDialog *mDialog, const gchar *key);
+
+/**
  * Apply a property value by calling the apply callback function.
  *
  * This function applies the current property value by calling
@@ -138,19 +149,18 @@ GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key);
  *
  * If applyFunc() is not defined, this function returns FALSE as well.
  *
- *
- * The difference between maker_dialog_ui_apply_value(), maker_dialog_ui_set_value(), and
+ * The difference between maker_dialog_apply_value(), maker_dialog_set_value(), and
  * maker_dialog_ui_update_value() are:
  *
- * - maker_dialog_ui_apply_value() applies the property value to the system by calling the applyFunc();
- * - maker_dialog_ui_set_value() copies argument value to the property value and UI component value.
+ * - maker_dialog_apply_value() applies the property value to the system by calling the applyFunc();
+ * - maker_dialog_set_value() copies argument value to the property value and UI widget value.
  * - maker_dialog_ui_update_value() copies UI component value to property value.
  *
  * @param mDialog A MakerDialog.
  * @param key A property key.
  * @return TRUE if succeed, FALSE if the property value does not pass
  * validation, or applyFunc() does not exist.
- * @see maker_dialog_ui_set_value()
+ * @see maker_dialog_set_value()
  * @see maker_dialog_ui_update_value()
  */
 gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
@@ -163,39 +173,19 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  * If validateFunc() is also defined, then the argument value will be checked with it,
  * if it does not pass, this function returns FALSE.
  *
- * If component_set_value() in MakerToolkitHandler is not defined,
+ * If widget_set_value() in MakerToolkitHandler is not defined,
  * this function returns FALSE as well.
  *
  * @param mDialog A MakerDialog.
  * @param key A property key.
  * @param value Argument value to be set.
  * @return TRUE if succeed, FALSE if the property value does not pass
- *  validation, or component_set_value() does not exist.
- * @see maker_dialog_ui_apply_value()
- * @see maker_dialog_ui_set_value()
+ *  validation, or widget_set_value() does not exist.
+ * @see maker_dialog_apply_value()
  * @see maker_dialog_ui_update_value()
  */
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value);
 
-/**
- * Update the property value using the value in UI component.
- *
- * This function copies UI component value to property value.
- *
- * If validateFunc() is also defined, then the argument value will be checked with it,
- * if it does not pass, this function returns FALSE.
- *
- * If component_get_value() in MakerToolkitHandler is not defined,
- * this function returns FALSE as well.
- *
- * @param mDialog A MakerDialog.
- * @param key A property key.
- * @return TRUE if succeed, FALSE if the property value does not pass
- *  validation, or component_get_value() does not exist.
- * @see maker_dialog_ui_apply_value()
- * @see maker_dialog_ui_set_value()
- */
-gboolean maker_dialog_update_value(MakerDialog *mDialog, const gchar *key);
 
 
 /**

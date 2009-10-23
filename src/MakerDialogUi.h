@@ -69,7 +69,7 @@ typedef enum{
 } MakerDialogResponsePredefined;
 
 /**
- * Response id for UI components.
+ * Response id for UI widgets.
  */
 typedef gint MakerDialogResponse;
 
@@ -100,16 +100,16 @@ typedef struct _MakerDialogUi MakerDialogUi;
  */
 typedef struct {
     /**
-     * Callback function to get the value from UI component.
+     * Callback function to get the value from UI widget.
      * Called by maker_dialog_ui_get_value().
      */
-    GValue * (* component_get_value)(MakerDialogUi *dlgUi, const gchar *key);
+    GValue * (* widget_get_value)(MakerDialogUi *dlgUi, const gchar *key);
 
     /**
-     *  Callback function to set a value to a property, so the corresponding UI component can show the value.
+     *  Callback function to set a value to a property, so the corresponding UI widget can show the value.
      *  Called by maker_dialog_ui_set_value().
      */
-    void (* component_set_value)(MakerDialogUi *dlgUi, const gchar *key, GValue *value);
+    void (* widget_set_value)(MakerDialogUi *dlgUi, const gchar *key, GValue *value);
 
     /**
      *  Callback function to construct the "real" toolkit dialog UI.
@@ -147,7 +147,7 @@ typedef struct {
  * UI instance for MakerDialog.
  */
 struct _MakerDialogUi{
-    MakerDialog	*mDialog;		//!< Referring MakerDialog.
+    MakerDialog	*mDialog;		//!< "Parent" MakerDialog.
     gpointer dialogObj;			//!< The toolkit dialog object.
     MakerDialogToolkitHandler *toolkitHandler; //!< The toolkit handler which connects to UI toolkit front-end.
 };
@@ -184,6 +184,13 @@ MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHand
 gboolean maker_dialog_ui_construct(MakerDialog *mDialog, gpointer parentWindow, gboolean modal);
 
 /**
+ * Destroy and free the UI.
+ *
+ * @param mDialog A MakerDialog.
+ */
+void maker_dialog_ui_destroy(MakerDialog *mDialog);
+
+/**
  * Blocks in a recursive main loop until the dialog either emits the "response" signal, or is destroyed.
  *
  * This function aspires gtk_dialog_run().
@@ -208,9 +215,22 @@ void maker_dialog_ui_show(MakerDialog *mDialog);
 void maker_dialog_ui_hide(MakerDialog *mDialog);
 
 /**
- * Destroy and free the UI.
+ * Update the property value using the value in UI widget.
+ *
+ * This function copies UI widget value to property value.
+ *
+ * If validateFunc() is also defined, then the argument value will be checked with it,
+ * if it does not pass, this function returns FALSE.
+ *
+ * If widget_get_value() in ::MakerDialogToolkitHandler is not defined,
+ * this function returns FALSE as well.
  *
  * @param mDialog A MakerDialog.
+ * @param ctx     A property context to be update.
+ * @return TRUE if succeed, FALSE if the property value does not pass
+ *  validation, or widget_get_value() does not exist.
+ * @see maker_dialog_apply_value()
+ * @see maker_dialog_set_value()
  */
-void maker_dialog_ui_destroy(MakerDialog *mDialog);
+gboolean maker_dialog_ui_update(MakerDialog *mDialog, MakerDialogPropertyContext *ctx);
 

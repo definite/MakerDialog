@@ -18,8 +18,8 @@
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogKeyFile.h
- * Manipulate INI like configuration file.
+ * @file MakerDialogConfigKeyFile.h
+ * Glib key file: Manipulate INI like configuration file.
  *
  * MakerDialogKeyFile lets you parse, edit or create files containing groups of key-value pairs.
  * This module is, in fact, a wrapper of GKeyFile in glib.
@@ -81,31 +81,24 @@
 #define MAKER_DIALOG_KEY_FILE_H_
 #include <glib.h>
 #include <glib-object.h>
+#include "MakerDialogConfig.h"
 
 /**
- * Data structure for MakerDialog key file.
+ * New a MakerDialogConfig using glib key file back-end.
  *
- * It is essentially a GKeyFile, whose fields are all private.
+ * This function constructs a configuration back-end using glib key file
+ * back-end.
+ *
+ * During construction, the new MakerDialogConfig is associated to the #mDialog.
+ * Thus, maker_dialog_destroy() can free the associated MakerDialogConfig as well.
+ *
+ *
+ * @param mDialog A MakerDialog.
+ * @param configHandler A MakerDialog configuration handler.
+ * @return A newly allocated MakerDialogConfig.
+ * @see maker_dialog_config_new().
  */
-typedef GKeyFile MakerDialogKeyFile;
-
-/**
- * New an empty MakerDialog key file instance.
- *
- * This function creates a file handle for MakerDialog.
- * It is essentially a g_key_file_new().
- *
- * @return A newly allocated empty MakerDialog key file instance.
- */
-MakerDialogKeyFile *maker_dialog_key_file_new(void);
-
-/**
- * Free a MakerDialog key file instance.
- *
- * @param keyFile A MakerDialog key file.
- */
-void maker_dialog_key_file_free(MakerDialogKeyFile *keyFile);
-
+MakerDialogConfig *maker_dialog_config_new_key_file(MakerDialog *mDialog);
 
 
 #endif /* MAKER_DIALOG_KEY_FILE_H_ */

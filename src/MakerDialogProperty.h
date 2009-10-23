@@ -63,7 +63,7 @@ typedef guint MakerDialogPropertyFlags;
 typedef struct _MakerDialogPropertySpec{
     const gchar *key;		//!< String that identify the property.
     GType valueType;		//!< Data type of the property value.
-    MakerDialogPropertyFlags 	propertyFlags; //!< Flags for a configuration property.
+    MakerDialogPropertyFlags 	flags; //!< Flags for a configuration property.
     const gchar *defaultValue;	//!< Default value represent in string.
     const gchar **validValues;	//!< Valid values represent in strings.
     gdouble min;		//!< Minimum value of a number. Irrelevant to other data type.
@@ -111,6 +111,19 @@ typedef gboolean (* MakerDialogValidateCallbackFunc)(MakerDialogPropertySpec *sp
  */
 typedef void (* MakerDialogApplyCallbackFunc)(MakerDialogPropertyContext *ctx, GValue *value);
 
+/**
+ * Property context flags.
+ */
+typedef enum{
+    MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE	=0x1, //!< Whether the value is set.
+    MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED		=0x2, //!< The value is modified but unsaved.
+    MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED	=0x4, //!< The value has not been applied. i.e. Pass to property context applyFunc().
+} MakerDialogPropertyContextFlag;
+
+/**
+ * Data structure that holds property context flags.
+ */
+typedef guint MakerDialogPropertyContextFlags;
 
 /**
  * A MakerDialogPropertyContext is a property context which associates property specification,
@@ -121,14 +134,15 @@ typedef void (* MakerDialogApplyCallbackFunc)(MakerDialogPropertyContext *ctx, G
  * tuned by calling the setFunc().
  */
 struct _MakerDialogPropertyContext{
-    MakerDialogPropertySpec *spec;		//!< Corresponding property spec.
-    GValue value;				//!< Current value of the property.
-    gpointer obj;				//!< An referencing object.
-    MakerDialogValidateCallbackFunc validateFunc;	//!< Function to be called for value validation.
-    MakerDialogApplyCallbackFunc applyFunc;		//!< Function to be called for applying value.
-
+    MakerDialogPropertySpec 	*spec;		//!< Corresponding property spec.
+    GValue 			value;		//!< Current value of the property.
+    gpointer 			obj;		//!< An referencing object.
+    gboolean 			modified;	//!< The value is modified but unsaved.
+    MakerDialogValidateCallbackFunc 	validateFunc;	//!< Function to be called for value validation.
+    MakerDialogApplyCallbackFunc 	applyFunc;	//!< Function to be called for applying value.
+    MakerDialogPropertyContextFlags	flags;	//!< Property context flags.
     /// @cond
-    gboolean hasValue;			//!< Whether the value is set.
+    MakerDialog				*mDialog; //!< "Parent" MakerDialog.
     /// @endcond
 };
 
@@ -203,17 +217,13 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec);
  *
  * New a MakerDialogPropertyContext, according to the initValue.
  *
- * Note that initValue stores the current setting, usually in from configure file;
- * while default value is used when initValue does not exist.
  *
  * @param spec Property specification.
- * @param initValue String represented initial value. Non-NULL value overrides the default value defined in spec.
  * @param obj A referencing object for set callback function. Can be NULL.
  * @return A newly allocated MakerDialogPropertyContext.
  * @see maker_dialog_property_context_new_full()
  */
-MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec,
-       GValue *initValue, gpointer obj);
+MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer obj);
 
 /**
  * New a MakerDialogPropertyContext with callback functions.
@@ -221,11 +231,7 @@ MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropert
  * New a MakerDialogPropertyContext, according to the initValue
  * and set and validate callback functions.
  *
- * Note that initValue stores the current setting, usually in from configure file;
- * while default value is used when initValue does not exist.
- *
  * @param spec Property specification.
- * @param initValue Initial value for the property.
  * @param obj A referencing object for set callback function. Can be NULL.
  * @param validateFunc Callback function call for value validation.
  * @param applyFunc Callback function for applying value.
@@ -233,7 +239,7 @@ MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropert
  * @see maker_dialog_property_context_new()
  */
 MakerDialogPropertyContext *maker_dialog_property_context_new_full(MakerDialogPropertySpec *spec,
-	GValue *initValue, gpointer obj,
+	gpointer obj,
 	MakerDialogValidateCallbackFunc	validateFunc,
 	MakerDialogApplyCallbackFunc applyFunc);
 
@@ -289,12 +295,27 @@ MakerDialogPropertyContext *maker_dialog_property_table_lookup(MakerDialogProper
  */
 GValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTable, const gchar *key);
 
+
 /**
  * Destroys all keys and values in the GHashTable and decrements its reference count by 1.
  *
  * @param hTable A MakerDialogPropertyTable.
  */
 void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
+
+/**
+ * Call callback for each property.
+ *
+ * Calls the given function for each property.
+ * The function is passed the key and value of each pair, and the given user_data parameter.
+ * The hash table may not be modified while iterating over it (you can't add/remove items).
+ *
+ * @param mDialog A MakerDialog.
+ * @param func The callback function to be called for each key/value pair.
+ * @param userData User data to pass to the function.
+ */
+void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData);
+
 
 /*=== End Function Definition  ===*/
 
