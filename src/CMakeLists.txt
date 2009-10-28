@@ -24,10 +24,12 @@ SET(MAKER_DIALOG_BASE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
     )
 
 SET(GOB_GENERATED

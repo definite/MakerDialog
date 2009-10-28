@@ -42,7 +42,7 @@
  * The page name for no page.
  *
  * If key does not have a page name associate with it, then
- * this name will be assigned to it,
+ * this name will be saved as page name.
  * because some of the configuration back-ends (such as glib KeyFile)
  * expect a page name associate with it.
  */
@@ -92,25 +92,18 @@ typedef enum{
     MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR=	0x8,
 
     /**
-     * Hide the NULL, empty string, and 0 in configure file.
-     * This flag may be ignored if the configuration back-end does not support
-     * it.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_HIDE_EMPTY=	0x10,
-
-    /**
      * Hide the default values in configure file.
      * This flag may be ignored if the configuration back-end does not support
      * it.
      */
-    MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT=	0x20,
+    MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT=	0x10,
 
     /**
      * Hide duplicated values in configure file.
      * This flag may be ignored if the configuration back-end does not support
      * it.
      */
-    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE=	0x40,
+    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE=	0x20,
 
 
 } MakerDialogConfigFlag;
@@ -134,10 +127,21 @@ typedef enum{
  */
 typedef guint MakerDialogConfigFlags;
 
+/**
+ * Configuration buffer which stores the contents pre-loaded configuration files.
+ *
+ * Configuration buffer stores the contents of pre-loaded configuration files.
+ * This buffer can then be loaded to MakerDialog, or save only the modified
+ * parts.
+ */
 typedef struct{
-    GHashTable *keyValueTable;
-    const char *workingPageName;
+    GHashTable *keyValueTable;			//!< Hash table whose key is configuration key, value is associated value for that key.
 } MakerDialogConfigBuffer;
+
+typedef struct{
+    const gchar 		*path;			//!< Path to configuration file.
+    gpointer		filePointer;		//!< Pointer to file.
+} MakerDialogConfigFile;
 
 /**
  * Data structure of a configure file set.
@@ -169,12 +173,12 @@ typedef struct{
     const gchar 		*defaultFilename;	//!< Default filename to use if filePattern cannot match any files in search directories.
     gint 			maxFileCount;		//!< Maximum number of configuration files. -1 for find all matched.
     gint 			writeIndex;		//!< Index of writable file. -1 if all read-only.
-    GPtrArray 			*filenameArray;		//!< Pointer to filenames.
-    GPtrArray 			*fileArray;		//!< Pointer to actual file handler, i.e. not the filename.
+    GPtrArray 			*fileArray;		//!< Array of MakerDialogConfigFile.
+    gint			currentIndex;		//!< Index for current working file. Non-negative values are real index value; while -1 is for not starting.
     /// @cond
     MakerDialog			*mDialog;		//!< Parent MakerDialog config.
-//    gchar 			*workingPageName;	//!< The page name to be working on. Can be \c NULL.
     MakerDialogConfigBuffer	*dlgCfgBuf;		//!< Configure buffer.
+    gpointer			userData;		//!< Pass user data.
     /// @endcond
 } MakerDialogConfigSet;
 
@@ -193,31 +197,42 @@ typedef struct{
      * Callback function to create a new configuration file.
      * Called by maker_dialog_config_open_all().
      */
-    MakerDialogConfigError (* config_create)(MakerDialogConfigSet *dlgCfgSet, gpointer *configFile, const gchar *filename);
+    MakerDialogConfigError (* config_create)(MakerDialogConfigSet *dlgCfgSet, MakerDialogConfigFile *configFile);
 
     /**
      * Callback function to open a configuration file.
      * Called by maker_dialog_config_open_all().
      */
-    MakerDialogConfigError (* config_open)(MakerDialogConfigSet *dlgCfgSet, gpointer *configFile, const gchar *filename);
+    MakerDialogConfigError (* config_open)(MakerDialogConfigSet *dlgCfgSet, MakerDialogConfigFile *configFile);
 
     /**
      * Callback function to close a configuration file.
      * Called by maker_dialog_config_close_all().
      */
-    MakerDialogConfigError (* config_close)(MakerDialogConfigSet *dlgCfgSet, gpointer configFile);
+    MakerDialogConfigError (* config_close)(MakerDialogConfigSet *dlgCfgSet, MakerDialogConfigFile *configFile);
 
     /**
-     * Callback function to load setting from a  configuration file.
-     * Called by maker_dialog_config_load_all(),  maker_dialog_config_load_page().
+     * Callback function to pre-load configuration files.
+     *
+     * Pre-load function loads configuration files in to a configuration
+     * buffer, namely ::MakerDialogConfigBuffer.
+     *
+     * The configuration back-end does not need to implement the load function,
+     * instead, preload should be implemented.
+     * This is because preload function benefits not only load function, but also save function,
+     * as it enables the set differentiate operations for non-duplicate save.
+     *
+     * The full loading operation will be completed by maker_dialog_config_load_all() or  maker_dialog_config_load_page().
+     *
+     * Called by maker_dialog_config_load_all(),  maker_dialog_config_load_page(), maker_dialog_config_save_all(),  maker_dialog_config_save_page().
      */
-    MakerDialogConfigError (* config_load)(MakerDialogConfigSet *dlgCfgSet, gpointer configFile);
+    MakerDialogConfigError (* config_preload)(MakerDialogConfigSet *dlgCfgSet, MakerDialogConfigFile *configFile, const gchar *pageName);
 
     /**
      * Callback function to load setting from a  configuration file.
      * Called by maker_dialog_config_save_all(),  maker_dialog_config_save_page().
      */
-    MakerDialogConfigError (* config_save)(MakerDialogConfigSet *dlgCfgSet, gpointer configFile);
+    MakerDialogConfigError (* config_save)(MakerDialogConfigSet *dlgCfgSet, MakerDialogConfigFile *configFile, const gchar *pageName);
 
 } MakerDialogConfigHandler;
 
@@ -291,7 +306,7 @@ void maker_dialog_config_set_free(MakerDialogConfigSet *dlgCfgSet);
  *
  * This function is meant for configuration handler developers.
  * For glib KeyFile, gconf, kcfg users, it is more convenient to call
- * maker_dialog_config_use_kv(),
+ * maker_dialog_config_use_key_file(),
  * maker_dialog_ui_use_gconf() or maker_dialog_ui_use_kcfg() than using this
  * function directly.
  *
@@ -394,10 +409,9 @@ MakerDialogConfigError maker_dialog_config_save_page(MakerDialog *mDialog, const
 /**
  * New a MakerDialog config buffer.
  *
- * @param pageName Page to be loaded.
  * @return A newly allocated MakerDialogConfigBuffer instance.
  */
-MakerDialogConfigBuffer *maker_dialog_config_buffer_new(const gchar *pageName);
+MakerDialogConfigBuffer *maker_dialog_config_buffer_new();
 
 /**
  * Free a MakerDialog config buffer.

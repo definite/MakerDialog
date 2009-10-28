@@ -56,6 +56,7 @@ struct _MakerDialog{
     MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0.5);
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     /// @cond
+    GNode *pageRoot;				//!< Store pages and keys under it. Depth 1 is root, point to NULL; Depth 2 stores pages; Depth 3 stores keys.
     MakerDialogUi *dlgUi;			//!< UI Instance.
     MakerDialogConfig *dlgCfg;			//!< Config Instance.
     /// @endcond
@@ -186,6 +187,15 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  */
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value);
 
+/**
+ * Find the page node by page name.
+ *
+ * Find the page node by page name.
+ * @param mDialog A MakerDialog.
+ * @param pageName Page name to be found.
+ * @return GNode that contains the page name; NULL if no such node.
+ */
+GNode *maker_dialog_find_page_node(MakerDialog *mDialog, const gchar *pageName);
 
 
 /**

@@ -312,10 +312,46 @@ void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
  *
  * @param mDialog A MakerDialog.
  * @param func The callback function to be called for each key/value pair.
- * @param userData User data to pass to the function.
+ * @param userData User data to pass to the callback function.
  */
 void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData);
 
+/**
+ * Prototype of callback function for foreach property function.
+ *
+ * The callback function should implement the actions for each property.
+ * It will be called by maker_dialog_page_foreach_property() and maker_dialog_pages_foreach_property().
+ *
+ * @param mDialog A MakerDialog.
+ * @param ctx  The property context.
+ * @param userData User data to be passed into the callback.
+ * @see maker_dialog_pages_foreach_property().
+ */
+typedef void (* MakerDialogPropertyCallbackFunc)(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData);
+
+/**
+ * Call callback for each property in certain page.
+ *
+ * Calls the given function for each property in certain page.
+ *
+ * @param mDialog A MakerDialog.
+ * @param pageNames Page names to be included in the execution. \c NULL for all keys, regardless the pages.
+ * @param func The callback function to be called.
+ * @param userData User data to pass to the callback function.
+ */
+void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageName, MakerDialogPropertyCallbackFunc  func, gpointer userData);
+
+/**
+ * Call callback for each property in certain pages.
+ *
+ * Calls the given function for each property in certain pages.
+ *
+ * @param mDialog A MakerDialog.
+ * @param pageNames Page names to be included in the execution. \c NULL for all keys, regardless the pages.
+ * @param func The callback function to be called.
+ * @param userData User data to pass to the callback function.
+ */
+void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pageNames, MakerDialogPropertyCallbackFunc  func, gpointer userData);
 
 /*=== End Function Definition  ===*/
 

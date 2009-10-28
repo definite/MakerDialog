@@ -88,6 +88,45 @@ MakerDialogPropertyContext *maker_dialog_property_context_new_full(
     return ctx;
 }
 
+const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *spec){
+    if (spec->defaultValue){
+	if (spec->validValues){
+	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE){
+		gint index=-1;
+		/* Make sure default value is in valid values */
+		index=maker_dialog_find_string(spec->defaultValule,spec->validValues,-1);
+		if (index<0){
+		    /* Force to set on 1-st validValue */
+		    index=0;
+		}
+		return spec->validValues[index];
+	    }else{
+		/* Allow to edit, so we can use default value
+		 * anyway
+		 */
+		return spec->defaultValue;
+	    }
+	}else{
+	    return spec->defaultValue;
+	}
+    }else{
+	/* No default value */
+	if (spec->validValues){
+	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE){
+		return NULL;
+	    }
+	    return spec->validValues[0];
+	}
+    }
+    return NULL;
+}
+
+gboolean maker_dialog_value_property_is_default(MakerDialogPropertyContext *ctx){
+    GValue defValue={0};
+    maker_dialog_string_set_g_value(ctx->spec->valueType, maker_dialog_property_get_default_string(ctx->spec), &defVaule, TRUE);
+    return (maker_dialog_value_compare(ctx->value, defValue)==0)? TRUE: FALSE;
+}
+
 void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx){
     g_value_unset (&(ctx->value));
     if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
@@ -124,4 +163,29 @@ void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable){
 void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData){
     g_hash_table_foreach(mDialog->propertyTable, func, userData);
 }
+
+void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageName, MakerDialogPropertyCallbackFunc  func, gpointer userData){
+    GNode *pageNode=maker_dialog_find_page_node(mDialog, pageName);
+    g_assert(pageNode);
+    GNode *keyNode=NULL;
+    for(keyNode=g_node_first_child(pageNode);keyNode!=NULL; keyNode=g_node_next_sibling(keyNode)){
+	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, (gchar *) keyNode->data);
+	func(mDialog, ctx, userData);
+    }
+}
+
+void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pageNames, MakerDialogPropertyCallbackFunc func, gpointer userData){
+    if (pageNames){
+	gsize i;
+	for(i=0;pageNames[i]!=NULL;i++){
+	    maker_dialog_page_foreach_property(mDialog, pageNames[i], func, userData);
+	}
+    }else{
+	GNode *pageNode=NULL;
+	for(pageNode=g_node_first_child(mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
+	    maker_dialog_page_foreach_property(mDialog, (gchar *) pageNode->data, func, userData);
+	}
+    }
+}
+
 
