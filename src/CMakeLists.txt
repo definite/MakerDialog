@@ -30,6 +30,8 @@ SET(MAKER_DIALOG_BASE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.h
     )
 
 SET(GOB_GENERATED

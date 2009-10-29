@@ -88,13 +88,29 @@ MakerDialogPropertyContext *maker_dialog_property_context_new_full(
     return ctx;
 }
 
+void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx){
+    g_value_unset (&(ctx->value));
+    if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
+	maker_dialog_property_spec_free(ctx->spec);
+    }
+    g_free(ctx);
+}
+
+static void  _maker_dialog_property_context_free_wrap(gpointer obj){
+    maker_dialog_property_context_free((MakerDialogPropertyContext *) obj);
+}
+
+MakerDialogPropertyTable* maker_dialog_property_table_new(){
+    return g_hash_table_new_full(g_str_hash,g_str_equal,NULL, _maker_dialog_property_context_free_wrap);
+}
+
 const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *spec){
     if (spec->defaultValue){
 	if (spec->validValues){
-	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE){
+	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET){
 		gint index=-1;
 		/* Make sure default value is in valid values */
-		index=maker_dialog_find_string(spec->defaultValule,spec->validValues,-1);
+		index=maker_dialog_find_string(spec->defaultValue,spec->validValues,-1);
 		if (index<0){
 		    /* Force to set on 1-st validValue */
 		    index=0;
@@ -112,7 +128,7 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
     }else{
 	/* No default value */
 	if (spec->validValues){
-	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE){
+	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET){
 		return NULL;
 	    }
 	    return spec->validValues[0];
@@ -121,26 +137,14 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
     return NULL;
 }
 
-gboolean maker_dialog_value_property_is_default(MakerDialogPropertyContext *ctx){
+
+gboolean maker_dialog_property_value_is_default(MakerDialogPropertyContext *ctx){
     GValue defValue={0};
-    maker_dialog_string_set_g_value(ctx->spec->valueType, maker_dialog_property_get_default_string(ctx->spec), &defVaule, TRUE);
-    return (maker_dialog_value_compare(ctx->value, defValue)==0)? TRUE: FALSE;
-}
-
-void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx){
-    g_value_unset (&(ctx->value));
-    if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
-	maker_dialog_property_spec_free(ctx->spec);
-    }
-    g_free(ctx);
-}
-
-static void  _maker_dialog_property_context_free_wrap(gpointer obj){
-    maker_dialog_property_context_free((MakerDialogPropertyContext *) obj);
-}
-
-MakerDialogPropertyTable* maker_dialog_property_table_new(){
-    return g_hash_table_new_full(g_str_hash,g_str_equal,NULL, _maker_dialog_property_context_free_wrap);
+    g_value_init(&defValue,ctx->spec->valueType);
+    maker_dialog_g_value_from_string(&defValue, maker_dialog_property_get_default_string(ctx->spec), NULL);
+    gboolean result=(maker_dialog_g_value_compare(&ctx->value, &defValue, NULL)==0)? TRUE: FALSE;
+    g_value_unset(&defValue);
+    return result;
 }
 
 void maker_dialog_property_table_insert(MakerDialogPropertyTable *hTable, const MakerDialogPropertyContext *ctx){

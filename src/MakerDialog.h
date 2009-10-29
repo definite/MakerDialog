@@ -37,6 +37,7 @@
 #define MAKER_DIALOG_H_
 #include <glib.h>
 #include <glib-object.h>
+#include "MakerDialogUtil.h"
 /**
  * Data structure of a MakerDialog.
  *
@@ -63,15 +64,6 @@ struct _MakerDialog{
 };
 
 /*=== Start Function Definition  ===*/
-/**
- * Print debug message.
- *
- * @param level Level of the debug message, the higher the level, the more verbose it should be.
- * @param format Printf-like format string.
- * @param ... Parameter of format.
- */
-void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...);
-
 /**
  * Initialize a MakerDialog.
  *
@@ -120,11 +112,14 @@ void maker_dialog_destroy(MakerDialog *mDialog);
 /**
  * Get the value of a property.
  *
+ * This function either returns the value of a property,
+ * or NULL if no such property or no value has been set.
+ *
  * The returned value is still useful for property context, so DO NOT free it.
  *
  * @param mDialog A MakerDialog.
  * @param key A property key.
- * @return Value of the property; or NULL if no such property.
+ * @return Value of the property; or NULL if no such property, or value have not been set.
  */
 GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key);
 
@@ -159,8 +154,7 @@ MakerDialogPropertyContext *maker_dialog_get_property_context(MakerDialog *mDial
  *
  * @param mDialog A MakerDialog.
  * @param key A property key.
- * @return TRUE if succeed, FALSE if the property value does not pass
- * validation, or applyFunc() does not exist.
+ * @return TRUE if succeed, FALSE if the property value does not pass validation, or applyFunc() does not exist.
  * @see maker_dialog_set_value()
  * @see maker_dialog_ui_update_value()
  */
@@ -170,18 +164,18 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  * Set the value to the property and corresponding UI component.
  *
  * This function copies the argument value to the property value and UI component value.
+ * If #value is NULL, then default value will be used.
  *
  * If validateFunc() is also defined, then the argument value will be checked with it,
  * if it does not pass, this function returns FALSE.
  *
- * If widget_set_value() in MakerToolkitHandler is not defined,
- * this function returns FALSE as well.
+ * If widget_set_value() in MakerToolkitHandler is defined,
+ * UI widget is also updated as well.
  *
  * @param mDialog A MakerDialog.
  * @param key A property key.
- * @param value Argument value to be set.
- * @return TRUE if succeed, FALSE if the property value does not pass
- *  validation, or widget_set_value() does not exist.
+ * @param value Argument value to be set. \c NULL for using default.
+ * @return TRUE if succeed, FALSE if the property value does not pass validation.
  * @see maker_dialog_apply_value()
  * @see maker_dialog_ui_update_value()
  */
@@ -197,31 +191,6 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *
  */
 GNode *maker_dialog_find_page_node(MakerDialog *mDialog, const gchar *pageName);
 
-
-/**
- * String to boolean.
- *
- * It returns FALSE if:
- *    -# string is NULL or have 0 length.
- *    -# string starts with 'F', 'f', 'N' or 'n'.
- *    -# string can be converted to a numeric 0.
- *
- * Everything else is TRUE.
- *
- * @param str A string.
- * @return Boolean value represented by the string.
- */
-gboolean maker_dialog_atob(const gchar *str);
-
-/**
- * Return the index of a string in a string list.
- *
- * @param str String to be found.
- * @param strlist List of string. Must be ended with NULL.
- * @param max_find Max strings to find. -1 for find until NULL.
- * @return Index of the string if str is in strlist before max_find; or -1 if on such string.
- */
-gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_find);
 
 /*=== End Function Definition  ===*/
 

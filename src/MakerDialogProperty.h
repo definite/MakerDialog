@@ -36,16 +36,16 @@
  * Flags for a configuration property. These flags, along with the property
  * type, determine how the UI is represented.
  *
+ * \todo MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTON need to be implemented
  */
 typedef enum {
-    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE    =0x1, //!< The property spec can be freed.
-    MAKER_DIALOG_PROPERTY_FLAG_INVISIBLE   =0x2, //!< The property should not be appeared in UI.
-    MAKER_DIALOG_PROPERTY_FLAG_INSENSITIVE =0x4, //!< The property should be insensitive. e.g. Gray-out in UI.
-    MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE =0x8, //!< The property does not accept custom input, but only choose among predefined values.
-    MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION =0x10, //!< The values of a property is associated.
-    MAKER_DIALOG_PROPERTY_FLAG_TRANSLATION_WITH_CONTEXT =0x20, //!< The translation is with context. This flags should be used with ::MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION.
-    MAKER_DIALOG_PROPERTY_FLAG_HAS_DEFAULT_VALUE =0x40,  //!< This property has default value. This flags is set automatically.
-    MAKER_DIALOG_PROPERTY_FLAG_HAS_VALID_VALUES =0x40,  //!< This property has valid values. This flags is set automatically.
+    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE    		=0x1, //!< The property spec can be freed.
+    MAKER_DIALOG_PROPERTY_FLAG_INVISIBLE   		=0x2, //!< The property should not be appeared in UI.
+    MAKER_DIALOG_PROPERTY_FLAG_INSENSITIVE		=0x4, //!< The property should be insensitive. e.g. Gray-out in UI.
+    MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET 			=0x8, //!< The property choose only among predefined valid values.
+    MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTON 	=0x10, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
+    MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION		=0x20, //!< The values of a property is associated.
+    MAKER_DIALOG_PROPERTY_FLAG_TRANSLATION_WITH_CONTEXT =0x40, //!< The translation is with context. This flags should be used with ::MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION.
 } MAKER_DIALOG_PROPERTY_FLAG;
 
 /**
@@ -249,9 +249,39 @@ MakerDialogPropertyContext *maker_dialog_property_context_new_full(MakerDialogPr
  * Free a MakerDialog property context.
  * Note that the value under the property context will be unset by g_value_unset().
  *
- * @param ctx Property context.
+ * @param ctx A MakerDialog property context.
  */
 void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx);
+
+/**
+ * Get the "true" default value of a property.
+ *
+ * This function does not merely return \a defaultValue in #spec.
+ * It also checks whether it is in \c validValues, and flag ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET.
+ *
+ * Specifically, this function returns:
+ * # \a defaultValue, if:
+ *   # \a defaultValue is in \a validValues  or ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET is not set.
+ *   # or \a validValues does not exist.
+ * # First value in \a validValues, if:
+ *   # \a defaultValue is not in \a validValues and ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET is set.
+ *   # \a defaultValue does not exist.
+ * # \c NULL if none of above matches.
+ * @param spec A MakerDailog property spec.
+ * @retval defaultValue if it is valid.
+ * @retval validValues[0] if \a defaltValue is not valid, but validValues exists.
+ * @retval NULL if neither defaultValue is valid, nor validValues exists.
+ */
+const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *spec);
+
+/**
+ * Whether the property value is default value.
+ *
+ * Whether the property value is default value.
+ * @param ctx A MakerDialog property context.
+ * @return TRUE if the property value is default value; FALSE otherwise.
+ */
+gboolean maker_dialog_property_value_is_default(MakerDialogPropertyContext *ctx);
 
 /**
  * New a maker dialog property table.
@@ -267,7 +297,7 @@ MakerDialogPropertyTable* maker_dialog_property_table_new();
  * This key is served as hash search key as well.
  *
  * @param hTable A MakerDialogPropertyTable.
- * @param ctx Property context.
+ * @param ctx A MakerDialog property context.
  */
 void maker_dialog_property_table_insert(MakerDialogPropertyTable *hTable, const MakerDialogPropertyContext *ctx);
 

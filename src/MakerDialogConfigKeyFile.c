@@ -200,16 +200,17 @@ struct SaveFileBind{
     gint counter;
     const gchar *pageName;
     MakerDialogConfigSet *dlgCfgSet;
-}
+    FILE *outF;
+};
 
 static void maker_dialog_save_keyfile(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
-    SaveFileBind *sBind=(SavFileBind *) userData;
+    struct SaveFileBind *sBind=(struct SaveFileBind *) userData;
     /* Check whether the line need to be saved */
     gboolean needSave=TRUE;
     GValue *bufValue=(GValue *)g_hash_table_lookup(sBind->dlgCfgSet->dlgCfgBuf->keyValueTable, ctx->spec->key);
     if (bufValue){
-	if ((sBind->dlgCfgSet->flags & MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE) && maker_dialog_value_compare(gValue,ctx->value)==0){
-	    needSave=FALSE:
+	if ((sBind->dlgCfgSet->flags & MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE) && maker_dialog_g_value_compare(bufValue,&ctx->value, NULL)==0){
+	    needSave=FALSE;
 	}
     }else{
 	if ((sBind->dlgCfgSet->flags & MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT) && maker_dialog_property_value_is_default(ctx)){
@@ -219,15 +220,14 @@ static void maker_dialog_save_keyfile(MakerDialog *mDialog, MakerDialogPropertyC
 
     if (needSave){
 	if (sBind->counter==0){
-	    fprintf(outf,"[%s]\n",sBind->pageName);
+	    fprintf(sBind->outF,"[%s]\n",sBind->pageName);
 	}
-	fprintf(outf,"%s=%s\n",sBind->pageName, maker_dialog_value_to_string(ctx->value));
+	fprintf(sBind->outF,"%s=%s\n",sBind->pageName, maker_dialog_g_value_to_string(&ctx->value, NULL));
 	sBind->counter++;
     }
 }
 
 static MakerDialogConfigError maker_dialog_config_key_file_save(MakerDialogConfigSet *dlgCfgSet, MakerDialogConfigFile *configFile, const gchar *pageName){
-    GError *error=NULL;
     if (!maker_dialog_file_isWritable(configFile->path)){
 	return MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE;
     }
@@ -235,26 +235,26 @@ static MakerDialogConfigError maker_dialog_config_key_file_save(MakerDialogConfi
     if (!outF){
 	return MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE;
     }
-    gchar *page=NULL;
+    const gchar *page=NULL;
     struct SaveFileBind sBind;
     sBind.counter=0;
     sBind.dlgCfgSet=dlgCfgSet;
-
+    sBind.outF=outF;
 
     if (dlgCfgSet->pageNames){
 	gsize i;
 	for(i=0;(page=dlgCfgSet->pageNames[i])!=NULL;i++){
 	    if (sBind.counter>0)
-		fprintf(outf,"\n");
-	    maker_dialog_page_foreach_property(dlgCfgSet->mDialog, page, func, &sBind);
+		fprintf(outF,"\n");
+	    maker_dialog_page_foreach_property(dlgCfgSet->mDialog, page, maker_dialog_save_keyfile, &sBind);
 	}
     }else{
 	GNode *pageNode=NULL;
-	for(pageNode=g_node_first_child(mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
+	for(pageNode=g_node_first_child(dlgCfgSet->mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
 	    page=(gchar *) pageNode->data;
 	    if (sBind.counter>0)
-		fprintf(outf,"\n");
-	    maker_dialog_page_foreach_property(dlgCfgSet->mDialog, page, func, &sBind);
+		fprintf(outF,"\n");
+	    maker_dialog_page_foreach_property(dlgCfgSet->mDialog, page, maker_dialog_save_keyfile, &sBind);
 	}
     }
     fclose(outF);
@@ -263,16 +263,16 @@ static MakerDialogConfigError maker_dialog_config_key_file_save(MakerDialogConfi
 
 /*=== End Config handler callbacks ===*/
 
-const MakerDialogConfigHandler MakerDialogConfigKeyFileHandler={
+MakerDialogConfigHandler makerDialogConfigKeyFileHandler={
     maker_dialog_config_key_file_create,
     maker_dialog_config_key_file_open,
     maker_dialog_config_key_file_close,
     maker_dialog_config_key_file_preload,
     maker_dialog_config_key_file_save
-}
+};
 
 MakerDialogConfig *maker_dialog_config_use_key_file(MakerDialog *mDialog){
-    MakerDialogConfig *makerDialogConfigKeyFile=maker_dialog_config_new(mDialog, MakerDialogConfigHandler *configHandler, &MakerDialogConfigKeyFileHandler);
+    MakerDialogConfig *makerDialogConfigKeyFile=maker_dialog_config_new(mDialog, &makerDialogConfigKeyFileHandler);
     return makerDialogConfigKeyFile;
 }
 

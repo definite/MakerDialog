@@ -20,7 +20,7 @@ const gchar *kbType_ids[]={
 
 MakerDialogPropertySpec propSpec=
     {"KBType", G_TYPE_STRING,
-	MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE | MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION,
+	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION,
 	"default", kbType_ids, 0.0, 30.0, 1.0, 0,
 	"Keyboard",
       	N_("Keyboard Type"),

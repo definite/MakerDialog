@@ -24,17 +24,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "MakerDialog.h"
-#define MAKER_DLALOG_VERBOSE_ENV "MAKER_DIALOG_VERBOSE"
-static gint verboseLevel=0;
-
-void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
-    va_list ap;
-    if (level<verboseLevel){
-	va_start(ap, format);
-	g_logv("MakerDialog",G_LOG_LEVEL_DEBUG, format, ap);
-	va_end(ap);
-    }
-}
+extern gint makerDialogVerboseLevel;
 
 MakerDialog *maker_dialog_init(const gchar *title,
 	guint buttonSpecCount, MakerDialogButtonSpec *buttonSpecs){
@@ -43,7 +33,7 @@ MakerDialog *maker_dialog_init(const gchar *title,
     mDialog->buttonSpecCount=buttonSpecCount;
     mDialog->buttonSpecs=buttonSpecs;
     mDialog->propertyTable=maker_dialog_property_table_new();
-    mDialog->pageRoot=g_node_new(NULL);
+    mDialog->pageRoot=g_node_new(mDialog);
     mDialog->maxSizeInPixel.width=-1;
     mDialog->maxSizeInPixel.height=-1;
     mDialog->maxSizeInChar.width=-1;
@@ -53,7 +43,7 @@ MakerDialog *maker_dialog_init(const gchar *title,
     mDialog->componentAlignment.x=0.0f;
     mDialog->componentAlignment.y=0.5f;
     if (getenv(MAKER_DLALOG_VERBOSE_ENV)){
-	verboseLevel=atoi(getenv(MAKER_DLALOG_VERBOSE_ENV));
+	makerDialogVerboseLevel=atoi(getenv(MAKER_DLALOG_VERBOSE_ENV));
     }
     mDialog->dlgUi=NULL;
     mDialog->dlgCfg=NULL;
@@ -63,7 +53,7 @@ MakerDialog *maker_dialog_init(const gchar *title,
 static GNode *maker_dialog_prepare_page_node(MakerDialog *mDialog, const gchar *pageName){
     const gchar *pageName_tmp=(pageName)? pageName : MAKER_DIALOG_CONFIG_NO_PAGE;
     GNode *result=maker_dialog_find_page_node(mDialog, (gpointer) pageName_tmp);
-    if (result){
+    if (!result){
 	result=g_node_new((gpointer) pageName_tmp);
 	g_node_append(mDialog->pageRoot,result);
     }
@@ -71,13 +61,15 @@ static GNode *maker_dialog_prepare_page_node(MakerDialog *mDialog, const gchar *
 }
 
 void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext *ctx){
+    MAKER_DIALOG_DEBUG_MSG(3, "[I3] add_property(-,%s)",ctx->spec->key);
     maker_dialog_property_table_insert(mDialog->propertyTable, ctx);
     GNode *propPageNode=maker_dialog_prepare_page_node(mDialog, ctx->spec->pageName);
     GNode *propKeyNode=g_node_new((gpointer) ctx->spec->key);
     g_node_append(propPageNode,propKeyNode);
     const gchar *initString=maker_dialog_property_get_default_string(ctx->spec);
     if (initString){
-	maker_dialog_string_set_g_value(ctx->valueType, initString, ctx->value, TRUE);
+	maker_dialog_g_value_from_string(&ctx->value, initString, NULL);
+	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
     }
     ctx->mDialog=mDialog;
 }
@@ -97,7 +89,10 @@ void maker_dialog_destroy(MakerDialog *mDialog){
 }
 
 GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key){
-    return maker_dialog_property_table_lookup_value(mDialog->propertyTable, key);
+    MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
+    if (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE)
+	return NULL;
+    return &ctx->value;
 }
 
 MakerDialogPropertyContext *maker_dialog_get_property_context(MakerDialog *mDialog, const gchar *key){
@@ -123,17 +118,26 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key){
 
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value){
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
-
+    GValue *val=value;
+    if (!val){
+	val=g_new0(GValue,0);
+	g_value_init(val, ctx->spec->valueType);
+	maker_dialog_g_value_from_string(val, maker_dialog_property_get_default_string(ctx->spec), NULL);
+    }
     gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
 	/* Value is invalid. */
 	ret=FALSE;
     }
-    if (ret && mDialog->dlgUi->toolkitHandler->widget_set_value){
-	mDialog->dlgUi->toolkitHandler->widget_set_value(mDialog->dlgUi, ctx->spec->key, value);
+    if (ret){
+	if (mDialog->dlgUi->toolkitHandler->widget_set_value){
+	    mDialog->dlgUi->toolkitHandler->widget_set_value(mDialog->dlgUi, ctx->spec->key, value);
+	}
 	g_value_copy(value,&ctx->value);
-    }else{
-	ret=FALSE;
+	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
+    }
+    if (!value){
+	g_value_unset(val);
     }
     return ret;
 }
@@ -141,139 +145,6 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *
 GNode *maker_dialog_find_page_node(MakerDialog *mDialog, const gchar *pageName){
     const gchar *pageName_tmp=(pageName)? pageName : MAKER_DIALOG_CONFIG_NO_PAGE;
     return g_node_find(mDialog->pageRoot, G_POST_ORDER, G_TRAVERSE_NON_LEAVES, (gpointer) pageName_tmp);
-}
-
-gboolean maker_dialog_atob(const gchar *string){
-    if (!string)
-	return FALSE;
-    if (strlen(string)<=0)
-	return FALSE;
-    if (string[0]=='F' || string[0]=='f' || string[0]=='N' ||  string[0]=='n')
-	return FALSE;
-    char *endPtr=NULL;
-    long int longValue=strtol(string, &endPtr, 10);
-
-    if (longValue==0 && *endPtr=='\0'){
-	// 0
-	return FALSE;
-    }
-    return TRUE;
-}
-
-GValue *maker_dialog_string_set_g_value(GValue *value, GType valueType, const gchar *str, gboolean needInit){
-    if (!str)
-	return NULL;
-    gboolean bValue=FALSE;
-    guint uintValue=0;
-    gint intValue=0;
-    gdouble doubleValue=0.0;
-    if (needInit){
-	g_value_init(value, valueType);
-    }
-    switch(valueType){
-	case G_TYPE_BOOLEAN:
-	    bValue=maker_dialog_atob(str);
-	    g_value_set_boolean(value,bValue);
-	    break;
-	case G_TYPE_UINT:
-	    uintValue=atoi(str);
-	    g_value_set_uint(value,uintValue);
-	    break;
-	case G_TYPE_INT:
-	    intValue=atoi(str);
-	    g_value_set_int(value,intValue);
-	    break;
-	case G_TYPE_DOUBLE:
-	    doubleValue=atof(str);
-	    g_value_set_int(value,doubleValue);
-	    break;
-	case G_TYPE_STRING:
-	    g_value_set_string(value,str);
-	    break;
-	default:
-	    break;
-    }
-    return value;
-}
-
-gint maker_dialog_value_compare(GValue *value1, GValue *value2){
-    if (G_VALUE_TYPE(value1)!=G_VALUE_TYPE(value2))
-	return -2;
-    gboolean bValue1,bValue2;
-    gint intValue1,intValue2;
-    guint uintValue1,uintValue2;
-    gdouble dValue1,dValue2;
-    gchar *strValue1, *strValue2;
-    switch(G_VALUE_TYPE(value1)){
-	case G_TYPE_BOOLEAN:
-	    bValue1=g_value_get_boolean (value1);
-	    bValue2=g_value_get_boolean (value2);
-	    if (bValue1==bValue2){
-		return 0;
-	    }
-	    if (bValue1==TRUE){
-		return -1;
-	    }
-	    return 1;
-	case G_TYPE_INT:
-	    intValue1=g_value_get_int (value1);
-	    intValue2=g_value_get_int (value2);
-	    if (intValue1==intValue2){
-		return 0;
-	    }
-	    if (intValue1>intValue2){
-		return -1;
-	    }
-	    return 1;
-	case G_TYPE_UINT:
-	    uintValue1=g_value_get_uint (value1);
-	    uintValue2=g_value_get_uint (value2);
-	    if (uintValue1==uintValue2){
-		return 0;
-	    }
-	    if (uintValue1>uintValue2){
-		return -1;
-	    }
-	    return 1;
-	case G_TYPE_DOUBLE:
-	    dValue1=g_value_get_double (value1);
-	    dValue2=g_value_get_double (value2);
-	    if (uintValue1==uintValue2){
-		return 0;
-	    }
-	    if (uintValue1>uintValue2){
-		return -1;
-	    }
-	    return 1;
-	case G_TYPE_STRING:
-	    strValue1=g_value_get_string (value1);
-	    strValue2=g_value_get_string (value2);
-	    return strcmp(strValue1,strValue2);
-	default:
-	    break;
-    }
-    /* Not supported */
-    return -3;
-}
-
-gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_find){
-    gint index=-1,i;
-    if (!str){
-	return -2;
-    }
-    if (!strlist){
-	return -3;
-    }
-    for(i=0; strlist[i]!=NULL; i++){
-	if (max_find>=0 && i>=max_find){
-	    break;
-	}
-	if (strcmp(str,strlist[i])==0){
-	    index=i;
-	    break;
-	}
-    }
-    return index;
 }
 
 

@@ -32,7 +32,7 @@
 //    {G_TYPE_STRING, "KBType", "Keyboard",  N_("Keyboard Type"),
 //        "default", kbType_ids,	0, 0,
 //        KBType_get_callback, KBType_set_callback,
-//        MAKER_DIALOG_PROPERTY_FLAG_INEDITABLE, 0, 0,
+//        MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET, 0, 0,
 //        NULL,
 //    },
 //    {G_TYPE_STRING, "selKeys", "Keyboard",  N_("Selection keys"),

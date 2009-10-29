@@ -318,7 +318,7 @@ MakerDialogConfigError maker_dialog_config_load_page(MakerDialog *mDialog, const
  * @return MAKER_DIALOG_CONFIG_OK if success; non-zero ::MakerDialogConfigError code otherwise.
  */
 static MakerDialogConfigError  maker_dialog_config_set_save(MakerDialogConfigSet *dlgCfgSet, gint untilIndex, gpointer userData){
-    MAKER_DIALOG_DEBUG_MSG(2,"[I2] maker_dialog_config_set_save(%s,%d,-)",(dlgCfgSet->pageNames)? dlgCfgSet->pageNames[0]  : "NULL",untilIndex);
+    MAKER_DIALOG_DEBUG_MSG(2,"[I2] config_set_save(%s,%d,-)",(dlgCfgSet->pageNames)? dlgCfgSet->pageNames[0]  : "NULL",untilIndex);
     gchar *pageName=(gchar *) userData;
     g_assert(dlgCfgSet->writeIndex<dlgCfgSet->fileArray->len);
 

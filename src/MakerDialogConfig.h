@@ -18,14 +18,15 @@
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogConfigHandler.h
+ * @file MakerDialogConfig.h
  * Configuration file handler for MakerDialog.
  *
  * MakerDialog configuration file handler provide common interfaces for
  * manipulating configuration files, while encapsulates the detail of
  * configuration back-end, such as ini, gconf, kcfg.
  */
-
+#ifndef MAKER_DIALOG_CONFIG_H_
+#define MAKER_DIALOG_CONFIG_H_
 /**
  * DIRECTORY_SEPARATOR is the separator for splits the directories in paths.
  *
@@ -444,5 +445,5 @@ gboolean maker_dialog_file_isWritable(const gchar *filename);
  */
 gchar *maker_dialog_truepath(const gchar *path, gchar *resolved_path);
 
-
+#endif /* MAKER_DIALOG_CONFIG_H_ */
 
