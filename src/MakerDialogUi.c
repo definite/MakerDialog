@@ -25,7 +25,7 @@ MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHand
     g_assert(toolkitHandler);
     MakerDialogUi *dlgUi=g_new(MakerDialogUi,1);
     dlgUi->toolkitHandler=toolkitHandler;
-    dlgUi->dialogObj=NULL;
+    dlgUi->dlgObj=NULL;
     dlgUi->mDialog=mDialog;
     mDialog->dlgUi=dlgUi;
     return dlgUi;
@@ -33,17 +33,17 @@ MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHand
 
 gboolean maker_dialog_ui_construct(MakerDialog *mDialog, gpointer parentWindow, gboolean modal){
     g_assert(mDialog->dlgUi->toolkitHandler->dialog_construct);
-    mDialog->dlgUi->dialogObj=mDialog->dlgUi->toolkitHandler->dialog_construct(mDialog->dlgUi, parentWindow, modal);
-    if (mDialog->dlgUi->dialogObj)
+    mDialog->dlgUi->dlgObj=mDialog->dlgUi->toolkitHandler->dialog_construct(mDialog->dlgUi, parentWindow, modal);
+    if (mDialog->dlgUi->dlgObj)
 	return TRUE;
     return FALSE;
 }
 
 void maker_dialog_ui_destroy(MakerDialog *mDialog){
-    g_assert(mDialog->dlgUi->dialogObj);
+    g_assert(mDialog->dlgUi->dlgObj);
     g_assert(mDialog->dlgUi->toolkitHandler->dialog_destroy);
     mDialog->dlgUi->toolkitHandler->dialog_destroy(mDialog->dlgUi);
-    //    g_free(mDialog->dlgUi->dialogObj);
+    //    g_free(mDialog->dlgUi->dlgObj);
 }
 
 gint maker_dialog_ui_run(MakerDialog *mDialog){
@@ -70,11 +70,11 @@ gboolean maker_dialog_ui_update(MakerDialog *mDialog, MakerDialogPropertyContext
 	/* Value is invalid. */
 	ret=FALSE;
     }else{
-	g_value_copy(value,&ctx->value);
+	maker_dialog_property_set_value_fast(ctx, value, -2);
+	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED;
     }
     g_value_unset(value);
     g_free(value);
-    ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED;
     return ret;
 }
 

@@ -55,21 +55,12 @@ ADD_LIBRARY(MakerDialogGtk MakerDialogGtk.h ${GOB_GENERATED})
 
 
 # executable built from some source
-ADD_EXECUTABLE(md-example
-   md-example.c
-)
-
-#ADD_EXECUTABLE(dialogTest dialogTest.c
-#   maker-dialog.c
-#   )
 
 # Link the executable to the library.
 
 TARGET_LINK_LIBRARIES(MakerDialog ${GLIB2_LIBRARIES})
 
 TARGET_LINK_LIBRARIES(MakerDialogGtk MakerDialog ${GTK2_LIBRARIES})
-
-TARGET_LINK_LIBRARIES(md-example MakerDialog MakerDialogGtk)
 
 #TARGET_LINK_LIBRARIES(generate-gconf-schemas ${GTK2_LIBRARIES})
 

@@ -1,10 +1,10 @@
 /*=== Start toolkit handler definitions ===*/
 static GValue *maker_dialog_widget_get_value_gtk(MakerDialogUi *dlgUi, const gchar *key){
-    return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlgUi->dialogObj),key);
+    return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlgUi->dlgObj),key);
 }
 
 static void maker_dialog_widget_set_value_gtk(MakerDialogUi *dlgUi, const gchar *key, GValue *value){
-    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlgUi->dialogObj),key,value);
+    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlgUi->dlgObj),key,value);
 }
 
 static gpointer maker_dialog_construct_gtk(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal){
@@ -13,19 +13,19 @@ static gpointer maker_dialog_construct_gtk(MakerDialogUi *dlgUi, gpointer parent
 }
 
 static gint maker_dialog_run_gtk(MakerDialogUi *dlgUi){
-    return gtk_dialog_run(GTK_DIALOG (dlgUi->dialogObj));
+    return gtk_dialog_run(GTK_DIALOG (dlgUi->dlgObj));
 }
 
 static void maker_dialog_show_gtk(MakerDialogUi *dlgUi){
-    gtk_widget_show_all(GTK_WIDGET (dlgUi->dialogObj));
+    gtk_widget_show_all(GTK_WIDGET (dlgUi->dlgObj));
 }
 
 static void maker_dialog_hide_gtk(MakerDialogUi *dlgUi){
-    gtk_widget_hide(GTK_WIDGET (dlgUi->dialogObj));
+    gtk_widget_hide(GTK_WIDGET (dlgUi->dlgObj));
 }
 
 static void maker_dialog_destroy_gtk(MakerDialogUi *dlgUi){
-    maker_dialog_gtk_destroy(MAKER_DIALOG_GTK( dlgUi->dialogObj));
+    maker_dialog_gtk_destroy(MAKER_DIALOG_GTK( dlgUi->dlgObj));
 }
 
 static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
@@ -41,7 +41,7 @@ static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
 MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar ***argv){
     if (gtk_init_check(argc, argv)){
 	MakerDialogUi *dlgUi=maker_dialog_ui_init(mDialog, &makerDialogToolkitHandler_gtk);
-	dlgUi->dialogObj=NULL;
+	dlgUi->dlgObj=NULL;
 	return dlgUi;
     }
     return NULL;
@@ -49,13 +49,13 @@ MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar *
 
 /*=== End toolkit handler definitions ===*/
 
-/*=== Start propertyTable foreach functions ===*/
-static void maker_dialog_gtk_construct_ui_GHFunc(gpointer key, gpointer value, gpointer user_data){
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) value;
-    MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(user_data);
+/*=== Start foreach functions ===*/
+static void maker_dialog_gtk_construct_ui_PropFunc(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
+    MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(userData);
     maker_dialog_gtk_add_property_ui(dlg_gtk, ctx);
 }
 
+/*=== Start old version compatible functions ===*/
 #ifndef HAVE_G_ONCE_INIT_ENTER
 static GMutex*   g_once_mutex=NULL;
 static GCond    *g_once_cond = NULL;
@@ -206,152 +206,150 @@ g_dpgettext2 (const char *domain,
     return translation;
 }
 #endif  /* HAVE_G_DPGETTEXT2 */
+/*=== End old version compatible functions ===*/
 
-/*=== Start listStore functions ===*/
-static void listStore_append(GtkListStore *listStore,const gchar *str,
-	const gchar *translationContext,
-	MakerDialogPropertyFlags propertyFlags){
-    GtkTreeIter iter;
-    gtk_list_store_append (listStore, &iter);
-
-    if (propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
-	if (translationContext || propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_TRANSLATION_WITH_CONTEXT){
-	    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_append(): str=%s, _(str)=%s",str,g_dpgettext2(NULL,translationContext,str));
-	    gtk_list_store_set (listStore, &iter,
-		    0, str,
-		    1, g_dpgettext2(NULL,translationContext,str),
-		    -1);
-	}else{
-	    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_append(): str=%s, _(str)=%s",str,_(str));
-	    gtk_list_store_set (listStore, &iter,
-		    0, str,
-		    1, _(str),
-		    -1);
-	}
-    }else{
-	MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_append():str=%s",str);
-	gtk_list_store_set (listStore, &iter,
-		0, str,
-		-1);
+static const gchar *maker_dialog_gtk_get_translation_string(const gchar *str, MakerDialogPropertySpec *spec){
+    if (spec-> flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
+	if (spec-> translationContext)
+	    return g_dpgettext2(NULL,spec->translationContext,str);
+	else
+	    return _(str);
     }
-
+    return str;
 }
 
-static gint listStore_find_string(GtkListStore *listStore,const gchar *str,
-	const gchar *translationContext,
-	MakerDialogPropertyFlags propertyFlags){
-    g_assert(str);
-    MAKER_DIALOG_DEBUG_MSG(4,"[I5] Gtk:listStore_find_string(%s,%u)",str,propertyFlags);
+static void g_string_chunk_free_wrap(gpointer ptr){
+    g_string_chunk_free((GStringChunk *) ptr);
+}
+
+/*=== Start listStore functions ===*/
+static void listStore_append(GtkListStore *listStore, const gchar *listKey, const gchar *prompt){
+    GtkTreeIter iter;
+
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_append(-, %s, %s): ",listKey, prompt);
+    gtk_list_store_append (listStore, &iter);
+    gtk_list_store_set( listStore, &iter,
+	    0, listKey,
+	    1, prompt,
+	    -1);
+}
+
+static void listStore_prepend(GtkListStore *listStore, const gchar *listKey, const gchar *prompt){
+    GtkTreeIter iter;
+
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_append(-, %s, %s): ",listKey, prompt);
+    gtk_list_store_prepend (listStore, &iter);
+    gtk_list_store_set( listStore, &iter,
+	    0, listKey,
+	    1, prompt,
+	    -1);
+}
+
+static gint listStore_find_value(GtkListStore *listStore, GValue *value, MakerDialogPropertySpec *spec){
     int i=0,index=-1;
     GtkTreeIter iter;
-    GValue gValue={0};
+    gchar *valueStr=maker_dialog_g_value_to_string(value, NULL);
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_find_value(-,%s,%s)", valueStr, spec->key);
+    GValue val={0};
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(listStore), &iter)){
 	do{
-	    gtk_tree_model_get_value (GTK_TREE_MODEL(listStore), &iter,0,&gValue);
-	    if (strcmp(str,g_value_get_string(&gValue))==0){
+	    gtk_tree_model_get_value (GTK_TREE_MODEL(listStore), &iter,0,&val);
+	    if (strcmp(g_value_get_string(&val),valueStr)==0){
 		index= i;
-		g_value_unset(&gValue);
+		g_value_reset(&val);
 		break;
 	    }
 	    i++;
-	    g_value_unset(&gValue);
+	    g_value_reset(&val);
 	}while(gtk_tree_model_iter_next (GTK_TREE_MODEL(listStore), &iter));
+	g_value_unset(&val);
     }
-    if (index<0 && !(propertyFlags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
+    if (index<0 && !(spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
 	/* Add new item*/
-	listStore_append(listStore, str,translationContext,propertyFlags);
+	listStore_append(listStore, valueStr, valueStr);
 	index=i;
     }
-    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_find_string(%s,%u) index=%d",str,propertyFlags,index);
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_find_value(-,%s,%s) index=%d", valueStr, spec->key, index);
+    g_free(valueStr);
     return index;
 }
 
 /*=== End listStore functions ===*/
 
-static gint combo_find_string_index(GtkComboBox *combo,const gchar *str,
-	const gchar *translationContext,
-	MakerDialogPropertyFlags propertyFlags){
+static gint combo_find_value_index(GtkComboBox *combo, GValue *value, MakerDialogPropertySpec *spec){
     GtkListStore *listStore=GTK_LIST_STORE(gtk_combo_box_get_model(combo));
-    return listStore_find_string(listStore,str, translationContext,propertyFlags);
+    return listStore_find_value(listStore, value, spec);
 }
 
-static const gchar *combo_get_active_text(GtkComboBox *combo,GValue *value){
+static GValue *combo_get_active_value(GtkComboBox *combo,GValue *value){
     GtkTreeIter iter;
     if (!gtk_combo_box_get_active_iter(combo,&iter)){
 	return NULL;
     }
     GtkListStore *listStore=GTK_LIST_STORE(gtk_combo_box_get_model(combo));
     gtk_tree_model_get_value (GTK_TREE_MODEL(listStore), &iter,0,value);
-    return g_value_get_string(value);
+    return value;
 }
 
-static gchar *widget_get_id(gchar *buffer, gint buffer_size,
-	const gchar *widget_label, const gchar *widget_type){
-    g_snprintf(buffer,buffer_size,"%s%s%s%s%s",
-	    WIDGET_ID_PREFIX, WIDGET_ID_SEPARATOR,
+static gchar *widget_gen_id(const gchar *widget_label, const gchar *widget_type, gint serial){
+    GString *strBuf=g_string_new(WIDGET_ID_PREFIX WIDGET_ID_SEPARATOR);
+    g_string_append_printf(strBuf, "%s%s%s",
 	    widget_label,  (widget_type)? WIDGET_ID_SEPARATOR : "",
-	    (widget_type)? widget_type : ""
-	    );
-    return buffer;
+	    (widget_type)? widget_type : "");
+    if (serial>=0){
+	g_string_append_printf( strBuf, WIDGET_ID_SEPARATOR "%d", serial);
+    }
+    return g_string_free(strBuf, FALSE);
 }
 
 /*=== Start Widget Callback function wraps ===*/
 
-static void validate_and_apply(MakerDialogPropertyContext *ctx, GValue *value){
+static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
+    gboolean ret=TRUE;
     if (maker_dialog_ui_update(ctx->mDialog, ctx)){
-	ctx->applyFunc(ctx, &ctx->value);
+	maker_dialog_apply_value(ctx->mDialog, ctx->spec->key);
     }else{
 	gchar *prevString=maker_dialog_g_value_to_string(&ctx->value, NULL);
+	GValue *value=maker_dialog_widget_get_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key);
 	gchar *newString=maker_dialog_g_value_to_string(value, NULL);
 	g_warning(_("Invalid value: %s, Fall back to previous value: %s"), newString, prevString);
 	g_free(prevString);
 	g_free(newString);
+	g_value_unset(value);
+	g_free(value);
 	maker_dialog_widget_set_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key, &ctx->value);
+	ret=FALSE;
     }
-    g_value_unset(value);
+    return ret;
 }
 
 static void on_comboBox_changed_wrap(GtkComboBox *comboBox, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
-    GValue value_str={0};
-    GValue value_num={0};
-    const gchar *str=combo_get_active_text(comboBox, &value_str);
-    GValue *value=NULL;
-    if (ctx->spec->valueType==G_TYPE_STRING){
-	value=&value_str;
-    }else{
-	g_value_init(&value_num, ctx->spec->valueType);
-	maker_dialog_g_value_from_string(&value_num, str, NULL);
-	value=&value_num;
-    }
-    validate_and_apply(ctx, value);
-    if (ctx->spec->valueType!=G_TYPE_STRING){
-	g_value_unset(&value_num);
-    }
+    validate_and_apply(ctx);
 }
 
 static void on_entry_activate_wrap(GtkEntry *entry, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
-    GValue value={0};
-    g_value_init(&value, ctx->spec->valueType);
-    g_value_set_string(&value,gtk_entry_get_text(entry));
-    validate_and_apply(ctx, &value);
+    validate_and_apply(ctx);
 }
 
 static void on_spinButton_value_changed_wrap(GtkSpinButton *button, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
-    GValue value={0};
-    g_value_init(&value, ctx->spec->valueType);
-    validate_and_apply(ctx, &value);
+    validate_and_apply(ctx);
 }
 
 static void on_toggleButton_toggled_wrap(GtkToggleButton *button, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
-    GValue value={0};
-    g_value_init(&value, ctx->spec->valueType);
-    g_value_set_boolean(&value, gtk_toggle_button_get_active(button));
-    validate_and_apply(ctx, &value);
+    validate_and_apply(ctx);
 }
+
+static void on_radioButton_toggled_wrap(GtkRadioButton *button, gpointer user_data){
+    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
+    /* Ignore the toggle-off event */
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+	validate_and_apply(ctx);
+}
+
 /*=== End Widget Callback function wraps ===*/
 
 typedef enum{

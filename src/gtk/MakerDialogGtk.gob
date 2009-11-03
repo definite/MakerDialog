@@ -22,8 +22,9 @@ requires 2.0.0
  */
 #include <stdlib.h>
 #include <strings.h>
-#include <gtk/gtk.h>
+#include <glib.h>
 #include <glib/gi18n.h>
+#include <gtk/gtk.h>
 #include <locale.h>
 #include "../config.h"
 #include "../MakerDialog.h"
@@ -48,6 +49,7 @@ requires 2.0.0
 %}
 
 enum MAKER_DIALOG_GTK_PLACEMENT{
+    NONE,
     LEFT,
     RIGHT,
     TOP,
@@ -56,24 +58,24 @@ enum MAKER_DIALOG_GTK_PLACEMENT{
 
 %{
 #ifndef STRING_BUFFER_SIZE_DEFAULT
-#define STRING_BUFFER_SIZE_DEFAULT 1000
+#define STRING_BUFFER_SIZE_DEFAULT 200
 #endif
 
 #include "MakerDialogGtk-def.c"
 %}
 
 class Maker:Dialog:Gtk from Gtk:Dialog{
-    public gboolean vbox_homogeneous=TRUE;
+    public gboolean vbox_homogeneous=FALSE;
     public gint hbox_spacing=2;
     public gint vbox_spacing=2;
     protected GtkWidget *dialog_notebook=NULL
     destroywith gtk_widget_destroy;
 
     private MakerDialog *mDialog=NULL;
-    private GHashTable *widgetTable={g_hash_table_new_full(g_str_hash,g_str_equal,NULL,NULL)}
+    private GHashTable *widgetTable={g_hash_table_new_full(g_str_hash,g_str_equal, g_free, NULL)}
     destroywith g_hash_table_destroy;
-    private GStringChunk *widgetIds={g_string_chunk_new(STRING_BUFFER_SIZE_DEFAULT)}
-    destroywith g_string_chunk_free;
+    private GHashTable *normalizedValuesTable={g_hash_table_new_full(g_str_hash,g_str_equal, NULL, g_string_chunk_free_wrap)}
+    destroywith g_hash_table_destroy;
 
     init(self){
     }
@@ -84,7 +86,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
     }
 
     public MakerDialogGtk *new_full (MakerDialogUi *dlgUi, GtkWindow *parentWindow, gboolean modal){
-	MAKER_DIALOG_DEBUG_MSG(2,"[I2] MakerGtk:new_full");
+	MAKER_DIALOG_DEBUG_MSG(2,"[I2] MakerGtk:new_full(-,-,%s)",(modal)? "TRUE":"FALSE");
 	Self *self = GET_NEW;
 	gtk_window_set_title(GTK_WINDOW(self),dlgUi->mDialog->title);
 	gtk_window_set_modal (GTK_WINDOW(self), modal);
@@ -136,12 +138,16 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    }
 	    g_assert(buttonText);
 	    GtkWidget *button=gtk_dialog_add_button(GTK_DIALOG(self),_(buttonText),self->_priv->mDialog->buttonSpecs[i].responseId);
-	    self_widget_register(self, button, buttonText, "button");
+	    self_widget_register(self, button, buttonText, "button",-1);
 	}
 
 	GNode *pageNode=g_node_first_child(self->_priv->mDialog->pageRoot);
-	if (!pageNode || (strcmp((gchar *)pageNode->data,MAKER_DIALOG_CONFIG_NO_PAGE)==0 && g_node_n_children(self->_priv->mDialog->pageRoot)<=1)){
+	g_assert(pageNode);
+
+	if ((strcmp((gchar *)pageNode->data,MAKER_DIALOG_CONFIG_NO_PAGE)==0 && g_node_n_children(self->_priv->mDialog->pageRoot)<=1)){
 	    /* No notebook page. */
+	    /* Add properties */
+	    maker_dialog_page_foreach_property(self->_priv->mDialog, (gchar *)pageNode->data, maker_dialog_gtk_construct_ui_PropFunc, (gpointer) self);
 	}else{
 	    /* Add notebook pages */
 	    if (!self->dialog_notebook){
@@ -151,15 +157,17 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    for(; pageNode!=NULL; pageNode=g_node_next_sibling (pageNode)){
 		gchar *pageName=(gchar *) pageNode->data;
 		GtkWidget *label=gtk_label_new(_(pageName));
-		maker_dialog_gtk_widget_register(self, label, pageName, "label");
+		self_widget_register(self, label, pageName, "label", -1);
 		GtkWidget *vbox=gtk_vbox_new(self->vbox_homogeneous,self->vbox_spacing);
-		maker_dialog_gtk_widget_register(self, vbox, pageName, "box");
+		self_widget_register(self, vbox, pageName, "box", -1);
 		gtk_notebook_append_page (GTK_NOTEBOOK(self->dialog_notebook), vbox,label);
+		/* Add properties */
+		maker_dialog_page_foreach_property(self->_priv->mDialog, (gchar *)pageNode->data, maker_dialog_gtk_construct_ui_PropFunc, (gpointer) self);
 	    }
 	}
 
 	/* Add properties */
-	g_hash_table_foreach(self->_priv->mDialog->propertyTable, maker_dialog_gtk_construct_ui_GHFunc, self);
+//	g_hash_table_foreach(self->_priv->mDialog->propertyTable, maker_dialog_gtk_construct_ui_GHFunc, self);
 
 	/* Align labels */
 	if (self->dialog_notebook){
@@ -191,82 +199,90 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    default:
 		break;
 	}
-	self_widget_register(self, box, ctx->spec->key, "box");
-	GtkWidget *label=gtk_label_new(_(ctx->spec->label));
-	self_widget_register(self, label, ctx->spec->key, "label");
+	if (box){
+	    self_widget_register(self, box, ctx->spec->key, "box",-1);
+	    GtkWidget *label=gtk_label_new(_(ctx->spec->label));
+	    self_widget_register(self, label, ctx->spec->key, "label",-1);
 #ifdef HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT
-	if (ctx->spec->tooltip){
-	    gtk_widget_set_tooltip_text (label,_(ctx->spec->tooltip));
-	}
+	    if (ctx->spec->tooltip){
+		gtk_widget_set_tooltip_text (label,_(ctx->spec->tooltip));
+	    }
 #endif
-	switch(labelPlacement){
-	    case MAKER_DIALOG_GTK_PLACEMENT_TOP:
-	    case MAKER_DIALOG_GTK_PLACEMENT_LEFT:
-		gtk_box_pack_start (GTK_BOX(box), label, FALSE, FALSE, 0);
-		gtk_box_pack_start (GTK_BOX(box), widget, FALSE, FALSE, 0);
-		break;
-	    case MAKER_DIALOG_GTK_PLACEMENT_BOTTOM:
-	    case MAKER_DIALOG_GTK_PLACEMENT_RIGHT:
-		gtk_box_pack_end (GTK_BOX(box), label, FALSE, FALSE, 0);
-		gtk_box_pack_end (GTK_BOX(box), widget, FALSE, FALSE, 0);
-		break;
-	    default:
-		break;
+	    switch(labelPlacement){
+		case MAKER_DIALOG_GTK_PLACEMENT_TOP:
+		case MAKER_DIALOG_GTK_PLACEMENT_LEFT:
+		    gtk_box_pack_start (GTK_BOX(box), label, FALSE, FALSE, 0);
+		    gtk_box_pack_start (GTK_BOX(box), widget, FALSE, FALSE, 0);
+		    break;
+		case MAKER_DIALOG_GTK_PLACEMENT_BOTTOM:
+		case MAKER_DIALOG_GTK_PLACEMENT_RIGHT:
+		    gtk_box_pack_end (GTK_BOX(box), label, FALSE, FALSE, 0);
+		    gtk_box_pack_end (GTK_BOX(box), widget, FALSE, FALSE, 0);
+		    break;
+		default:
+		    break;
+	    }
 	}
 	return box;
     }
 
+    protected GtkWidget *check_button_new(self, MakerDialogPropertyContext *ctx){
+	GtkWidget *widget = gtk_check_button_new();
+	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),g_value_get_boolean(&ctx->value));
+	g_signal_connect(widget, "toggled", G_CALLBACK(on_toggleButton_toggled_wrap),ctx);
+	return widget;
+    }
+
     protected GtkWidget *combo_box_new(self, MakerDialogPropertyContext *ctx){
 	GtkWidget *widget=NULL;
-	GtkListStore *listStore=NULL;
+	GtkListStore *listStore=gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 
-	if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
-	    listStore=gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
-	}else{
-	    listStore=gtk_list_store_new (1, G_TYPE_STRING);
-	}
-	gsize i;
+	gint i;
+	gint index=-1;
+	gchar *listKey_curr=maker_dialog_g_value_to_string(&ctx->value, NULL);
+	GStringChunk *strChunk=g_string_chunk_new(STRING_BUFFER_SIZE_DEFAULT);
+	g_hash_table_insert(self->_priv->normalizedValuesTable, (gpointer) ctx->spec->key, (gpointer) strChunk);
 
 	for(i=0;ctx->spec->validValues[i]!=NULL;i++){
 	    /* Add new item*/
-	    listStore_append(listStore, ctx->spec->validValues[i],
-		    ctx->spec->translationContext,ctx->spec->flags);
-	}
+	    gchar *listKey_tmp=maker_dialog_string_normalized(ctx->spec->validValues[i], ctx->spec->valueType);
+	    gchar *listKey=g_string_chunk_insert_const(strChunk, listKey_tmp);
+	    g_free(listKey_tmp);
 
-	gint index=listStore_find_string(listStore,g_value_get_string (&ctx->value),
-		ctx->spec->translationContext,ctx->spec->flags);
+	    listStore_append(listStore, listKey, maker_dialog_gtk_get_translation_string(ctx->spec->validValues[i], ctx->spec));
+	    if (strcmp(listKey_curr,listKey)==0){
+		index=i;
+	    }
+	}
+	if (index<0 && !(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
+	    listStore_prepend(listStore, listKey_curr, listKey_curr);
+	    index=0;
+	}
+	g_free(listKey_curr);
 
 	if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET){
 	    widget=gtk_combo_box_new_with_model (GTK_TREE_MODEL(listStore));
 	    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
 	    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widget), renderer, FALSE);
-	    if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
-		gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget), renderer,
-			"text", 1,
-			NULL);
-	    }else{
-		gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget), renderer,
-			"text", 0,
-			NULL);
-	    }
-
+	    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget), renderer,
+		    "text", 1,
+		    NULL);
 	}else{
-	    widget=gtk_combo_box_entry_new_with_model (GTK_TREE_MODEL(listStore),
-		    (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION)? 1:0);
+	    widget=gtk_combo_box_entry_new_with_model (GTK_TREE_MODEL(listStore), 1);
 	}
 
-	self_widget_register(self, widget, ctx->spec->key, NULL);
+	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(widget),index);
 
-	if (ctx->applyFunc){
-	    g_signal_connect(widget, "changed", G_CALLBACK(on_comboBox_changed_wrap),ctx);
-	}
+	g_signal_connect(widget, "changed", G_CALLBACK(on_comboBox_changed_wrap),ctx);
 	return widget;
     }
 
     protected GtkWidget *entry_new(self, MakerDialogPropertyContext *ctx){
 	GtkWidget *widget=gtk_entry_new();
-	self_widget_register(self, widget, ctx->spec->key, NULL);
+	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
 	if (ctx->spec->max>=0){
 	    gtk_entry_set_max_length(GTK_ENTRY(widget),ctx->spec->max);
 	}
@@ -274,9 +290,41 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	gtk_editable_set_editable (GTK_EDITABLE(widget),
 		!(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET));
 
-	if (ctx->applyFunc){
-	    g_signal_connect(widget, "activate", G_CALLBACK(on_entry_activate_wrap),ctx);
+	g_signal_connect(widget, "activate", G_CALLBACK(on_entry_activate_wrap),ctx);
+	return widget;
+    }
+
+    protected GtkWidget *radio_buttons_new(self, MakerDialogPropertyContext *ctx){
+	GtkWidget *box=gtk_vbox_new(FALSE,self->vbox_spacing);
+	self_widget_register(self, box, ctx->spec->key, "box",-1);
+	GtkWidget *radio=NULL;
+	GtkWidget *radioHead=NULL;
+	gsize i;
+	for(i=0;ctx->spec->validValues[i]!=NULL;i++){
+	    const gchar *strPtr=(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION) ? _(ctx->spec->validValues[i]) : ctx->spec->validValues[i];
+	    if (i==0){
+		radio=radioHead=gtk_radio_button_new_with_label(NULL, strPtr);
+		self_widget_register(self, radio, ctx->spec->key, NULL, -1);
+	    }else{
+		radio=gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(radioHead), strPtr);
+		self_widget_register(self, radio, ctx->spec->key, NULL, i);
+	    }
+	    gtk_box_pack_start (GTK_BOX(box), radio, FALSE, FALSE, 0);
+	    if (ctx->valueIndex==i){
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio), TRUE);
+	    }else{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio), FALSE);
+	    }
+	    g_signal_connect(radio, "toggled", G_CALLBACK(on_radioButton_toggled_wrap),ctx);
 	}
+
+	GtkWidget *widget=gtk_frame_new(_(ctx->spec->label));
+	gtk_container_add(GTK_CONTAINER(widget), box);
+#ifdef HAVE_GTK_WIDGET_SET_TOOLTIP_TEXT
+	if (ctx->spec->tooltip){
+	    gtk_widget_set_tooltip_text (widget,_(ctx->spec->tooltip));
+	}
+#endif
 	return widget;
     }
 
@@ -286,20 +334,8 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		ctx->spec->min, ctx->spec->max, ctx->spec->step, ctx->spec->step*10, 0.0));
 	GtkWidget *widget = gtk_spin_button_new (gAdjust, ctx->spec->step, ctx->spec->decimalDigits);
 
-	if (ctx->applyFunc){
-	    g_signal_connect(widget, "value-changed", G_CALLBACK(on_spinButton_value_changed_wrap),ctx);
-	}
-	return widget;
-    }
-
-    protected GtkWidget *check_button_new(self, MakerDialogPropertyContext *ctx){
-	GtkWidget *widget = gtk_check_button_new();
-	self_widget_register(self, widget, ctx->spec->key, NULL);
-
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),g_value_get_boolean(&ctx->value));
-	if (ctx->applyFunc){
-	    g_signal_connect(widget, "toggled", G_CALLBACK(on_toggleButton_toggled_wrap),ctx);
-	}
+	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
+	g_signal_connect(widget, "value-changed", G_CALLBACK(on_spinButton_value_changed_wrap),ctx);
 	return widget;
     }
 
@@ -313,9 +349,15 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    maker_dialog_set_value(self->_priv->mDialog, ctx->spec->key, NULL);
 	}
 	GtkWidget *widget=NULL;
+	MakerDialogGtkPlacement labelPlacement=MAKER_DIALOG_GTK_PLACEMENT_LEFT;
 
 	if (ctx->spec->validValues){
-	    widget=self_combo_box_new(self, ctx);
+	    if (maker_dialog_has_all_flags(ctx->spec->flags, MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS| MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
+		widget=self_radio_buttons_new(self, ctx);
+		labelPlacement=MAKER_DIALOG_GTK_PLACEMENT_NONE;
+	    }else{
+		widget=self_combo_box_new(self, ctx);
+	    }
 	}else{
 	    switch(ctx->spec->valueType){
 		case G_TYPE_BOOLEAN:
@@ -340,8 +382,13 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	if (!widget){
 	    return FALSE;
 	}
-	GtkWidget *outbox= self_outbox_and_label_new(self, widget, ctx, MAKER_DIALOG_GTK_PLACEMENT_BOTTOM);
-	gtk_box_pack_start (GTK_BOX(vbox), outbox, FALSE, FALSE, 0);
+	GtkWidget *outbox= self_outbox_and_label_new(self, widget, ctx, labelPlacement);
+	if (outbox){
+	    gtk_box_pack_start (GTK_BOX(vbox), outbox, FALSE, FALSE, 2);
+	}else{
+	    /* Widget has its own box */
+	    gtk_box_pack_start (GTK_BOX(vbox), widget, FALSE, FALSE, 2);
+	}
 	return TRUE;
     }
 
@@ -371,17 +418,21 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	/* Calculate max label width */
 	for(keyNode=g_node_first_child(pageNode); keyNode!=NULL; keyNode=g_node_next_sibling (keyNode)){
 	    key=(gchar *)keyNode->data;
-	    widget=maker_dialog_gtk_get_widget(self,key,"label");
-	    gtk_widget_size_request (widget,&requisition);
-	    currentMaxWidth=MAX(currentMaxWidth, requisition.width);
+	    widget=self_get_widget(self,key,"label", -1);
+	    if (widget){
+		gtk_widget_size_request (widget,&requisition);
+		currentMaxWidth=MAX(currentMaxWidth, requisition.width);
+	    }
 	}
 
 	/* Set label width with currentMaxWidth */
 	for(keyNode=g_node_first_child(pageNode); keyNode!=NULL; keyNode=g_node_next_sibling (keyNode)){
 	    key=(gchar *)keyNode->data;
-	    widget=maker_dialog_gtk_get_widget(self,key,"label");
-	    gtk_widget_set_size_request(widget, currentMaxWidth,-1);
-	    gtk_misc_set_alignment (GTK_MISC(widget),labelAlignment->x,labelAlignment->y);
+	    widget=self_get_widget(self,key,"label", -1);
+	    if (widget){
+		gtk_widget_set_size_request(widget, currentMaxWidth,-1);
+		gtk_misc_set_alignment (GTK_MISC(widget),labelAlignment->x,labelAlignment->y);
+	    }
 	}
 	gtk_widget_show_all(GTK_WIDGET(self));
     }
@@ -427,75 +478,71 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	return TRUE;
     }
 
-    /**
-     * apply_widget_value:
-     * @self: A MakerDialogGtk.
-     * @key: The key of a property.
-     *
-     * Apply the value shown in widget to the property.
-     * Note that a set callback function is needed in MakerDialogPropertySpec to apply the value to property.
-     *
-     * @see_also: set_widget_value()
-     */
-    public void apply_widget_value(self, const gchar *key){
-	MAKER_DIALOG_DEBUG_MSG(2,"[I2] Gtk:apply_widget_value(%s)",key);
-	MakerDialogPropertyContext *ctx=self_get_propertyContext_by_key(self,key);
-	if (!ctx){
-	    /* Not found */
-	    g_warning("%s: no such MakerDialogPropertyContext",key);
-	    return;
-	}
-	GValue *gValue=self_get_widget_value(self,key);
-
-	if (ctx->applyFunc){
-	    ctx->applyFunc(ctx,gValue);
-	}
-	g_value_unset(gValue);
-	g_free(gValue);
-    }
-
-
     public GValue *get_widget_value(self, const gchar *key){
 	MAKER_DIALOG_DEBUG_MSG(3,"[I3] Gtk:get_widget_value(%s)",key);
-	MakerDialogPropertyContext *ctx=self_get_propertyContext_by_key(self,key);
+	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(self->_priv->mDialog,key);
 	if (!ctx){
 	    /* Not found */
 	    return NULL;
 	}
 	GtkWidget *widget=self_get_widget_by_key(self,key);
-	GValue *gValue=g_new0(GValue, 1);
-	switch(ctx->spec->valueType){
-	    case G_TYPE_BOOLEAN:
-		g_value_init(gValue,ctx->spec->valueType);
-		g_value_set_boolean(gValue, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)));
-		break;
-	    case G_TYPE_INT:
-		g_value_init(gValue,ctx->spec->valueType);
-		g_value_set_int(gValue, (gint) gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
-		break;
-	    case G_TYPE_UINT:
-		g_value_init(gValue,ctx->spec->valueType);
-		g_value_set_uint(gValue, (guint) gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
-		break;
-	    case G_TYPE_DOUBLE:
-		g_value_init(gValue,ctx->spec->valueType);
-		g_value_set_double(gValue, (guint) gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
-		break;
-	    case G_TYPE_STRING:
-		if (ctx->spec->validValues){
-		    const char *str=combo_get_active_text (GTK_COMBO_BOX(widget),gValue);
-		    MAKER_DIALOG_DEBUG_MSG(4,"[I4] Gtk:get_widget_value(%s) %s",
-			    key,str);
-		}else{
-		    g_value_init(gValue,ctx->spec->valueType);
-		    g_value_set_string(gValue, gtk_entry_get_text (GTK_ENTRY(widget)));
-		}
-
-		break;
-	    default:
-		break;
+	if (!widget){
+	    return NULL;
 	}
-	return gValue;
+	GValue *value=g_new0(GValue, 1);
+	g_value_init(value,ctx->spec->valueType);
+	if (ctx->spec->validValues){
+	    if (maker_dialog_has_all_flags(ctx->spec->flags, MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS| MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
+		gint iCount;
+		for (iCount=0;ctx->spec->validValues[iCount]!=NULL;iCount++){}
+
+		GSList *sList=gtk_radio_button_get_group(GTK_RADIO_BUTTON(widget));
+		/* The head of list is the last one add to radio button */
+
+		gint i=0,iSet=-1;
+		while(sList){
+
+		    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(sList->data))){
+			iSet= iCount-1-i;
+			break;
+		    }
+		    sList=g_slist_next(sList);
+		    i++;
+		}
+		MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:get_widget_value(-,%s) item %d activated", key, iSet);
+		if (iSet>=0){
+		    maker_dialog_g_value_from_string(value, ctx->spec->validValues[iSet], ctx->spec->parseOption);
+		}else{
+		    g_free(value);
+		    return NULL;
+		}
+	    }else{
+		GValue valTmp={0};
+		g_assert(combo_get_active_value(GTK_COMBO_BOX(widget), &valTmp));
+		maker_dialog_g_value_from_string(value, g_value_get_string(&valTmp), ctx->spec->parseOption);
+		g_value_unset(&valTmp);
+	    }
+	}else{
+	    switch(ctx->spec->valueType){
+		case G_TYPE_BOOLEAN:
+		    g_value_set_boolean(value, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)));
+		    break;
+		case G_TYPE_INT:
+		case G_TYPE_UINT:
+		case G_TYPE_LONG:
+		case G_TYPE_ULONG:
+		case G_TYPE_FLOAT:
+		case G_TYPE_DOUBLE:
+		    maker_dialog_g_value_set_number(value, gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
+		    break;
+		case G_TYPE_STRING:
+		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
+		    break;
+		default:
+		    break;
+	    }
+	}
+	return value;
     }
 
     /**
@@ -512,80 +559,96 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
     public void set_widget_value(self, const gchar *key, GValue *value){
 	int index;
 	MAKER_DIALOG_DEBUG_MSG(4,"[I4] Gtk:set_widget_value()");
-	MakerDialogPropertyContext *ctx=self_get_propertyContext_by_key(self,key);
+	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(self->_priv->mDialog,key);
 	if (!ctx){
 	    /* Not found */
 	    return;
 	}
 	GtkWidget *widget=self_get_widget_by_key(self,key);
-	switch(ctx->spec->valueType){
-	    case G_TYPE_BOOLEAN:
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget),g_value_get_boolean(value));
-		break;
-	    case G_TYPE_INT:
-		gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget),(gdouble) g_value_get_int(value));
-		break;
-	    case G_TYPE_UINT:
-		gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget),(gdouble) g_value_get_uint(value));
-		break;
-	    case G_TYPE_STRING:
-		if (ctx->spec->validValues){
-		    const gchar *str=g_value_get_string(value);
-		    index=combo_find_string_index(GTK_COMBO_BOX(widget),str,
-			    ctx->spec->translationContext,ctx->spec->flags);
-		    gtk_combo_box_set_active (GTK_COMBO_BOX(widget),index);
-		}else{
-		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
+	if (ctx->spec->validValues){
+	    if (maker_dialog_has_all_flags(ctx->spec->flags, MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS| MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
+		gint iCount;
+		for (iCount=0;ctx->spec->validValues[iCount]!=NULL;iCount++){}
+
+		gint i=iCount-1;
+		GSList *sList=gtk_radio_button_get_group(GTK_RADIO_BUTTON(widget));
+		/* The head of list is the last one add to radio button */
+		GValue *val=g_new0(GValue, 1);
+		g_value_init(val, ctx->spec->valueType);
+		while(sList){
+		    val=maker_dialog_g_value_from_string(val, ctx->spec->validValues[i], ctx->spec->parseOption);
+		    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sList->data),
+			    (maker_dialog_g_value_compare(val, value, NULL)==0) ? TRUE: FALSE );
+		    sList=g_slist_next(sList);
+		    i--;
+		    g_value_reset(val);
 		}
-		break;
-	    default:
-		break;
+		g_value_unset(val);
+		g_free(val);
+	    }else{
+		index=combo_find_value_index(GTK_COMBO_BOX(widget), value, ctx->spec);
+		gtk_combo_box_set_active (GTK_COMBO_BOX(widget),index);
+	    }
+	}else{
+	    g_value_init(value,ctx->spec->valueType);
+	    switch(ctx->spec->valueType){
+		case G_TYPE_BOOLEAN:
+		    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget),g_value_get_boolean(value));
+		    break;
+		case G_TYPE_INT:
+		case G_TYPE_UINT:
+		case G_TYPE_LONG:
+		case G_TYPE_ULONG:
+		case G_TYPE_FLOAT:
+		case G_TYPE_DOUBLE:
+		    gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), maker_dialog_g_value_get_double(value));
+		    break;
+		case G_TYPE_STRING:
+		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
+		    break;
+		default:
+		    break;
+	    }
 	}
     }
 
 
     public GtkWidget *get_widget(self,
-	    const gchar *widget_key, const gchar *widget_type){
-	gchar buf[STRING_BUFFER_SIZE_DEFAULT];
-	widget_get_id(buf, STRING_BUFFER_SIZE_DEFAULT, widget_key, widget_type);
-	return self_get_widget_by_id(self, buf);
+	    const gchar *widget_label, const gchar *widget_type, gint serial){
+	gchar *id=widget_gen_id(widget_label, widget_type, serial);
+	GtkWidget *widget=self_get_widget_by_id(self, id);
+	g_free(id);
+	return widget;
     }
 
     public GtkWidget *get_widget_by_key(self, const gchar *key){
-	return self_get_widget(self,key,NULL);
+	return self_get_widget(self,key,NULL, -1);
     }
 
     public GtkWidget *get_widget_by_id(self, const gchar *id){
-	MAKER_DIALOG_DEBUG_MSG(4,"[I4] Gtk:et_widget_by_id(%s)",id);
+	MAKER_DIALOG_DEBUG_MSG(4,"[I4] Gtk:get_widget_by_id(%s)",id);
 	return (GtkWidget *) g_hash_table_lookup (self->_priv->widgetTable, id);
     }
-
-    public MakerDialogPropertyContext *get_propertyContext_by_key(self,const gchar *key){
-	return maker_dialog_property_table_lookup(self->_priv->mDialog->propertyTable, key);
-    }
-
 
     protected GtkWidget *get_base_vbox(self, const gchar *notebook_page_label){
 	GtkWidget *ret=NULL;
 	if (notebook_page_label){
-	    ret=self_get_widget(self, notebook_page_label, "box");
+	    ret=self_get_widget(self, notebook_page_label, "box", -1);
 	}else if (self->dialog_notebook){
-	    ret=self_get_widget(self, MAKER_DIALOG_CONFIG_NO_PAGE, "box");
+	    ret=self_get_widget(self, MAKER_DIALOG_CONFIG_NO_PAGE, "box", -1);
 	}else{
 	    ret=GTK_DIALOG(self)->vbox;
 	}
 	return ret;
     }
 
-
     protected void widget_register(self,  GtkWidget *widget,
-	    const gchar *widget_label, const gchar *widget_type){
-	gchar buf[STRING_BUFFER_SIZE_DEFAULT];
-	widget_get_id(buf, STRING_BUFFER_SIZE_DEFAULT, widget_label, widget_type);
-	gchar *chunk_ret=g_string_chunk_insert(self->_priv->widgetIds,buf);
-	g_hash_table_insert(self->_priv->widgetTable, chunk_ret,widget);
+	    const gchar *widget_label, const gchar *widget_type, gint serial){
+	gchar *id=widget_gen_id(widget_label, widget_type, serial);
+	g_hash_table_insert(self->_priv->widgetTable, id, widget);
+	gtk_widget_set_name(widget, id);
 	MAKER_DIALOG_DEBUG_MSG(4,"[I4] Gtk:widget_register(-,%s,%s) widget registered as %s",
-		widget_label,(widget_type)? (widget_type) : "", chunk_ret);
+		widget_label,(widget_type)? (widget_type) : "", id);
     }
 
 

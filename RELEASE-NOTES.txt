@@ -1,6 +1,6 @@
-PRJ_VER= 0.1.1
-SUMMARY= Initial Release
-SO_VER_MAJOR= 0
-SO_VER_MINOR= 1
+PRJ_VER=0.1.1
+SUMMARY=Initial Release
+SO_VER_MAJOR=0
+SO_VER_MINOR=1
 # Changes
 - Initial Release.

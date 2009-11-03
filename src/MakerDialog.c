@@ -61,14 +61,14 @@ static GNode *maker_dialog_prepare_page_node(MakerDialog *mDialog, const gchar *
 }
 
 void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext *ctx){
-    MAKER_DIALOG_DEBUG_MSG(3, "[I3] add_property(-,%s)",ctx->spec->key);
+    MAKER_DIALOG_DEBUG_MSG(3, "[I3] add_property( , %s)",ctx->spec->key);
     maker_dialog_property_table_insert(mDialog->propertyTable, ctx);
     GNode *propPageNode=maker_dialog_prepare_page_node(mDialog, ctx->spec->pageName);
     GNode *propKeyNode=g_node_new((gpointer) ctx->spec->key);
     g_node_append(propPageNode,propKeyNode);
     const gchar *initString=maker_dialog_property_get_default_string(ctx->spec);
     if (initString){
-	maker_dialog_g_value_from_string(&ctx->value, initString, NULL);
+	maker_dialog_g_value_from_string(&ctx->value, initString, ctx->spec->parseOption);
 	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
     }
     ctx->mDialog=mDialog;
@@ -100,6 +100,7 @@ MakerDialogPropertyContext *maker_dialog_get_property_context(MakerDialog *mDial
 }
 
 gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key){
+    MAKER_DIALOG_DEBUG_MSG(2,"[I2] apply_value( , %s)",key);
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
 
     gboolean ret=TRUE;
@@ -109,6 +110,7 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key){
     }
     if (ret && ctx->applyFunc){
 	ctx->applyFunc(ctx,&ctx->value);
+	ctx->flags &= ~MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED;
     }else{
 	ret=FALSE;
     }
@@ -120,21 +122,23 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
     GValue *val=value;
     if (!val){
-	val=g_new0(GValue,0);
-	g_value_init(val, ctx->spec->valueType);
-	maker_dialog_g_value_from_string(val, maker_dialog_property_get_default_string(ctx->spec), NULL);
+	val=maker_dialog_property_get_default(ctx->spec);
     }
+    g_assert(val);
     gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, val))){
 	/* Value is invalid. */
 	ret=FALSE;
     }
     if (ret){
-	if (mDialog->dlgUi->toolkitHandler->widget_set_value){
-	    mDialog->dlgUi->toolkitHandler->widget_set_value(mDialog->dlgUi, ctx->spec->key, value);
+	if  (mDialog->dlgUi){
+	    if (mDialog->dlgUi->toolkitHandler->widget_set_value){
+		mDialog->dlgUi->toolkitHandler->widget_set_value(mDialog->dlgUi, ctx->spec->key, val);
+	    }else{
+		ret=FALSE;
+	    }
 	}
-	g_value_copy(value,&ctx->value);
-	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
+	maker_dialog_property_set_value_fast(ctx, val, -2);
     }
     if (!value){
 	g_value_unset(val);

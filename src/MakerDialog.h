@@ -38,15 +38,18 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "MakerDialogUtil.h"
+
+typedef struct _MakerDialog MakerDialog;
+
+#include "MakerDialogProperty.h"
+#include "MakerDialogUi.h"
+#include "MakerDialogConfig.h"
+#include "MakerDialogConfigKeyFile.h"
+
 /**
  * Data structure of a MakerDialog.
  *
  */
-typedef struct _MakerDialog MakerDialog;
-#include "MakerDialogProperty.h"
-#include "MakerDialogUi.h"
-#include "MakerDialogConfig.h"
-
 struct _MakerDialog{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.
     MakerDialogPropertyTable *propertyTable;	//!< Hash table that stores property context.
@@ -163,14 +166,14 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
 /**
  * Set the value to the property and corresponding UI component.
  *
- * This function copies the argument value to the property value and UI component value.
- * If #value is NULL, then default value will be used.
+ * This function:
+ * -# validates \a value, if validateFunc() exists,
+ * -# if \a value is not valid, then it return FALSE.
+ * -# otherwise copies the argument value to the property value
+ * -# update UI widget if it exists.
  *
- * If validateFunc() is also defined, then the argument value will be checked with it,
- * if it does not pass, this function returns FALSE.
+ * If \a value is NULL, then default value will be used.
  *
- * If widget_set_value() in MakerToolkitHandler is defined,
- * UI widget is also updated as well.
  *
  * @param mDialog A MakerDialog.
  * @param key A property key.
@@ -178,6 +181,9 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  * @return TRUE if succeed, FALSE if the property value does not pass validation.
  * @see maker_dialog_apply_value()
  * @see maker_dialog_ui_update_value()
+ * @see maker_dialog_property_set_default()
+ * @see maker_dialog_property_set_value_fast()
+ *
  */
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value);
 

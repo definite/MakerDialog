@@ -102,6 +102,7 @@ ENDIF()
 # Sub directories
 ####################################################################
 ADD_SUBDIRECTORY(src bin)
+ADD_SUBDIRECTORY(examples)
 
 ####################################################################
 # Packing
@@ -125,12 +126,13 @@ SET(CPACK_RESOURCE_FILE_LICENSE
     ${CMAKE_CURRENT_SOURCE_DIR}/COPYING)
 SET(PRJ_COMMON_IGNORE_FILES
     "/docs/"
-    "\\\\.cache$"  "\\\\.spec$"
+    "\\\\.cache$"  "\\\\.spec$" "/doc/"
+    "\\\\.exe$"
     "messages.po$"
 )
 
 SET(CPACK_SOURCE_IGNORE_FILES ${CPACK_SOURCE_IGNORE_FILES} ${PRJ_COMMON_IGNORE_FILES} "/bin/"
-    "\\\\.xml$" "\\\\.schemas")
+    "\\\\.xml$" "\\\\.schemas" "/doc/" )
 SET(CPACK_PACKAGE_IGNORE_FILES ${CPACK_BINARY_IGNORE_FILES} ${PRJ_COMMON_IGNORE_FILES} "/src/"
     "\\\\.spec$" "\\\\.in$" "\\\\.pot$")
 

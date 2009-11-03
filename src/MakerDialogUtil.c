@@ -21,13 +21,17 @@
 #include <string.h>
 #include "MakerDialogUtil.h"
 
+#ifndef G_LOG_DOMAIN
+#define G_LOG_DOMAIN "MakerDialog"
+#endif
+
 gint makerDialogVerboseLevel=0;
 
 void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
     va_list ap;
-    if (level<makerDialogVerboseLevel){
+    if (level<=makerDialogVerboseLevel){
 	va_start(ap, format);
-	g_logv("MakerDialog",G_LOG_LEVEL_DEBUG, format, ap);
+	g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, format, ap);
 	va_end(ap);
     }
 }
@@ -75,53 +79,85 @@ gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_
     return index;
 }
 
+gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags){
+    return ((~(flagSet & specFlags)) & specFlags)? FALSE : TRUE;
+}
+
 gboolean maker_dialog_g_value_is_number(GValue *value){
-    if (G_VALUE_TYPE(value)==G_TYPE_INT)
-	return TRUE;
-    if (G_VALUE_TYPE(value)==G_TYPE_UINT)
-	return TRUE;
-    if (G_VALUE_TYPE(value)==G_TYPE_LONG)
-	return TRUE;
-    if (G_VALUE_TYPE(value)==G_TYPE_ULONG)
-	return TRUE;
-    if (G_VALUE_TYPE(value)==G_TYPE_FLOAT)
-	return TRUE;
-    if (G_VALUE_TYPE(value)==G_TYPE_DOUBLE)
-	return TRUE;
+    switch (G_VALUE_TYPE(value)){
+	case G_TYPE_INT:
+	case G_TYPE_UINT:
+	case G_TYPE_LONG:
+	case G_TYPE_ULONG:
+	case G_TYPE_FLOAT:
+	case G_TYPE_DOUBLE:
+	    return TRUE;
+	default:
+	    break;
+    }
     return FALSE;
 }
 
 gdouble maker_dialog_g_value_get_double(GValue *value){
-    if (G_VALUE_TYPE(value)==G_TYPE_INT)
-	return (gdouble) g_value_get_int(value);
-    if (G_VALUE_TYPE(value)==G_TYPE_UINT)
-	return (gdouble) g_value_get_uint(value);
-    if (G_VALUE_TYPE(value)==G_TYPE_LONG)
-	return (gdouble) g_value_get_long(value);
-    if (G_VALUE_TYPE(value)==G_TYPE_ULONG)
-	return (gdouble) g_value_get_ulong(value);
-    if (G_VALUE_TYPE(value)==G_TYPE_FLOAT)
-	return (gdouble) g_value_get_float(value);
-    if (G_VALUE_TYPE(value)==G_TYPE_DOUBLE)
-	return (gdouble) g_value_get_double(value);
+    switch (G_VALUE_TYPE(value)){
+	case G_TYPE_INT:
+	    return (gdouble) g_value_get_int(value);
+	case G_TYPE_UINT:
+	    return (gdouble) g_value_get_uint(value);
+	case G_TYPE_LONG:
+	    return (gdouble) g_value_get_long(value);
+	case G_TYPE_ULONG:
+	    return (gdouble) g_value_get_ulong(value);
+	case G_TYPE_FLOAT:
+	    return (gdouble) g_value_get_float(value);
+	case G_TYPE_DOUBLE:
+	    return (gdouble) g_value_get_double(value);
+	default:
+	    break;
+    }
     return  0.0;
+}
+
+void maker_dialog_g_value_set_number(GValue *value, gdouble number){
+    switch (G_VALUE_TYPE(value)){
+	case G_TYPE_INT:
+	    g_value_set_int(value, (gint) number);
+	    break;
+	case G_TYPE_UINT:
+	    g_value_set_uint(value, (guint) number);
+	    break;
+	case G_TYPE_LONG:
+	    g_value_set_long(value, (glong) number);
+	    break;
+	case G_TYPE_ULONG:
+	    g_value_set_ulong(value, (gulong) number);
+	    break;
+	case G_TYPE_FLOAT:
+	    g_value_set_float(value, (gfloat) number);
+	    break;
+	case G_TYPE_DOUBLE:
+	    g_value_set_double(value, (gdouble) number);
+	    break;
+	default:
+	    break;
+    }
 }
 
 /*=== Start Type Handler functions ===*/
 typedef struct{
     GType type;
-    GValue *(* from_string) (GValue *value, const gchar *str, gpointer option);
-    gchar *(* to_string) (GValue *value, const gchar *formatStr);
+    GValue *(* from_string) (GValue *value, const gchar *str, const gchar *parseOption);
+    gchar *(* to_string) (GValue *value, const gchar *toStringFormat);
     gint (* compare) (GValue *value1, GValue *value2, MakerDialogCompareFunc func);
 } TypeHandler;
 
-static GValue *md_boolean_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_boolean_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gboolean val=maker_dialog_atob(str);
     g_value_set_boolean(value,val);
     return value;
 }
 
-static gchar *md_boolean_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_boolean_to_string(GValue *value, const gchar *toStringFormat){
     return g_strdup((g_value_get_boolean(value))? "TRUE" : "FALSE");
 }
 
@@ -161,12 +197,11 @@ static gint md_number_compare(GValue *value1, GValue *value2, MakerDialogCompare
     return -1;
 }
 
-static gint determine_base(const gchar *str, gpointer option, gchar **startPtr){
+static gint determine_base(const gchar *str, const gchar *parseOption, gchar **startPtr){
     gint base=10;
-    gint *base_ptr= (gint *) option;
     *startPtr=(gchar *) str;
-    if (base_ptr){
-	base=*base_ptr;
+    if (parseOption){
+	base=atoi (parseOption);
     }else{
 	if (strlen(str)>2 && str[0]=='0' && str[1]=='x'){
 	    base=16;
@@ -179,109 +214,109 @@ static gint determine_base(const gchar *str, gpointer option, gchar **startPtr){
     return base;
 }
 
-static GValue *md_int_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_int_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    gint base=determine_base(str, option, &startPtr);
+    gint base=determine_base(str, parseOption, &startPtr);
     gint val=(gint) strtol(startPtr, NULL, base);
     g_value_set_int(value,val);
     return value;
 }
 
-static gchar *md_int_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_int_to_string(GValue *value, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
-    if (!formatStr)
-	formatStr="%d";
-    g_string_printf(strBuf, formatStr ,g_value_get_int(value));
+    if (!toStringFormat)
+	toStringFormat="%d";
+    g_string_printf(strBuf, toStringFormat ,g_value_get_int(value));
     return g_string_free(strBuf, FALSE);
 }
 
-static GValue *md_uint_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_uint_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    gint base=determine_base(str, option, &startPtr);
+    gint base=determine_base(str, parseOption, &startPtr);
     guint val=(guint) strtol(startPtr, NULL, base);
     g_value_set_uint(value,val);
     return value;
 }
 
-static gchar *md_uint_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_uint_to_string(GValue *value, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
-    if (!formatStr)
-	formatStr="%u";
-    g_string_printf(strBuf, formatStr ,g_value_get_uint(value));
+    if (!toStringFormat)
+	toStringFormat="%u";
+    g_string_printf(strBuf, toStringFormat ,g_value_get_uint(value));
     return g_string_free(strBuf, FALSE);
 }
 
 
-static GValue *md_long_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_long_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    gint base=determine_base(str, option, &startPtr);
+    gint base=determine_base(str,  parseOption, &startPtr);
     glong val= strtol(startPtr, NULL, base);
     g_value_set_long(value,val);
     return value;
 }
 
-static gchar *md_long_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_long_to_string(GValue *value, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
-    if (!formatStr)
-	formatStr="%ld";
-    g_string_printf(strBuf, formatStr ,g_value_get_long(value));
+    if (!toStringFormat)
+	toStringFormat="%ld";
+    g_string_printf(strBuf, toStringFormat ,g_value_get_long(value));
     return g_string_free(strBuf, FALSE);
 }
 
-static GValue *md_ulong_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_ulong_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    gint base=determine_base(str, option, &startPtr);
+    gint base=determine_base(str, parseOption, &startPtr);
     gulong val= (gulong) strtoll(startPtr, NULL, base);
     g_value_set_ulong(value,val);
     return value;
 }
 
-static gchar *md_ulong_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_ulong_to_string(GValue *value, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
-    if (!formatStr)
-	formatStr="%lu";
-    g_string_printf(strBuf, formatStr ,g_value_get_ulong(value));
+    if (!toStringFormat)
+	toStringFormat="%lu";
+    g_string_printf(strBuf, toStringFormat ,g_value_get_ulong(value));
     return g_string_free(strBuf, FALSE);
 }
 
-static GValue *md_float_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_float_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gfloat val= (gfloat) strtod(str, NULL);
     g_value_set_float(value,val);
     return value;
 }
 
-static gchar *md_float_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_float_to_string(GValue *value, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
-    if (!formatStr)
-	formatStr="%g";
-    g_string_printf(strBuf, formatStr ,g_value_get_float(value));
+    if (!toStringFormat)
+	toStringFormat="%g";
+    g_string_printf(strBuf, toStringFormat ,g_value_get_float(value));
     return g_string_free(strBuf, FALSE);
 }
 
-static GValue *md_double_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_double_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gdouble val= strtod(str, NULL);
     g_value_set_double(value,val);
     return value;
 }
 
-static gchar *md_double_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_double_to_string(GValue *value, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
-    if (!formatStr)
-	formatStr="%g";
-    g_string_printf(strBuf, formatStr ,g_value_get_double(value));
+    if (!toStringFormat)
+	toStringFormat="%g";
+    g_string_printf(strBuf, toStringFormat ,g_value_get_double(value));
     return g_string_free(strBuf, FALSE);
 }
 
-static GValue *md_string_from_string(GValue *value, const gchar *str, gpointer option){
+static GValue *md_string_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     g_value_set_string(value, str);
     return value;
 }
 
-static gchar *md_string_to_string(GValue *value, const gchar *formatStr){
+static gchar *md_string_to_string(GValue *value, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
-    if (!formatStr)
-	formatStr="%s";
-    g_string_printf(strBuf, formatStr ,g_value_get_string(value));
+    if (!toStringFormat)
+	toStringFormat="%s";
+    g_string_printf(strBuf, toStringFormat ,g_value_get_string(value));
     return g_string_free(strBuf, FALSE);
 }
 
@@ -319,31 +354,46 @@ static const TypeHandler *maker_dialog_find_type_handler(GType type){
 }
 /*=== End Type Handler functions ===*/
 
-GValue *maker_dialog_g_value_from_string(GValue *value, const gchar *str, gpointer option){
+void maker_dialog_g_value_free(gpointer value){
+    GValue *gValue=(GValue  *) value;
+    g_value_unset(gValue);
+    g_free(gValue);
+}
+
+gchar *maker_dialog_string_normalized(const gchar *str, GType type){
+    GValue value={0};
+    g_value_init(&value, type);
+    maker_dialog_g_value_from_string(&value, str, NULL);
+    gchar *result=maker_dialog_g_value_to_string(&value, NULL);
+    g_value_unset(&value);
+    return result;
+}
+
+GValue *maker_dialog_g_value_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     if (!str)
 	return NULL;
     const TypeHandler *typeHandler=maker_dialog_find_type_handler(G_VALUE_TYPE(value));
     if (!typeHandler)
 	return NULL;
-    typeHandler->from_string(value, str, option);
+    typeHandler->from_string(value, str, parseOption);
     return value;
 }
 
-gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *formatStr){
+gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *toStringFormat){
     const TypeHandler *typeHandler=maker_dialog_find_type_handler(G_VALUE_TYPE(value));
     if (!typeHandler)
 	return NULL;
-    return typeHandler->to_string(value, formatStr);
+    return typeHandler->to_string(value, toStringFormat);
 }
 
-gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, gpointer option){
+gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc){
     const TypeHandler *typeHandler=maker_dialog_find_type_handler(G_VALUE_TYPE(value2));
     if (!typeHandler)
 	return -2;
     typeHandler=maker_dialog_find_type_handler(G_VALUE_TYPE(value1));
     if (!typeHandler)
 	return -2;
-    return typeHandler->compare(value1,value2, option);
+    return typeHandler->compare(value1,value2, compFunc);
 }
 
 

@@ -148,7 +148,7 @@ typedef struct {
  */
 struct _MakerDialogUi{
     MakerDialog	*mDialog;		//!< "Parent" MakerDialog.
-    gpointer dialogObj;			//!< The toolkit dialog object.
+    gpointer dlgObj;			//!< The toolkit dialog object.
     MakerDialogToolkitHandler *toolkitHandler; //!< The toolkit handler which connects to UI toolkit front-end.
 };
 
@@ -157,7 +157,7 @@ struct _MakerDialogUi{
  *
  * This function initializes an UI front-end using the given toolkit handler
  * for the MakerDialog.
- * During initialization, the new MakerDialogUi is associated to the #mDialog.
+ * During initialization, the new MakerDialogUi is associated to the \a mDialog.
  * Thus, maker_dialog_destroy() can free the associated MakerDialogUi as well.
  *
  * This function is meant for toolkit handler developers.
@@ -165,8 +165,8 @@ struct _MakerDialogUi{
  * maker_dialog_ui_use_gtk() or maker_dialog_ui_use_qt4() than using this
  * function directly.
  *
- * @param mDialog A MakeDialog.
- * @param toolkitHandler The toolkit handler for that front end.
+ * @param mDialog 		A MakeDialog.
+ * @param toolkitHandler 	The toolkit handler for that front end.
  * @return A newly allocated MakerDialogUi instance; NULL if failed.
  */
 MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHandler *toolkitHandler);

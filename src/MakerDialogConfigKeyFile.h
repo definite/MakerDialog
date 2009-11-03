@@ -49,8 +49,12 @@
  * Each key-value pair must be contained in a group.
  *
  * Key-value pairs generally have the form key=value, with the exception of localized strings,
- * which have the form key[locale]=value, with a locale identifier of the form lang_COUNTRYMODIFIER
- * where COUNTRY and MODIFIER are optional.
+ * which have the form key[locale]=value, with a locale identifier of the form
+ * @code
+ * lang_country@modifier
+ * @endcode
+ * where country and modifier are optional.
+ *
  *
  * Space before and after the '=' character are ignored. Newline, tab, carriage return and backslash
  * characters in value are escaped as \n, \t, \r, and \\, respectively.
@@ -89,10 +93,10 @@
  * This function constructs a configuration back-end using glib GKeyFile
  * back-end.
  *
- * During construction, the new MakerDialogConfig is associated to the #mDialog.
+ * During construction, the new MakerDialogConfig is associated to the \a mDialog.
  * Thus, maker_dialog_destroy() can free the associated MakerDialogConfig as well.
  *
- * @param mDialog A MakerDialog.
+ * @param mDialog 	A MakerDialog.
  * @return A newly allocated MakerDialogConfig with glib GKeyFile back-end.
  * @see maker_dialog_config_new().
  */

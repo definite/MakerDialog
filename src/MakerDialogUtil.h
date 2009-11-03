@@ -80,6 +80,17 @@ gboolean maker_dialog_atob(const gchar *str);
 gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_find);
 
 /**
+ * Whether a set of flags contains all the specified flags.
+ *
+ * If \a flagSet  contains ALL the flags specified in \a specFlags,
+ * then return \c TRUE, otherwise \c FALSE.
+ * @param flagSet A set of flags to be checked.
+ * @param specFlags Must-have flags.
+ * @return TRUE if \a flagSet  contains ALL the flags specified in \a specFlags; FALSE otherwise.
+ */
+gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags);
+
+/**
  * Whether a GValue holds number.
  *
  * Whether a GValue holds number.
@@ -100,44 +111,76 @@ gboolean maker_dialog_g_value_is_number(GValue *value);
  * @param value		A GValue.
  * @return TRUE if GValue holds number; FALSE otherwise.
  * @see maker_dialog_g_value_is_number().
+ * @see maker_dialog_g_value_set_double().
  */
 gdouble maker_dialog_g_value_get_double(GValue *value);
 
+/**
+ * Set a double to a numeric GValue.
+ *
+ * This function sets a double to a numeric GValue.
+ *
+ * @param value		A GValue.
+ * @param number	Number to set.
+ * @see maker_dialog_g_value_get_double()
+ */
+void maker_dialog_g_value_set_number(GValue *value, gdouble number);
+
+/**
+ * Free a GValue.
+ *
+ * This function unset the \a value and free the space \a value occupies.
+ * @param value		A GValue.
+ */
+void maker_dialog_g_value_free(gpointer value);
+
+/**
+ * Return a normalized string-representation.
+ *
+ * A "normalized" string-representation can be feed into from_string() function
+ * without extra argument. For example, "0x10" can be normalized to "16".
+ *
+ * After normalization, it is easy to compare value with string functions such as strcmp().
+ * @param str	String to be normalized.
+ * @param type	Type that \a str to be parsed as.
+ * @return A newly allocated string which stores normalized result.
+ */
+gchar *maker_dialog_string_normalized(const gchar *str, GType type);
 
 /**
  * Set the content of GValue from a given string.
  *
  * This function sets the content of GValue from a given string.
- * Parameter #option provides additional control. Set it \c NULL for using default.
+ * Parameter \a parseOption provides additional control. Set it \c NULL for using default.
  *
  * Available Option:
  *  - Set base for \c G_TYPE_INT, \c G_TYPE_UINT, \c G_TYPE_LONG, \c G_TYPE_ULONG values:
  *    - Type is (gint *). Default is 10 (decimal).
  *  - Others ignore \a option.
  *
- * Note that #value needs to be initialized.
+ * Note that \a value needs to be initialized.
  *
  * @param value 	A GValue.
  * @param str 		The string to be converted from.
- * @param option	Additional control. Can be \c NULL.
+ * @param parseOption	Additional control. Can be \c NULL.
  * @return The argument \a value.
  */
-GValue *maker_dialog_g_value_from_string(GValue *value, const gchar *str, gpointer option);
+GValue *maker_dialog_g_value_from_string(GValue *value, const gchar *str, const gchar *parseOption);
 
 /**
  * Output value of a GValue to string.
  *
  * This function outputs value of a GValue to string.
- * Parameter #formatStr provides additional output control.
+ * Parameter \a toStringFormat provides additional output control.
  * Its format is identical to the format string of printf().
  * Pass \c NULL for using default format for that type.
  *
  *
- * @param value 	A GValue.
- * @param formatStr	Custom printf()-like format string. Pass \c NULL for using default format for that type.
+ * @param value 		A GValue.
+ * @param toStringFormat	Custom printf()-like format string. Pass \c NULL for using default format for that type.
  * @return The argument \a value.
  */
-gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *formatStr);
+gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *toStringFormat);
 
 /**
  * Compare value of two GValues.
@@ -164,14 +207,14 @@ gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *formatStr);
  *
  * @param value1 	The first value.
  * @param value2 	The second value.
- * @param option	Additional control. Can be \c NULL.
+ * @param compFunc	Comparison function. Can be \c NULL.
  * @retval -3  if the values cannot be compared.
  * @retval -2 if the type is not supported.
  * @retval -1 if \a value1 \< \a value2.
  * @retval 0 if \a value1 = \a value2.
  * @retval 1 if \a value1 \> \a value2.
  */
-gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, gpointer option);
+gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc);
 
 #endif /* MAKER_DIALOG_UTIL_H_ */
 
