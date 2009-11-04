@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "MakerDialogUtil.h"
+#include "MakerDialogTypes.h"
 
 typedef struct _MakerDialog MakerDialog;
 

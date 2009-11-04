@@ -43,13 +43,13 @@
  *    MAKER_DIALOG_PROPERTY_SPEC_ENDER
  * };
  *
- * for(i=0; specList[i]->validType!=G_TYPE_INVALID;i++){
+ * for(i=0; specList[i]->validType!=MKDG_TYPE_INVALID;i++){
  * ...
  * }
  * @endcode
  */
 #define MAKER_DIALOG_PROPERTY_SPEC_ENDER {\
-    NULL, G_TYPE_INVALID, 0,\
+    NULL, MKDG_TYPE_INVALID, 0,\
     NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0, 0,\
     NULL, NULL, NULL, NULL,\
     NULL}\

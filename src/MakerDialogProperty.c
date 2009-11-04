@@ -142,8 +142,8 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
 gboolean maker_dialog_property_is_default(MakerDialogPropertyContext *ctx){
     GValue defValue={0};
     g_value_init(&defValue,ctx->spec->valueType);
-    maker_dialog_g_value_from_string(&defValue, maker_dialog_property_get_default_string(ctx->spec), ctx->spec->parseOption);
-    gboolean result=(maker_dialog_g_value_compare(&ctx->value, &defValue, NULL)==0)? TRUE: FALSE;
+    maker_dialog_value_from_string(&defValue, maker_dialog_property_get_default_string(ctx->spec), ctx->spec->parseOption);
+    gboolean result=(maker_dialog_value_compare(&ctx->value, &defValue, NULL)==0)? TRUE: FALSE;
     g_value_unset(&defValue);
     return result;
 }
@@ -151,7 +151,7 @@ gboolean maker_dialog_property_is_default(MakerDialogPropertyContext *ctx){
 GValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec){
     GValue *value=g_new0(GValue, 1);
     g_value_init(value, spec->valueType);
-    maker_dialog_g_value_from_string(value, maker_dialog_property_get_default_string(spec), spec->parseOption);
+    maker_dialog_value_from_string(value, maker_dialog_property_get_default_string(spec), spec->parseOption);
     return value;
 }
 
@@ -167,8 +167,8 @@ static gint maker_dialog_find_value_in_strings(GValue *value, const gchar **stri
     GValue val={0};
     g_value_init(&val, G_VALUE_TYPE(value));
     for (i=0;strings[i]!=NULL;i++){
-	maker_dialog_g_value_from_string(&val, strings[i], parseOption);
-	if (maker_dialog_g_value_compare(&val, value, NULL)==0){
+	maker_dialog_value_from_string(&val, strings[i], parseOption);
+	if (maker_dialog_value_compare(&val, value, NULL)==0){
 	    g_value_unset(&val);
 	    return i;
 	}

@@ -106,7 +106,7 @@ static gboolean maker_dialog_config_key_file_preload_to_buffer(MakerDialogConfig
 	gdouble dValue;
 	gchar *strValue;
 	switch(ctx->spec->valueType){
-	    case G_TYPE_BOOLEAN:
+	    case MKDG_TYPE_BOOLEAN:
 		bValue=g_key_file_get_boolean(keyFile, pageName,keys[i], &cfgErr_prep);
 		if (!cfgErr_prep){
 		    g_value_init(value, ctx->spec->valueType);
@@ -115,21 +115,21 @@ static gboolean maker_dialog_config_key_file_preload_to_buffer(MakerDialogConfig
 		    ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED | MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
 		}
 		break;
-	    case G_TYPE_INT:
-	    case G_TYPE_UINT:
-	    case G_TYPE_LONG:
-	    case G_TYPE_ULONG:
-	    case G_TYPE_FLOAT:
-	    case G_TYPE_DOUBLE:
+	    case MKDG_TYPE_INT:
+	    case MKDG_TYPE_UINT:
+	    case MKDG_TYPE_LONG:
+	    case MKDG_TYPE_ULONG:
+	    case MKDG_TYPE_FLOAT:
+	    case MKDG_TYPE_DOUBLE:
 		dValue=g_key_file_get_double(keyFile, pageName, keys[i],  &cfgErr_prep);
 		if (!cfgErr_prep){
 		    g_value_init(value, ctx->spec->valueType);
-		    maker_dialog_g_value_set_number(value,dValue);
+		    maker_dialog_value_set_number(value,dValue);
 		    ctx->flags &= ~(MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED);
 		    ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED | MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
 		}
 		break;
-	    case G_TYPE_STRING:
+	    case MKDG_TYPE_STRING:
 		strValue=g_key_file_get_string(keyFile, pageName, keys[i],  &cfgErr_prep);
 		if (!cfgErr_prep){
 		    g_value_init(value, ctx->spec->valueType);
@@ -153,7 +153,7 @@ static gboolean maker_dialog_config_key_file_preload_to_buffer(MakerDialogConfig
 	    }
 	    cfgErr_last=cfgErr;
 	}else{
-	    gchar *str=maker_dialog_g_value_to_string(value, ctx->spec->toStringFormat);
+	    gchar *str=maker_dialog_value_to_string(value, ctx->spec->toStringFormat);
 	    MAKER_DIALOG_DEBUG_MSG(2, "[I2] Load key %s with value %s", keys[i], str );
 	    g_free(str);
 	    g_hash_table_insert(dlgCfgSet->dlgCfgBuf->keyValueTable, g_strdup(keys[i]), value);
@@ -240,7 +240,7 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
     gboolean needSave=TRUE;
     GValue *bufValue=(GValue *)g_hash_table_lookup(sBind->dlgCfgSet->dlgCfgBuf->keyValueTable, ctx->spec->key);
     if (bufValue){
-	if ((sBind->dlgCfgSet->flags & MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE) && maker_dialog_g_value_compare(bufValue,&ctx->value, NULL)==0){
+	if ((sBind->dlgCfgSet->flags & MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE) && maker_dialog_value_compare(bufValue,&ctx->value, NULL)==0){
 	    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_key_file_save_private() duplicated, no need to save.");
 	    needSave=FALSE;
 	}
@@ -256,11 +256,11 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
 	if (sBind->counter==0){
 	    fprintf(sBind->outF,"[%s]\n",sBind->pageName);
 	}
-	if (ctx->spec->valueType==G_TYPE_BOOLEAN){
+	if (ctx->spec->valueType==MKDG_TYPE_BOOLEAN){
 	    /* GKeyFile only accept "true" and  "false" */
 	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, (g_value_get_boolean(&ctx->value))? "true" : "false");
 	}else{
-	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, maker_dialog_g_value_to_string(&ctx->value, ctx->spec->toStringFormat));
+	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, maker_dialog_value_to_string(&ctx->value, ctx->spec->toStringFormat));
 	}
 	ctx->flags&=~MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED;
 	sBind->counter++;

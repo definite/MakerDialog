@@ -68,7 +68,7 @@ void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext 
     g_node_append(propPageNode,propKeyNode);
     const gchar *initString=maker_dialog_property_get_default_string(ctx->spec);
     if (initString){
-	maker_dialog_g_value_from_string(&ctx->value, initString, ctx->spec->parseOption);
+	maker_dialog_value_from_string(&ctx->value, initString, ctx->spec->parseOption);
 	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
     }
     ctx->mDialog=mDialog;

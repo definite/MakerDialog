@@ -421,7 +421,7 @@ gboolean maker_dialog_config_save_page(MakerDialog *mDialog, const gchar *pageNa
 
 MakerDialogConfigBuffer *maker_dialog_config_buffer_new(){
     MakerDialogConfigBuffer *dlgCfgBuf=g_new(MakerDialogConfigBuffer, 1);
-    dlgCfgBuf->keyValueTable=g_hash_table_new_full(g_str_hash, g_str_equal, g_free, maker_dialog_g_value_free);
+    dlgCfgBuf->keyValueTable=g_hash_table_new_full(g_str_hash, g_str_equal, g_free, maker_dialog_value_free);
     return dlgCfgBuf;
 }
 

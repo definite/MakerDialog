@@ -21,7 +21,7 @@ gboolean schemas_get_definition(){
     MakerDialog *dialog=maker_dialog_new();
     maker_dialog_set_verbose_level(dialog,verbose);
     int i;
-    for (i=0; propSpecs[i].valueType!=G_TYPE_INVALID;i++){
+    for (i=0; propSpecs[i].valueType!=MKDG_TYPE_INVALID;i++){
 	maker_dialog_add_property_no_gui(dialog,&propSpecs[i],NULL);
     }
     gboolean ret=maker_dialog_write_gconf_schemas_file(dialog,schemasFilename,

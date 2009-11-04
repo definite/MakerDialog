@@ -248,7 +248,7 @@ static void listStore_prepend(GtkListStore *listStore, const gchar *listKey, con
 static gint listStore_find_value(GtkListStore *listStore, GValue *value, MakerDialogPropertySpec *spec){
     int i=0,index=-1;
     GtkTreeIter iter;
-    gchar *valueStr=maker_dialog_g_value_to_string(value, NULL);
+    gchar *valueStr=maker_dialog_value_to_string(value, NULL);
     MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_find_value(-,%s,%s)", valueStr, spec->key);
     GValue val={0};
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(listStore), &iter)){
@@ -309,9 +309,9 @@ static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
     if (maker_dialog_ui_update(ctx->mDialog, ctx)){
 	maker_dialog_apply_value(ctx->mDialog, ctx->spec->key);
     }else{
-	gchar *prevString=maker_dialog_g_value_to_string(&ctx->value, NULL);
+	gchar *prevString=maker_dialog_value_to_string(&ctx->value, NULL);
 	GValue *value=maker_dialog_widget_get_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key);
-	gchar *newString=maker_dialog_g_value_to_string(value, NULL);
+	gchar *newString=maker_dialog_value_to_string(value, NULL);
 	g_warning(_("Invalid value: %s, Fall back to previous value: %s"), newString, prevString);
 	g_free(prevString);
 	g_free(newString);
@@ -353,12 +353,12 @@ static void on_radioButton_toggled_wrap(GtkRadioButton *button, gpointer user_da
 /*=== End Widget Callback function wraps ===*/
 
 typedef enum{
-    XML_TAG_TYPE_NO_TAG,
-    XML_TAG_TYPE_EMPTY,
-    XML_TAG_TYPE_SHORT,
-    XML_TAG_TYPE_LONG,
-    XML_TAG_TYPE_BEGIN_ONLY,
-    XML_TAG_TYPE_END_ONLY,
+    XML_TAMKDG_TYPE_NO_TAG,
+    XML_TAMKDG_TYPE_EMPTY,
+    XML_TAMKDG_TYPE_SHORT,
+    XML_TAMKDG_TYPE_LONG,
+    XML_TAMKDG_TYPE_BEGIN_ONLY,
+    XML_TAMKDG_TYPE_END_ONLY,
 } XmlTagsType;
 #define INDENT_SPACES 4
 
@@ -374,27 +374,27 @@ typedef enum{
 //    GString *strBuf=g_string_new(NULL);
 //    append_indent_space(strBuf,indentLevel);
 
-//    if(type!=XML_TAG_TYPE_NO_TAG){
+//    if(type!=XML_TAMKDG_TYPE_NO_TAG){
 //        g_string_append_printf(strBuf,"<%s%s%s%s%s>",
-//                (type==XML_TAG_TYPE_END_ONLY) ? "/": "",
+//                (type==XML_TAMKDG_TYPE_END_ONLY) ? "/": "",
 //                (!isEmptyString(tagName))? tagName : "",
 //                (!isEmptyString(attribute)) ? " ":"",  (!isEmptyString(attribute))? attribute : "",
-//                (type==XML_TAG_TYPE_EMPTY) ? "/": ""
+//                (type==XML_TAMKDG_TYPE_EMPTY) ? "/": ""
 //        );
 //    }
-//    if (type==XML_TAG_TYPE_EMPTY)
+//    if (type==XML_TAMKDG_TYPE_EMPTY)
 //        return strBuf;
-//    if (type==XML_TAG_TYPE_BEGIN_ONLY)
+//    if (type==XML_TAMKDG_TYPE_BEGIN_ONLY)
 //        return strBuf;
-//    if (type==XML_TAG_TYPE_END_ONLY)
+//    if (type==XML_TAMKDG_TYPE_END_ONLY)
 //        return strBuf;
 
-//    if (type==XML_TAG_TYPE_LONG){
+//    if (type==XML_TAMKDG_TYPE_LONG){
 //        g_string_append_c(strBuf,'\n');
 //    }
 
 //    if (value){
-//        if (type==XML_TAG_TYPE_LONG || type==XML_TAG_TYPE_NO_TAG){
+//        if (type==XML_TAMKDG_TYPE_LONG || type==XML_TAMKDG_TYPE_NO_TAG){
 //            append_indent_space(strBuf,indentLevel+1);
 //            int i, valueLen=strlen(value);
 //            for(i=0;i<valueLen;i++){
@@ -404,7 +404,7 @@ typedef enum{
 //                }
 //            }
 //            g_string_append_c(strBuf,'\n');
-//            if (type==XML_TAG_TYPE_LONG){
+//            if (type==XML_TAMKDG_TYPE_LONG){
 //                append_indent_space(strBuf,indentLevel);
 //            }
 //        }else{
@@ -412,7 +412,7 @@ typedef enum{
 //        }
 //    }
 
-//    if (type==XML_TAG_TYPE_LONG || type==XML_TAG_TYPE_SHORT){
+//    if (type==XML_TAMKDG_TYPE_LONG || type==XML_TAMKDG_TYPE_SHORT){
 //        g_string_append_printf(strBuf,"</%s>",tagName);
 //    }
 //    return strBuf;
@@ -421,14 +421,14 @@ typedef enum{
 //static void xml_tags_write(FILE *outF, const gchar *tagName, XmlTagsType type,
 //        const gchar *attribute, const gchar *value){
 //    static int indentLevel=0;
-//    if (type==XML_TAG_TYPE_END_ONLY)
+//    if (type==XML_TAMKDG_TYPE_END_ONLY)
 //        indentLevel--;
 
 //    GString *strBuf=xml_tags_to_string(tagName, type, attribute, value, indentLevel);
 //    MAKER_DIALOG_DEBUG_MSG(3,",xml_tags_write:%s",strBuf->str);
 //    fprintf(outF,"%s\n",strBuf->str);
 
-//    if (type==XML_TAG_TYPE_BEGIN_ONLY)
+//    if (type==XML_TAMKDG_TYPE_BEGIN_ONLY)
 //        indentLevel++;
 //    g_string_free(strBuf,TRUE);
 //}
@@ -444,37 +444,37 @@ typedef struct{
 //    gchar buf[50];
 //    g_snprintf(buf,50,"name=\"%s\"",localeStr);
 //    setlocale(LC_MESSAGES,localeStr);
-//    xml_tags_write(sData->outF,"locale",XML_TAG_TYPE_BEGIN_ONLY,buf,NULL);
-//    xml_tags_write(sData->outF,"short",XML_TAG_TYPE_SHORT,NULL, gettext(ctx->spec->label));
-//    xml_tags_write(sData->outF,"long",XML_TAG_TYPE_LONG,NULL, gettext(ctx->spec->tooltip));
-//    xml_tags_write(sData->outF,"locale",XML_TAG_TYPE_END_ONLY,NULL,NULL);
+//    xml_tags_write(sData->outF,"locale",XML_TAMKDG_TYPE_BEGIN_ONLY,buf,NULL);
+//    xml_tags_write(sData->outF,"short",XML_TAMKDG_TYPE_SHORT,NULL, gettext(ctx->spec->label));
+//    xml_tags_write(sData->outF,"long",XML_TAMKDG_TYPE_LONG,NULL, gettext(ctx->spec->tooltip));
+//    xml_tags_write(sData->outF,"locale",XML_TAMKDG_TYPE_END_ONLY,NULL,NULL);
 //}
 
 //static void ctx_write_callback(gpointer data, gpointer user_data){
 //    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) data;
 //    SchemasFileData *sData=(SchemasFileData *) user_data;
-//    xml_tags_write(sData->outF,"schema",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
+//    xml_tags_write(sData->outF,"schema",XML_TAMKDG_TYPE_BEGIN_ONLY,NULL,NULL);
 //    gchar buf[STRING_BUFFER_SIZE_DEFAULT];
 //    g_snprintf(buf,STRING_BUFFER_SIZE_DEFAULT,"/schemas%s/%s",sData->schemasHome,ctx->spec->key);
-//    xml_tags_write(sData->outF,"key",XML_TAG_TYPE_SHORT,NULL,buf);
-//    xml_tags_write(sData->outF,"applyto",XML_TAG_TYPE_SHORT,NULL,buf+strlen("/schemas"));
-//    xml_tags_write(sData->outF,"owner",XML_TAG_TYPE_SHORT,NULL,sData->owner);
+//    xml_tags_write(sData->outF,"key",XML_TAMKDG_TYPE_SHORT,NULL,buf);
+//    xml_tags_write(sData->outF,"applyto",XML_TAMKDG_TYPE_SHORT,NULL,buf+strlen("/schemas"));
+//    xml_tags_write(sData->outF,"owner",XML_TAMKDG_TYPE_SHORT,NULL,sData->owner);
 //    switch(ctx->spec->valueType){
-//        case G_TYPE_BOOLEAN:
-//            xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"bool");
+//        case MKDG_TYPE_BOOLEAN:
+//            xml_tags_write(sData->outF,"type",XML_TAMKDG_TYPE_SHORT,NULL,"bool");
 //            break;
-//        case G_TYPE_INT:
-//        case G_TYPE_UINT:
-//            xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"int");
+//        case MKDG_TYPE_INT:
+//        case MKDG_TYPE_UINT:
+//            xml_tags_write(sData->outF,"type",XML_TAMKDG_TYPE_SHORT,NULL,"int");
 //            break;
-//        case G_TYPE_STRING:
-//            xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"string");
+//        case MKDG_TYPE_STRING:
+//            xml_tags_write(sData->outF,"type",XML_TAMKDG_TYPE_SHORT,NULL,"string");
 //            break;
 //        default:
 //            break;
 //    }
 //    if (ctx->spec->defaultValue){
-//        xml_tags_write(sData->outF,"default",XML_TAG_TYPE_SHORT,NULL,ctx->spec->defaultValue);
+//        xml_tags_write(sData->outF,"default",XML_TAMKDG_TYPE_SHORT,NULL,ctx->spec->defaultValue);
 //    }
 //    gchar **localeArray=g_strsplit_set(sData->locales,":;",-1);
 //    int i;
@@ -482,7 +482,7 @@ typedef struct{
 //        ctx_write_locale(ctx,sData,localeArray[i]);
 //    }
 //    setlocale(LC_ALL,NULL);
-//    xml_tags_write(sData->outF,"schema",XML_TAG_TYPE_END_ONLY,NULL,NULL);
+//    xml_tags_write(sData->outF,"schema",XML_TAMKDG_TYPE_END_ONLY,NULL,NULL);
 //}
 
 

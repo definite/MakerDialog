@@ -237,11 +237,11 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
     protected GtkWidget *combo_box_new(self, MakerDialogPropertyContext *ctx){
 	GtkWidget *widget=NULL;
-	GtkListStore *listStore=gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+	GtkListStore *listStore=gtk_list_store_new(2, MKDG_TYPE_STRING, MKDG_TYPE_STRING);
 
 	gint i;
 	gint index=-1;
-	gchar *listKey_curr=maker_dialog_g_value_to_string(&ctx->value, NULL);
+	gchar *listKey_curr=maker_dialog_value_to_string(&ctx->value, NULL);
 	GStringChunk *strChunk=g_string_chunk_new(STRING_BUFFER_SIZE_DEFAULT);
 	g_hash_table_insert(self->_priv->normalizedValuesTable, (gpointer) ctx->spec->key, (gpointer) strChunk);
 
@@ -330,7 +330,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
     protected GtkWidget *spin_button_new(self, MakerDialogPropertyContext *ctx){
 	GtkAdjustment *gAdjust= GTK_ADJUSTMENT(gtk_adjustment_new (
-		maker_dialog_g_value_get_double(&ctx->value),
+		maker_dialog_value_get_double(&ctx->value),
 		ctx->spec->min, ctx->spec->max, ctx->spec->step, ctx->spec->step*10, 0.0));
 	GtkWidget *widget = gtk_spin_button_new (gAdjust, ctx->spec->step, ctx->spec->decimalDigits);
 
@@ -360,18 +360,18 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    }
 	}else{
 	    switch(ctx->spec->valueType){
-		case G_TYPE_BOOLEAN:
+		case MKDG_TYPE_BOOLEAN:
 		    widget=self_check_button_new(self, ctx);
 		    break;
-		case G_TYPE_INT:
-		case G_TYPE_UINT:
-		case G_TYPE_LONG:
-		case G_TYPE_ULONG:
-		case G_TYPE_FLOAT:
-		case G_TYPE_DOUBLE:
+		case MKDG_TYPE_INT:
+		case MKDG_TYPE_UINT:
+		case MKDG_TYPE_LONG:
+		case MKDG_TYPE_ULONG:
+		case MKDG_TYPE_FLOAT:
+		case MKDG_TYPE_DOUBLE:
 		    widget=self_spin_button_new(self, ctx);
 		    break;
-		case G_TYPE_STRING:
+		case MKDG_TYPE_STRING:
 		    widget=self_entry_new(self, ctx);
 		    break;
 		default:
@@ -462,16 +462,16 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 //                    filename,filename);
 //            return FALSE;
 //        }
-//        xml_tags_write(outF,"gconfschemafile",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
-//        xml_tags_write(outF,"schemalist",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
+//        xml_tags_write(outF,"gconfschemafile",XML_TAMKDG_TYPE_BEGIN_ONLY,NULL,NULL);
+//        xml_tags_write(outF,"schemalist",XML_TAMKDG_TYPE_BEGIN_ONLY,NULL,NULL);
 //        SchemasFileData sData;
 //        sData.schemasHome=schemasHome;
 //        sData.owner=owner;
 //        sData.locales=locales;
 //        sData.outF=outF;
 //        g_ptr_array_foreach(self->_priv->propList,ctx_write_callback,&sData);
-//        xml_tags_write(outF,"schemalist",XML_TAG_TYPE_END_ONLY,NULL,NULL);
-//        xml_tags_write(outF,"gconfschemafile",XML_TAG_TYPE_END_ONLY,NULL,NULL);
+//        xml_tags_write(outF,"schemalist",XML_TAMKDG_TYPE_END_ONLY,NULL,NULL);
+//        xml_tags_write(outF,"gconfschemafile",XML_TAMKDG_TYPE_END_ONLY,NULL,NULL);
 //        if (fclose(outF))
 //            return FALSE;
 //        MAKER_DIALOG_DEBUG_MSG(2,"::output_gconf_schemes_file(%s) ... done.",filename);
@@ -511,7 +511,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		}
 		MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:get_widget_value(-,%s) item %d activated", key, iSet);
 		if (iSet>=0){
-		    maker_dialog_g_value_from_string(value, ctx->spec->validValues[iSet], ctx->spec->parseOption);
+		    maker_dialog_value_from_string(value, ctx->spec->validValues[iSet], ctx->spec->parseOption);
 		}else{
 		    g_free(value);
 		    return NULL;
@@ -519,23 +519,23 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    }else{
 		GValue valTmp={0};
 		g_assert(combo_get_active_value(GTK_COMBO_BOX(widget), &valTmp));
-		maker_dialog_g_value_from_string(value, g_value_get_string(&valTmp), ctx->spec->parseOption);
+		maker_dialog_value_from_string(value, g_value_get_string(&valTmp), ctx->spec->parseOption);
 		g_value_unset(&valTmp);
 	    }
 	}else{
 	    switch(ctx->spec->valueType){
-		case G_TYPE_BOOLEAN:
+		case MKDG_TYPE_BOOLEAN:
 		    g_value_set_boolean(value, gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget)));
 		    break;
-		case G_TYPE_INT:
-		case G_TYPE_UINT:
-		case G_TYPE_LONG:
-		case G_TYPE_ULONG:
-		case G_TYPE_FLOAT:
-		case G_TYPE_DOUBLE:
-		    maker_dialog_g_value_set_number(value, gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
+		case MKDG_TYPE_INT:
+		case MKDG_TYPE_UINT:
+		case MKDG_TYPE_LONG:
+		case MKDG_TYPE_ULONG:
+		case MKDG_TYPE_FLOAT:
+		case MKDG_TYPE_DOUBLE:
+		    maker_dialog_value_set_number(value, gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
 		    break;
-		case G_TYPE_STRING:
+		case MKDG_TYPE_STRING:
 		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
 		    break;
 		default:
@@ -576,9 +576,9 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		GValue *val=g_new0(GValue, 1);
 		g_value_init(val, ctx->spec->valueType);
 		while(sList){
-		    val=maker_dialog_g_value_from_string(val, ctx->spec->validValues[i], ctx->spec->parseOption);
+		    val=maker_dialog_value_from_string(val, ctx->spec->validValues[i], ctx->spec->parseOption);
 		    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sList->data),
-			    (maker_dialog_g_value_compare(val, value, NULL)==0) ? TRUE: FALSE );
+			    (maker_dialog_value_compare(val, value, NULL)==0) ? TRUE: FALSE );
 		    sList=g_slist_next(sList);
 		    i--;
 		    g_value_reset(val);
@@ -592,18 +592,18 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	}else{
 	    g_value_init(value,ctx->spec->valueType);
 	    switch(ctx->spec->valueType){
-		case G_TYPE_BOOLEAN:
+		case MKDG_TYPE_BOOLEAN:
 		    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget),g_value_get_boolean(value));
 		    break;
-		case G_TYPE_INT:
-		case G_TYPE_UINT:
-		case G_TYPE_LONG:
-		case G_TYPE_ULONG:
-		case G_TYPE_FLOAT:
-		case G_TYPE_DOUBLE:
-		    gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), maker_dialog_g_value_get_double(value));
+		case MKDG_TYPE_INT:
+		case MKDG_TYPE_UINT:
+		case MKDG_TYPE_LONG:
+		case MKDG_TYPE_ULONG:
+		case MKDG_TYPE_FLOAT:
+		case MKDG_TYPE_DOUBLE:
+		    gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), maker_dialog_value_get_double(value));
 		    break;
-		case G_TYPE_STRING:
+		case MKDG_TYPE_STRING:
 		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
 		    break;
 		default:

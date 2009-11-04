@@ -29,7 +29,7 @@ const gchar *selKeys_array[]={
 };
 
 MakerDialogPropertySpec propSpecs[]={
-    {"autoShiftCur", G_TYPE_BOOLEAN,
+    {"autoShiftCur", MKDG_TYPE_BOOLEAN,
 	0,
 	"0", NULL, NULL, NULL, 0.0, 0.0, 0.0, 0,
 	"Editing",
@@ -38,7 +38,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Automatically move cursor to next character."),
 	NULL
     },
-    {"addPhraseDirection", G_TYPE_BOOLEAN,
+    {"addPhraseDirection", MKDG_TYPE_BOOLEAN,
 	0,
 	"0", NULL, NULL, NULL, 0.0, 0.0, 0.0, 0,
 	"Editing",
@@ -47,7 +47,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Add phrases in the front"),
 	NULL
     },
-    {"easySymbolInput", G_TYPE_BOOLEAN,
+    {"easySymbolInput", MKDG_TYPE_BOOLEAN,
 	0,
 	"1", NULL, NULL, NULL, 0.0, 0.0, 0.0, 0,
 	"Editing",
@@ -57,7 +57,7 @@ MakerDialogPropertySpec propSpecs[]={
 	NULL
     },
 
-    {"KBType", G_TYPE_STRING,
+    {"KBType", MKDG_TYPE_STRING,
 	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION | MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS,
 //	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION ,
 	"default", kbType_ids, NULL, NULL, 0.0, 25.0, 1.0, 0,
@@ -67,7 +67,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Select keyboard layout of Zhuyin symbols."),
 	NULL
     },
-    {"selKeys", G_TYPE_STRING,
+    {"selKeys", MKDG_TYPE_STRING,
 	0,
 	"1234567890", selKeys_array, NULL, NULL, 0.0, 25.0, 1.0, 0,
 	"Keyboard",
@@ -76,7 +76,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Keys used to select candidate. For example \"asdfghjkl;\", press 'a' to select the 1st candidate, 's' for 2nd, and so on."),
 	NULL
     },
-    {"hsuSelKeyType", G_TYPE_INT,
+    {"hsuSelKeyType", MKDG_TYPE_INT,
 	0,
 	"1", NULL, NULL, NULL, 1.0, 2.0, 1.0, 0,
 	"Keyboard",
@@ -89,7 +89,7 @@ MakerDialogPropertySpec propSpecs[]={
 };
 
 void applyFunc(MakerDialogPropertyContext *ctx, GValue *value){
-    printf("Key %s= %s\n", ctx->spec->key, maker_dialog_g_value_to_string(value,ctx->spec->toStringFormat));
+    printf("Key %s= %s\n", ctx->spec->key, maker_dialog_value_to_string(value,ctx->spec->toStringFormat));
 }
 
 int main(int argc,char *argv[]){

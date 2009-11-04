@@ -28,6 +28,8 @@ SET(MAKER_DIALOG_BASE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.c
