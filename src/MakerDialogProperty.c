@@ -34,7 +34,8 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
 	    NULL, NULL);
 }
 
-MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key, GType valueType,
+MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
+	MkdgType valueType,
 	const gchar *defaultValue, const gchar **validValues,
 	const gchar *parseOption, const char *toStringFormat,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
@@ -86,7 +87,7 @@ MakerDialogPropertyContext *maker_dialog_property_context_new_full(
 	ctx->userData=userData;
 	ctx->valueIndex=-1;
 	memset(&ctx->value, 0, sizeof(GValue));
-	g_value_init(&ctx->value,spec->valueType);
+	g_value_init(&ctx->value,maker_dialog_type_to_g_type(spec->valueType));
 	ctx->validateFunc=validateFunc;
 	ctx->applyFunc=applyFunc;
 	ctx->mDialog=NULL;
@@ -140,42 +141,41 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
 }
 
 gboolean maker_dialog_property_is_default(MakerDialogPropertyContext *ctx){
-    GValue defValue={0};
-    g_value_init(&defValue,ctx->spec->valueType);
-    maker_dialog_value_from_string(&defValue, maker_dialog_property_get_default_string(ctx->spec), ctx->spec->parseOption);
-    gboolean result=(maker_dialog_value_compare(&ctx->value, &defValue, NULL)==0)? TRUE: FALSE;
-    g_value_unset(&defValue);
+    MkdgValue *mValue=maker_dialog_property_get_default(ctx->spec);
+    gboolean result=(maker_dialog_g_value_compare(&ctx->value, mValue->value, NULL)==0)? TRUE: FALSE;
+    maker_dialog_value_free(mValue);
     return result;
 }
 
-GValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec){
-    GValue *value=g_new0(GValue, 1);
-    g_value_init(value, spec->valueType);
-    maker_dialog_value_from_string(value, maker_dialog_property_get_default_string(spec), spec->parseOption);
-    return value;
+MkdgValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec){
+    MkdgValue *mValue=maker_dialog_value_new(spec->valueType, NULL);
+    return maker_dialog_value_from_string(mValue, maker_dialog_property_get_default_string(spec), spec->parseOption);
 }
 
-void maker_dialog_property_set_default(MakerDialogPropertyContext *ctx){
-    GValue *value=maker_dialog_property_get_default(ctx->spec);
-    maker_dialog_property_set_value_fast(ctx, value, -1);
-    g_value_unset(value);
-    g_free(value);
-}
-
-static gint maker_dialog_find_value_in_strings(GValue *value, const gchar **strings, const gchar *parseOption){
-    gint i;
-    GValue val={0};
-    g_value_init(&val, G_VALUE_TYPE(value));
-    for (i=0;strings[i]!=NULL;i++){
-	maker_dialog_value_from_string(&val, strings[i], parseOption);
-	if (maker_dialog_value_compare(&val, value, NULL)==0){
-	    g_value_unset(&val);
-	    return i;
-	}
-	g_value_reset(&val);
+gboolean maker_dialog_property_set_default(MakerDialogPropertyContext *ctx){
+    MkdgValue *mValue=maker_dialog_property_get_default(ctx->spec);
+    gboolean result=FALSE;
+    if (mValue){
+	maker_dialog_property_set_value_fast(ctx, mValue->value, -2);
+	result=TRUE;
     }
-    g_value_unset(&val);
-    return -1;
+    maker_dialog_value_free(mValue);
+    return result;
+}
+
+static void maker_dialog_property_context_update_index(MakerDialogPropertyContext *ctx){
+    gint i;
+    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
+    for (i=0;ctx->spec->validValues[i]!=NULL;i++){
+	maker_dialog_value_from_string(mValue, ctx->spec->validValues[i], ctx->spec->parseOption);
+	if (maker_dialog_g_value_compare(&ctx->value, mValue->value, NULL)==0){
+	    maker_dialog_value_free(mValue);
+	    ctx->valueIndex=i;
+	    return;
+	}
+	g_value_reset(mValue->value);
+    }
+    ctx->valueIndex=-1;
 }
 
 void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, GValue *value, gint valueIndexCtl){
@@ -183,11 +183,29 @@ void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, GValu
     ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE | MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED;
     if (ctx->spec->validValues && valueIndexCtl!=-3){
 	if (valueIndexCtl==-2){
-	    ctx->valueIndex=maker_dialog_find_value_in_strings(&ctx->value, ctx->spec->validValues, ctx->spec->parseOption);
+	    maker_dialog_property_context_update_index(ctx);
 	}else{
 	    ctx->valueIndex=valueIndexCtl;
 	}
     }
+}
+
+gboolean maker_dialog_property_from_string(MakerDialogPropertyContext *ctx, const gchar *str){
+    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
+    if ( maker_dialog_value_from_string(mValue, str, ctx->spec->parseOption)){
+	maker_dialog_property_set_value_fast(ctx, mValue->value, -2);
+	maker_dialog_value_free(mValue);
+	return TRUE;
+    }
+    maker_dialog_value_free(mValue);
+    return FALSE;
+}
+
+gchar *maker_dialog_property_to_string(MakerDialogPropertyContext *ctx){
+    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
+    gchar *str=maker_dialog_value_to_string(mValue, ctx->spec->toStringFormat);
+    maker_dialog_value_free(mValue);
+    return str;
 }
 
 MakerDialogPropertyTable* maker_dialog_property_table_new(){

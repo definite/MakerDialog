@@ -208,6 +208,7 @@ g_dpgettext2 (const char *domain,
 #endif  /* HAVE_G_DPGETTEXT2 */
 /*=== End old version compatible functions ===*/
 
+/*=== Start misc utility functions ===*/
 static const gchar *maker_dialog_gtk_get_translation_string(const gchar *str, MakerDialogPropertySpec *spec){
     if (spec-> flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
 	if (spec-> translationContext)
@@ -221,6 +222,24 @@ static const gchar *maker_dialog_gtk_get_translation_string(const gchar *str, Ma
 static void g_string_chunk_free_wrap(gpointer ptr){
     g_string_chunk_free((GStringChunk *) ptr);
 }
+
+static MkdgColor GValue_get_GdkColor(GValue* value, GdkColor *color){
+    MkdgColor colorValue=g_value_get_uint(value);
+    color->red=(colorValue & 0xFF0000) >> 16;
+    color->green=(colorValue & 0x00FF00) >> 8;
+    color->blue=(colorValue & 0x0000FF);
+    printf("*** get red=%X green=%X blue=%X colorValue=%X\n",color->red,color->green,color->blue,colorValue);
+    return colorValue;
+}
+
+static MkdgColor GValue_set_GdkColor(GValue* value, GdkColor *color){
+    MkdgColor colorValue=(color->red>>8<<16) + (color->green>>8<<8) + color->blue>>8;
+    g_value_set_uint(value, colorValue);
+    printf("*** set red=%X green=%X blue=%X colorValue=%X\n",color->red,color->green,color->blue,colorValue);
+    return colorValue;
+}
+
+/*=== End misc utility functions ===*/
 
 /*=== Start listStore functions ===*/
 static void listStore_append(GtkListStore *listStore, const gchar *listKey, const gchar *prompt){
@@ -237,7 +256,7 @@ static void listStore_append(GtkListStore *listStore, const gchar *listKey, cons
 static void listStore_prepend(GtkListStore *listStore, const gchar *listKey, const gchar *prompt){
     GtkTreeIter iter;
 
-    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_append(-, %s, %s): ",listKey, prompt);
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_prepend(-, %s, %s): ",listKey, prompt);
     gtk_list_store_prepend (listStore, &iter);
     gtk_list_store_set( listStore, &iter,
 	    0, listKey,
@@ -248,7 +267,7 @@ static void listStore_prepend(GtkListStore *listStore, const gchar *listKey, con
 static gint listStore_find_value(GtkListStore *listStore, GValue *value, MakerDialogPropertySpec *spec){
     int i=0,index=-1;
     GtkTreeIter iter;
-    gchar *valueStr=maker_dialog_value_to_string(value, NULL);
+    gchar *valueStr=maker_dialog_g_value_to_string(value, NULL);
     MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_find_value(-,%s,%s)", valueStr, spec->key);
     GValue val={0};
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(listStore), &iter)){
@@ -256,7 +275,6 @@ static gint listStore_find_value(GtkListStore *listStore, GValue *value, MakerDi
 	    gtk_tree_model_get_value (GTK_TREE_MODEL(listStore), &iter,0,&val);
 	    if (strcmp(g_value_get_string(&val),valueStr)==0){
 		index= i;
-		g_value_reset(&val);
 		break;
 	    }
 	    i++;
@@ -309,39 +327,24 @@ static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
     if (maker_dialog_ui_update(ctx->mDialog, ctx)){
 	maker_dialog_apply_value(ctx->mDialog, ctx->spec->key);
     }else{
-	gchar *prevString=maker_dialog_value_to_string(&ctx->value, NULL);
+	gchar *prevString=maker_dialog_property_to_string(ctx);
 	GValue *value=maker_dialog_widget_get_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key);
-	gchar *newString=maker_dialog_value_to_string(value, NULL);
+	gchar *newString=maker_dialog_g_value_to_string(value, NULL);
 	g_warning(_("Invalid value: %s, Fall back to previous value: %s"), newString, prevString);
 	g_free(prevString);
 	g_free(newString);
-	g_value_unset(value);
-	g_free(value);
+	maker_dialog_g_value_free(value);
 	maker_dialog_widget_set_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key, &ctx->value);
 	ret=FALSE;
     }
     return ret;
 }
 
-static void on_comboBox_changed_wrap(GtkComboBox *comboBox, gpointer user_data){
+static void widget_event_wrap(GtkComboBox *comboBox, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     validate_and_apply(ctx);
 }
 
-static void on_entry_activate_wrap(GtkEntry *entry, gpointer user_data){
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
-    validate_and_apply(ctx);
-}
-
-static void on_spinButton_value_changed_wrap(GtkSpinButton *button, gpointer user_data){
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
-    validate_and_apply(ctx);
-}
-
-static void on_toggleButton_toggled_wrap(GtkToggleButton *button, gpointer user_data){
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
-    validate_and_apply(ctx);
-}
 
 static void on_radioButton_toggled_wrap(GtkRadioButton *button, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;

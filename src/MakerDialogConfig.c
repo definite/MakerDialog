@@ -314,13 +314,12 @@ static gboolean maker_dialog_config_set_preload(MakerDialogConfigSet *dlgCfgSet,
 
 static void maker_dialog_config_file_load_buffer(gpointer hashKey, gpointer value, gpointer userData){
     gchar *key= (gchar *) hashKey;
-    GValue *gValue=(GValue *) value;
+    MkdgValue *mValue=(MkdgValue *) value;
     MakerDialogConfigSet *dlgCfgSet=(MakerDialogConfigSet *) userData;
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(dlgCfgSet->mDialog, key);
-    maker_dialog_set_value(dlgCfgSet->mDialog, key, gValue);
+    maker_dialog_set_value(dlgCfgSet->mDialog, key, mValue->value);
     if (!(dlgCfgSet->flags & MAKER_DIALOG_CONFIG_FLAG_NO_APPLY)){
-	ctx->applyFunc(ctx, &ctx->value);
-	ctx->flags &= ~MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED;
+	maker_dialog_apply_value(dlgCfgSet->mDialog,ctx->spec->key);
     }
 }
 
@@ -427,7 +426,7 @@ MakerDialogConfigBuffer *maker_dialog_config_buffer_new(){
 
 void maker_dialog_config_buffer_free(MakerDialogConfigBuffer *dlgCfgBuf){
     g_hash_table_destroy(dlgCfgBuf->keyValueTable);
-    g_free(dlgCfgBuf);
+//    g_free(dlgCfgBuf);
 }
 
 GError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *prefix){

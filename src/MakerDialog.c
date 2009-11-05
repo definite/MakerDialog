@@ -66,11 +66,7 @@ void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext 
     GNode *propPageNode=maker_dialog_prepare_page_node(mDialog, ctx->spec->pageName);
     GNode *propKeyNode=g_node_new((gpointer) ctx->spec->key);
     g_node_append(propPageNode,propKeyNode);
-    const gchar *initString=maker_dialog_property_get_default_string(ctx->spec);
-    if (initString){
-	maker_dialog_value_from_string(&ctx->value, initString, ctx->spec->parseOption);
-	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
-    }
+    maker_dialog_property_get_default(ctx->spec);
     ctx->mDialog=mDialog;
 }
 
@@ -120,28 +116,23 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key){
 
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value){
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
-    GValue *val=value;
-    if (!val){
-	val=maker_dialog_property_get_default(ctx->spec);
+    if (!value){
+	return maker_dialog_property_set_default(ctx);
     }
-    g_assert(val);
     gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, val))){
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
 	/* Value is invalid. */
 	ret=FALSE;
     }
     if (ret){
 	if  (mDialog->dlgUi){
 	    if (mDialog->dlgUi->toolkitHandler->widget_set_value){
-		mDialog->dlgUi->toolkitHandler->widget_set_value(mDialog->dlgUi, ctx->spec->key, val);
+		mDialog->dlgUi->toolkitHandler->widget_set_value(mDialog->dlgUi, ctx->spec->key, value);
 	    }else{
 		ret=FALSE;
 	    }
 	}
-	maker_dialog_property_set_value_fast(ctx, val, -2);
-    }
-    if (!value){
-	g_value_unset(val);
+	maker_dialog_property_set_value_fast(ctx, value, -2);
     }
     return ret;
 }

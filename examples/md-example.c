@@ -29,7 +29,16 @@ const gchar *selKeys_array[]={
 };
 
 MakerDialogPropertySpec propSpecs[]={
-    {"autoShiftCur", MKDG_TYPE_BOOLEAN,
+    {"fgColor", MKDG_TYPE_COLOR,
+	0,
+	"0", NULL, NULL, NULL, 0.0, 0.0, 0.0, 0,
+	"Editing",
+	N_("Foreground color"),
+	"ibus-chewing",
+	N_("Foreground color."),
+	NULL
+    },
+   {"autoShiftCur", MKDG_TYPE_BOOLEAN,
 	0,
 	"0", NULL, NULL, NULL, 0.0, 0.0, 0.0, 0,
 	"Editing",
@@ -89,7 +98,7 @@ MakerDialogPropertySpec propSpecs[]={
 };
 
 void applyFunc(MakerDialogPropertyContext *ctx, GValue *value){
-    printf("Key %s= %s\n", ctx->spec->key, maker_dialog_value_to_string(value,ctx->spec->toStringFormat));
+    printf("Key %s= %s\n", ctx->spec->key, maker_dialog_g_value_to_string(value,ctx->spec->toStringFormat));
 }
 
 int main(int argc,char *argv[]){

@@ -9,6 +9,7 @@
 *.xml
 *.old
 *.pot
+*.exe
 tags
 Makefile
 ABOUT-NLS

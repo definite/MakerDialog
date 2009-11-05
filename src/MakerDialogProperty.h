@@ -61,12 +61,13 @@
  * type, determine how the UI is represented.
  */
 typedef enum {
-    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE    		=0x1, //!< The property spec can be freed. This flag is automatically set.
-    MAKER_DIALOG_PROPERTY_FLAG_INVISIBLE   		=0x2, //!< The property should not be appeared in UI.
-    MAKER_DIALOG_PROPERTY_FLAG_INSENSITIVE		=0x4, //!< The property should be insensitive. e.g. Gray-out in UI.
-    MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET 		=0x8, //!< The property choose only among predefined valid values.
-    MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS 	=0x10, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
-    MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION		=0x20, //!< The values of a property is associated.
+    MAKER_DIALOG_PROPERTY_FLAG_INVISIBLE   		=0x1, //!< The property should not be appeared in UI.
+    MAKER_DIALOG_PROPERTY_FLAG_INSENSITIVE		=0x2, //!< The property should be insensitive. e.g. Gray-out in UI.
+    MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET 		=0x4, //!< The property choose only among predefined valid values.
+    MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS 	=0x8, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
+    MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION		=0x10, //!< The values of a property is associated.
+    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE    		=0x20, //!< The property spec can be freed. This flag is automatically set.
+
 } MAKER_DIALOG_PROPERTY_FLAG;
 
 /**
@@ -83,7 +84,7 @@ typedef guint MakerDialogPropertyFlags;
  */
 typedef struct _MakerDialogPropertySpec{
     const gchar *key;			//!< String that identify the property.
-    GType valueType;			//!< Data type of the property value.
+    MkdgType valueType;			//!< Data type of the property value.
     MakerDialogPropertyFlags flags; 	//!< Flags for a configuration property.
     const gchar *defaultValue;		//!< Default value represent in string. Can be \c NULL.
     const gchar **validValues;		//!< Valid values represent in strings. Can be \c NULL.
@@ -226,7 +227,7 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
  * @return A newly allocated MakerDialogPropertyContext.
  * @see maker_dialog_property_spec_new()
  */
-MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key, GType valueType,
+MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key, MkdgType valueType,
 	const gchar *defaultValue, const gchar **validValues,
 	const gchar *parseOption, const char *toStringFormat,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
@@ -340,8 +341,10 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
  * @see maker_dialog_property_get_default_string()
  * @see maker_dialog_property_set_default()
  * @see maker_dialog_property_set_value_fast()
+ * @see maker_dialog_property_from_string()
+ * @see maker_dialog_property_to_string()
  */
-GValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec);
+MkdgValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec);
 
 /**
  * Set a property to default value.
@@ -349,13 +352,16 @@ GValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec);
  * Set a property to default value.
  *
  * @param ctx A MakerDailog property context.
+ * @return TRUE if succeed; FALSE otherwise.
  * @see maker_dialog_set_value()
  * @see maker_dialog_property_is_default()
  * @see maker_dialog_property_get_default_string()
  * @see maker_dialog_property_get_default()
  * @see maker_dialog_property_set_value_fast()
+ * @see maker_dialog_property_from_string()
+ * @see maker_dialog_property_to_string()
  */
-void maker_dialog_property_set_default(MakerDialogPropertyContext *ctx);
+gboolean maker_dialog_property_set_default(MakerDialogPropertyContext *ctx);
 
 /**
  * Set value to property without validation and UI widget update.
@@ -374,8 +380,43 @@ void maker_dialog_property_set_default(MakerDialogPropertyContext *ctx);
  * @see maker_dialog_property_get_default_string()
  * @see maker_dialog_property_get_default()
  * @see maker_dialog_property_set_default()
+ * @see maker_dialog_property_from_string()
+ * @see maker_dialog_property_to_string()
  */
 void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, GValue *value, gint valueIndexCtl);
+
+/**
+ * Set a property value from a string.
+ *
+ * Set a property value from a string.
+ * @param ctx 		A MakerDialog property context.
+ * @param str		The string to be parsed.
+ * @return TRUE if succeed; FALSE if the string cannot be parsed.
+ * @see maker_dialog_set_value()
+ * @see maker_dialog_property_is_default()
+ * @see maker_dialog_property_get_default_string()
+ * @see maker_dialog_property_get_default()
+ * @see maker_dialog_property_set_default()
+ * @see maker_dialog_property_set_value_fast()
+ * @see maker_dialog_property_to_string()
+ */
+gboolean maker_dialog_property_from_string(MakerDialogPropertyContext *ctx, const gchar *str);
+
+/**
+ * Output a property value to a string.
+ *
+ * Output a property value to a string.
+ * @param ctx 		A MakerDialog property context.
+ * @return A newly allocated string which shows the value of the property.
+ * @see maker_dialog_set_value()
+ * @see maker_dialog_property_is_default()
+ * @see maker_dialog_property_get_default_string()
+ * @see maker_dialog_property_get_default()
+ * @see maker_dialog_property_set_default()
+ * @see maker_dialog_property_set_value_fast()
+ * @see maker_dialog_property_from_string()
+ */
+gchar *maker_dialog_property_to_string(MakerDialogPropertyContext *ctx);
 
 /**
  * New a maker dialog property table.

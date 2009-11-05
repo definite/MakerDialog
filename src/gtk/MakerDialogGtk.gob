@@ -231,17 +231,26 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),g_value_get_boolean(&ctx->value));
-	g_signal_connect(widget, "toggled", G_CALLBACK(on_toggleButton_toggled_wrap),ctx);
+	g_signal_connect(widget, "toggled", G_CALLBACK(widget_event_wrap),ctx);
+	return widget;
+    }
+
+    protected GtkWidget *color_button_new(self, MakerDialogPropertyContext *ctx){
+	GdkColor color={0};
+	GValue_get_GdkColor(&ctx->value, &color);
+	GtkWidget *widget=gtk_color_button_new_with_color(&color);
+	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
+	g_signal_connect(widget, "color-set", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }
 
     protected GtkWidget *combo_box_new(self, MakerDialogPropertyContext *ctx){
 	GtkWidget *widget=NULL;
-	GtkListStore *listStore=gtk_list_store_new(2, MKDG_TYPE_STRING, MKDG_TYPE_STRING);
+	GtkListStore *listStore=gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 
 	gint i;
 	gint index=-1;
-	gchar *listKey_curr=maker_dialog_value_to_string(&ctx->value, NULL);
+	gchar *listKey_curr=maker_dialog_property_to_string(ctx);
 	GStringChunk *strChunk=g_string_chunk_new(STRING_BUFFER_SIZE_DEFAULT);
 	g_hash_table_insert(self->_priv->normalizedValuesTable, (gpointer) ctx->spec->key, (gpointer) strChunk);
 
@@ -276,7 +285,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(widget),index);
 
-	g_signal_connect(widget, "changed", G_CALLBACK(on_comboBox_changed_wrap),ctx);
+	g_signal_connect(widget, "changed", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }
 
@@ -290,7 +299,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	gtk_editable_set_editable (GTK_EDITABLE(widget),
 		!(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET));
 
-	g_signal_connect(widget, "activate", G_CALLBACK(on_entry_activate_wrap),ctx);
+	g_signal_connect(widget, "activate", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }
 
@@ -330,12 +339,12 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 
     protected GtkWidget *spin_button_new(self, MakerDialogPropertyContext *ctx){
 	GtkAdjustment *gAdjust= GTK_ADJUSTMENT(gtk_adjustment_new (
-		maker_dialog_value_get_double(&ctx->value),
+		maker_dialog_g_value_get_double(&ctx->value),
 		ctx->spec->min, ctx->spec->max, ctx->spec->step, ctx->spec->step*10, 0.0));
 	GtkWidget *widget = gtk_spin_button_new (gAdjust, ctx->spec->step, ctx->spec->decimalDigits);
 
 	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
-	g_signal_connect(widget, "value-changed", G_CALLBACK(on_spinButton_value_changed_wrap),ctx);
+	g_signal_connect(widget, "value-changed", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }
 
@@ -373,6 +382,9 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    break;
 		case MKDG_TYPE_STRING:
 		    widget=self_entry_new(self, ctx);
+		    break;
+		case MKDG_TYPE_COLOR:
+		    widget=self_color_button_new(self, ctx);
 		    break;
 		default:
 		    break;
@@ -489,9 +501,13 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	if (!widget){
 	    return NULL;
 	}
-	GValue *value=g_new0(GValue, 1);
-	g_value_init(value,ctx->spec->valueType);
-	if (ctx->spec->validValues){
+	GValue *value=g_new0(GValue,1);
+	g_value_init(value, maker_dialog_type_to_g_type(ctx->spec->valueType));
+	if (ctx->spec->valueType ==MKDG_TYPE_COLOR){
+	    GdkColor color;
+	    gtk_color_button_get_color (GTK_COLOR_BUTTON(widget),&color);
+	    GValue_set_GdkColor(value, &color);
+	} else if (ctx->spec->validValues){
 	    if (maker_dialog_has_all_flags(ctx->spec->flags, MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS| MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
 		gint iCount;
 		for (iCount=0;ctx->spec->validValues[iCount]!=NULL;iCount++){}
@@ -511,15 +527,15 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		}
 		MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:get_widget_value(-,%s) item %d activated", key, iSet);
 		if (iSet>=0){
-		    maker_dialog_value_from_string(value, ctx->spec->validValues[iSet], ctx->spec->parseOption);
+		    maker_dialog_g_value_from_string(value, ctx->spec->validValues[iSet], ctx->spec->parseOption);
 		}else{
-		    g_free(value);
+		    maker_dialog_g_value_free(value);
 		    return NULL;
 		}
 	    }else{
 		GValue valTmp={0};
 		g_assert(combo_get_active_value(GTK_COMBO_BOX(widget), &valTmp));
-		maker_dialog_value_from_string(value, g_value_get_string(&valTmp), ctx->spec->parseOption);
+		maker_dialog_g_value_from_string(value, g_value_get_string(&valTmp), ctx->spec->parseOption);
 		g_value_unset(&valTmp);
 	    }
 	}else{
@@ -533,7 +549,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		case MKDG_TYPE_ULONG:
 		case MKDG_TYPE_FLOAT:
 		case MKDG_TYPE_DOUBLE:
-		    maker_dialog_value_set_number(value, gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
+		    maker_dialog_g_value_set_number(value, gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
 		    break;
 		case MKDG_TYPE_STRING:
 		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
@@ -565,32 +581,34 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    return;
 	}
 	GtkWidget *widget=self_get_widget_by_key(self,key);
-	if (ctx->spec->validValues){
-	    if (maker_dialog_has_all_flags(ctx->spec->flags, MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS| MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
+	if (ctx->spec->valueType ==MKDG_TYPE_COLOR){
+	    GdkColor color;
+	    GValue_get_GdkColor(value, &color);
+	    gtk_color_button_set_color (GTK_COLOR_BUTTON(widget),&color);
+	} else if (ctx->spec->validValues){
+	    if (maker_dialog_has_all_flags(ctx->spec->flags,
+			MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS| MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET)){
 		gint iCount;
 		for (iCount=0;ctx->spec->validValues[iCount]!=NULL;iCount++){}
 
 		gint i=iCount-1;
 		GSList *sList=gtk_radio_button_get_group(GTK_RADIO_BUTTON(widget));
 		/* The head of list is the last one add to radio button */
-		GValue *val=g_new0(GValue, 1);
-		g_value_init(val, ctx->spec->valueType);
+		MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
 		while(sList){
-		    val=maker_dialog_value_from_string(val, ctx->spec->validValues[i], ctx->spec->parseOption);
+		    maker_dialog_value_from_string(mValue, ctx->spec->validValues[i], ctx->spec->parseOption);
 		    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sList->data),
-			    (maker_dialog_value_compare(val, value, NULL)==0) ? TRUE: FALSE );
+			    (maker_dialog_g_value_compare(mValue->value, value, NULL)==0) ? TRUE: FALSE );
 		    sList=g_slist_next(sList);
 		    i--;
-		    g_value_reset(val);
+		    g_value_reset(mValue->value);
 		}
-		g_value_unset(val);
-		g_free(val);
+		maker_dialog_value_free(mValue);
 	    }else{
 		index=combo_find_value_index(GTK_COMBO_BOX(widget), value, ctx->spec);
 		gtk_combo_box_set_active (GTK_COMBO_BOX(widget),index);
 	    }
 	}else{
-	    g_value_init(value,ctx->spec->valueType);
 	    switch(ctx->spec->valueType){
 		case MKDG_TYPE_BOOLEAN:
 		    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(widget),g_value_get_boolean(value));
@@ -601,7 +619,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		case MKDG_TYPE_ULONG:
 		case MKDG_TYPE_FLOAT:
 		case MKDG_TYPE_DOUBLE:
-		    gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), maker_dialog_value_get_double(value));
+		    gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget), maker_dialog_g_value_get_double(value));
 		    break;
 		case MKDG_TYPE_STRING:
 		    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
