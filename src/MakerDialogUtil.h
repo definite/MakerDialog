@@ -46,9 +46,9 @@ typedef gint (* MakerDialogCompareFunc)(gpointer value1, gpointer value2);
 
 
 /**
- * Type handler.
+ * Type interface.
  *
- * Type handler are callback function that handles following property value operations:
+ * Type interface are callback function that handles following property value operations:
  * - from_string() : parse value from string.
  * - to_string(): output value as a string.
  * - compare(): compare 2 values. See maker_dialog_value_compare() for details of return values.
@@ -90,7 +90,7 @@ typedef struct{
      * @see maker_dialog_value_compare()
      */
     gint (* compare) (GValue *value1, GValue *value2, MakerDialogCompareFunc func);
-} MkdgTypeHandler;
+} MkdgTypeInterface;
 
 /**
  * Whether to run debugging logic.

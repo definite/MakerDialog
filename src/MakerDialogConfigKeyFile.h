@@ -21,7 +21,7 @@
  * @file MakerDialogConfigKeyFile.h
  * Glib key file: Manipulate INI like configuration file.
  *
- * MakerDialogKeyFile lets you parse, edit or create files containing groups of key-value pairs.
+ * MakerDialogConfigKeyFile lets you parse, edit or create files containing groups of key-value pairs.
  * This module is, in fact, a wrapper of GKeyFile in glib.
  *
  * Similar with GKeyFile, Key files consists of groups of key-value pairs, interspersed with comments.
@@ -57,8 +57,8 @@
  *
  *
  * Space before and after the '=' character are ignored. Newline, tab, carriage return and backslash
- * characters in value are escaped as \n, \t, \r, and \\, respectively.
- * To preserve leading spaces in values, these can also be escaped as \s.
+ * characters in value are escaped as \\n, \\t, \\r, and \\\\, respectively.
+ * To preserve leading spaces in values, these can also be escaped as \\s.
  *
  * Key files can store strings (possibly with localized variants), integers, booleans and lists of these.
  * Lists are separated by a separator character, typically ';' or ','.
@@ -81,8 +81,8 @@
  * with the same name; they are merged together. Another difference is that keys and group names
  * in key files are not restricted to ASCII characters.
  */
-#ifndef MAKER_DIALOG_KEY_FILE_H_
-#define MAKER_DIALOG_KEY_FILE_H_
+#ifndef MAKER_DIALOG_CONFIG_KEY_FILE_H_
+#define MAKER_DIALOG_CONFIG_KEY_FILE_H_
 #include <glib.h>
 #include <glib-object.h>
 #include "MakerDialogConfig.h"
@@ -103,4 +103,4 @@
 MakerDialogConfig *maker_dialog_config_use_key_file(MakerDialog *mDialog);
 
 
-#endif /* MAKER_DIALOG_KEY_FILE_H_ */
+#endif /* MAKER_DIALOG_CONFIG_KEY_FILE_H_ */

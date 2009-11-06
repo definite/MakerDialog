@@ -146,11 +146,11 @@ gboolean maker_dialog_type_is_number(MkdgType mType){
     return FALSE;
 }
 
-/*=== Start Type Handler functions ===*/
+/*=== Start Type Interface functions ===*/
 typedef struct{
     MkdgType type;
-    MkdgTypeHandler typeHandler;
-} MkdgTypeHandlerMkdgType;
+    MkdgTypeInterface typeInterface;
+} MkdgTypeInterfaceMkdgType;
 
 static gint md_color_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc func){
     if (G_VALUE_TYPE(value2)!=MKDG_TYPE_COLOR){
@@ -189,9 +189,9 @@ static gchar *md_color_to_string(GValue *value, const gchar *toStringFormat){
     gchar buf[12];
     if (!toStringFormat)
 	toStringFormat="%s";
-
     guint color=g_value_get_uint(value);
     gint index=find_color_index_by_value(color);
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] md_color_to_string(): color=%X index=%d",color,index);
     if (index>=0){
 	g_string_printf(strBuf, toStringFormat, mkdgColorList[index].name);
     }else{
@@ -201,24 +201,24 @@ static gchar *md_color_to_string(GValue *value, const gchar *toStringFormat){
     return g_string_free(strBuf, FALSE);
 }
 
-const MkdgTypeHandlerMkdgType mkdgTypeHandlers[]={
+const MkdgTypeInterfaceMkdgType mkdgTypeInterfaces[]={
     { MKDG_TYPE_COLOR,		{md_color_from_string,	md_color_to_string, 	md_color_compare}},
     { MKDG_TYPE_INVALID,	{NULL,			NULL,			NULL}},
 };
 
-extern const MkdgTypeHandler *maker_dialog_find_gtype_handler(GType type);
+extern const MkdgTypeInterface *maker_dialog_find_gtype_interface(GType type);
 
-const MkdgTypeHandler *maker_dialog_find_type_handler(MkdgType mType){
+const MkdgTypeInterface *maker_dialog_find_type_interface(MkdgType mType){
     gsize i;
-    for(i=0;mkdgTypeHandlers[i].type!=MKDG_TYPE_INVALID;i++){
-	if (mkdgTypeHandlers[i].type==mType){
-	    return &mkdgTypeHandlers[i].typeHandler;
+    for(i=0;mkdgTypeInterfaces[i].type!=MKDG_TYPE_INVALID;i++){
+	if (mkdgTypeInterfaces[i].type==mType){
+	    return &mkdgTypeInterfaces[i].typeInterface;
 	}
     }
-    return maker_dialog_find_gtype_handler(maker_dialog_type_to_g_type(mType));
+    return maker_dialog_find_gtype_interface(maker_dialog_type_to_g_type(mType));
 }
 
-/*=== End Type Handler functions ===*/
+/*=== End Type Interface functions ===*/
 
 MkdgValue *maker_dialog_value_new(MkdgType mType, GValue *gValue){
     MkdgValue *mValue=g_new(MkdgValue, 1);
@@ -238,18 +238,18 @@ void maker_dialog_value_free(gpointer mValue){
 }
 
 MkdgValue *maker_dialog_value_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
-    const MkdgTypeHandler *typeHandler=maker_dialog_find_type_handler(mValue->mType);
-    if (!typeHandler)
+    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
+    if (!typeInterface)
 	return NULL;
-    typeHandler->from_string(mValue->value, str, parseOption);
+    typeInterface->from_string(mValue->value, str, parseOption);
     return mValue;
 }
 
 gchar *maker_dialog_value_to_string(MkdgValue *mValue, const gchar *toStringFormat){
-    const MkdgTypeHandler *typeHandler=maker_dialog_find_type_handler(mValue->mType);
-    if (!typeHandler)
+    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
+    if (!typeInterface)
 	return NULL;
-    return typeHandler->to_string(mValue->value, toStringFormat);
+    return typeInterface->to_string(mValue->value, toStringFormat);
 }
 
 gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType){
@@ -261,13 +261,13 @@ gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType){
 }
 
 gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, MakerDialogCompareFunc compFunc){
-    const MkdgTypeHandler *typeHandler=maker_dialog_find_type_handler(mValue2->mType);
-    if (!typeHandler)
+    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue2->mType);
+    if (!typeInterface)
 	return -2;
-    typeHandler=maker_dialog_find_type_handler(mValue1->mType);
-    if (!typeHandler)
+    typeInterface=maker_dialog_find_type_interface(mValue1->mType);
+    if (!typeInterface)
 	return -2;
-    return typeHandler->compare(mValue1->value,mValue2->value, compFunc);
+    return typeInterface->compare(mValue1->value,mValue2->value, compFunc);
 }
 
 

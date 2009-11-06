@@ -18,7 +18,7 @@
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogType.h
+ * @file MakerDialogTypes.h
  * Types used in MakerDialog.
  *
  * MakerDialogType (abbreivate as MKDGType) are derived from GType.

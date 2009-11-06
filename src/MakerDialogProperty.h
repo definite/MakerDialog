@@ -67,7 +67,6 @@ typedef enum {
     MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS 	=0x8, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
     MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION		=0x10, //!< The values of a property is associated.
     MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE    		=0x20, //!< The property spec can be freed. This flag is automatically set.
-
 } MAKER_DIALOG_PROPERTY_FLAG;
 
 /**
@@ -104,6 +103,7 @@ typedef struct _MakerDialogPropertySpec{
     const gchar *label;			//!< Label of this property.
     const gchar *translationContext;	//!< Translation message context as for dgettext().
     const gchar *tooltip;		//!< Tooltip to be shown when mouse hover over the property.
+    const gchar **imagePaths;		//!< Path to associated images file, the last should be NULL-terminated.
 
     gpointer userData;			//!< For storing custom data structure.
 } MakerDialogPropertySpec;
@@ -223,17 +223,20 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
  * @param label			Label of this property.
  * @param translationContext	Translation message context as for dgettext().
  * @param tooltip		Tooltip to be shown when mouse hover over the property.
+ * @param imagePaths		Associated image files.
  * @param userData		For storing custom data structure.
  * @return A newly allocated MakerDialogPropertyContext.
  * @see maker_dialog_property_spec_new()
  */
-MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key, MkdgType valueType,
+MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
+	MkdgType valueType,
 	const gchar *defaultValue, const gchar **validValues,
 	const gchar *parseOption, const char *toStringFormat,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
 	MakerDialogPropertyFlags propertyFlags,
 	const gchar *pageName, const gchar *label, const gchar *translationContext,
-	const gchar *tooltip, gpointer userData);
+	const gchar *tooltip, const gchar **imagePaths, gpointer userData);
+
 
 /**
  * Free a MakerDialogPropertySpec.

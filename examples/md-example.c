@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include "MakerDialog.h"
-#include "MakerDialogGtk.h"
+#include "MakerDialogUiGtk.h"
 
 MakerDialogButtonSpec buttonSpec={MAKER_DIALOG_RESPONSE_CLOSE, NULL};
 const gchar *kbType_ids[]={
@@ -36,7 +36,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Foreground color"),
 	"ibus-chewing",
 	N_("Foreground color."),
-	NULL
+	NULL, NULL
     },
    {"autoShiftCur", MKDG_TYPE_BOOLEAN,
 	0,
@@ -45,7 +45,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Auto move cursor"),
 	"ibus-chewing",
 	N_("Automatically move cursor to next character."),
-	NULL
+	NULL, NULL
     },
     {"addPhraseDirection", MKDG_TYPE_BOOLEAN,
 	0,
@@ -54,7 +54,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Add phrases in the front"),
 	"ibus-chewing",
 	N_("Add phrases in the front"),
-	NULL
+	NULL, NULL
     },
     {"easySymbolInput", MKDG_TYPE_BOOLEAN,
 	0,
@@ -63,7 +63,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Easy symbol input."),
 	"ibus-chewing",
 	N_("Easy symbol input."),
-	NULL
+	NULL, NULL
     },
 
     {"KBType", MKDG_TYPE_STRING,
@@ -74,7 +74,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Keyboard Type"),
 	"ibus-chewing",
 	N_("Select keyboard layout of Zhuyin symbols."),
-	NULL
+	NULL, NULL
     },
     {"selKeys", MKDG_TYPE_STRING,
 	0,
@@ -83,7 +83,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Selection keys"),
 	"ibus-chewing",
 	N_("Keys used to select candidate. For example \"asdfghjkl;\", press 'a' to select the 1st candidate, 's' for 2nd, and so on."),
-	NULL
+	NULL, NULL
     },
     {"hsuSelKeyType", MKDG_TYPE_INT,
 	0,
@@ -92,7 +92,7 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Hsu's selection key"),
 	"ibus-chewing",
 	N_("Hsu's keyboard selection keys, 1 for asdfjkl789, 2 for asdfzxcv89 ."),
-	NULL
+	NULL, NULL
     },
     MAKER_DIALOG_PROPERTY_SPEC_ENDER
 };
@@ -119,14 +119,14 @@ int main(int argc,char *argv[]){
     if (!maker_dialog_config_use_key_file(mDialog)){
 	exit(1);
     }
-    MakerDialogConfigSet *dlgCfgSet_editing=maker_dialog_config_set_new(editingOptions,
+    MakerDialogConfigSet *dlgCfgSet_editing=maker_dialog_config_set_new_full(editingOptions,
 	    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE | MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT,
-	    "md-example-editing.cfg", searchDirs, "md-example-editing.cfg",  2, NULL, &cfgErr);
-    MakerDialogConfigSet *dlgCfgSet_key=maker_dialog_config_set_new(keyOptions,
+	    "md-example-editing.cfg", searchDirs, "md-example-editing.cfg",  2, NULL);
+    MakerDialogConfigSet *dlgCfgSet_key=maker_dialog_config_set_new_full(keyOptions,
 	    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE | MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT,
-	    "md-example-key.cfg", searchDirs, "md-example-key.cfg",  2, NULL, &cfgErr);
-    maker_dialog_config_add_config_set(mDialog, dlgCfgSet_editing);
-    maker_dialog_config_add_config_set(mDialog, dlgCfgSet_key);
+	    "md-example-key.cfg", searchDirs, "md-example-key.cfg",  2, NULL);
+    maker_dialog_config_add_config_set(mDialog, dlgCfgSet_editing, &cfgErr);
+    maker_dialog_config_add_config_set(mDialog, dlgCfgSet_key, &cfgErr);
     maker_dialog_config_open_all(mDialog, &cfgErr);
     if (!maker_dialog_config_load_all(mDialog, &cfgErr)){
 	exit(cfgErr->code);
@@ -140,7 +140,7 @@ int main(int argc,char *argv[]){
     maker_dialog_ui_construct(mDialog,NULL,TRUE);
     gint ret=0;
     do{
-	ret=maker_dialog_ui_run(mDialog);
+        ret=maker_dialog_ui_run(mDialog);
     }while(ret!=MAKER_DIALOG_RESPONSE_DELETE_EVENT && ret!=MAKER_DIALOG_RESPONSE_CLOSE);
 
     maker_dialog_config_save_all(mDialog, &cfgErr);

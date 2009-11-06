@@ -28,7 +28,7 @@ requires 2.0.0
 #include <locale.h>
 #include "../config.h"
 #include "../MakerDialog.h"
-#include "../MakerDialogGtk.h"
+#include "../MakerDialogUiGtk.h"
 %}
 
 %headertop{
@@ -278,14 +278,17 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget), renderer,
 		    "text", 1,
 		    NULL);
+	    g_signal_connect(widget, "changed", G_CALLBACK(widget_event_wrap),ctx);
 	}else{
 	    widget=gtk_combo_box_entry_new_with_model (GTK_TREE_MODEL(listStore), 1);
+	    g_signal_connect(widget, "changed", G_CALLBACK(on_combo_box_entry_change_wrap),ctx);
+	    GtkWidget *entry=gtk_bin_get_child(GTK_BIN(widget));
+	    g_signal_connect(entry, "activate", G_CALLBACK(widget_event_wrap),ctx);
 	}
 
 	self_widget_register(self, widget, ctx->spec->key, NULL,-1);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(widget),index);
 
-	g_signal_connect(widget, "changed", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }
 

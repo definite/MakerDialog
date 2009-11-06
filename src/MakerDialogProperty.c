@@ -31,7 +31,7 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
 	    NULL, NULL,
 	    0.0, 0.0, 0.0, 0,
 	    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE,  NULL, NULL, NULL,
-	    NULL, NULL);
+	    NULL, NULL, NULL);
 }
 
 MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
@@ -41,7 +41,7 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
 	MakerDialogPropertyFlags propertyFlags,
 	const gchar *pageName, const gchar *label, const gchar *translationContext,
-	const gchar *tooltip, gpointer userData){
+	const gchar *tooltip, const gchar **imagePaths, gpointer userData){
     MakerDialogPropertySpec *spec=g_new(MakerDialogPropertySpec,1);
     if (spec){
 	spec->key=key;
@@ -61,6 +61,7 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
 	spec->label=label;
 	spec->translationContext=translationContext;
 	spec->tooltip=tooltip;
+	spec->imagePaths=imagePaths;
 
 	spec->userData=userData;
     }
@@ -202,7 +203,7 @@ gboolean maker_dialog_property_from_string(MakerDialogPropertyContext *ctx, cons
 }
 
 gchar *maker_dialog_property_to_string(MakerDialogPropertyContext *ctx){
-    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
+    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, &ctx->value);
     gchar *str=maker_dialog_value_to_string(mValue, ctx->spec->toStringFormat);
     maker_dialog_value_free(mValue);
     return str;

@@ -18,16 +18,13 @@
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogGtk.h
- * Gtk binding for MakerDialog.
- * This module provides convenient function to build a Gtk dialog.
+ * @file MakerDialogUiGtk.h
+ * Gtk UI front-end for MakerDialog.
  *
- * In MakerDialog, a property is a configuration option which associate with a
- * value. According to property specification, MakerDialog generates
- * corresponding UI component to manipulate the property value.
+ * This module implements the UI interface to bridge between Gtk and MakerDialog.
  */
-#ifndef MAKER_DIALOG_GTK_H_
-#define MAKER_DIALOG_GTK_H_
+#ifndef MAKER_DIALOG_UI_GTK_H_
+#define MAKER_DIALOG_UI_GTK_H_
 #include <glib.h>
 #include <glib-object.h>
 #include "gtk/maker-dialog-gtk.h"
@@ -45,5 +42,5 @@
  */
 MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar ***argv);
 
-#endif /* MAKER_DIALOG_GTK_H_ */
+#endif /* MAKER_DIALOG_UI_GTK_H_ */
 

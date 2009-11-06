@@ -45,8 +45,10 @@ MakerDialog *maker_dialog_init(const gchar *title,
     if (getenv(MAKER_DLALOG_VERBOSE_ENV)){
 	makerDialogVerboseLevel=atoi(getenv(MAKER_DLALOG_VERBOSE_ENV));
     }
-    mDialog->dlgUi=NULL;
-    mDialog->dlgCfg=NULL;
+    mDialog->ui=NULL;
+    mDialog->config=NULL;
+    mDialog->ipc=NULL;
+    mDialog->userData=NULL;
     return mDialog;
 }
 
@@ -71,11 +73,11 @@ void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext 
 }
 
 void maker_dialog_destroy(MakerDialog *mDialog){
-    if (mDialog->dlgUi){
+    if (mDialog->ui){
 	maker_dialog_ui_destroy(mDialog);
     }
-    if (mDialog->dlgCfg){
-        maker_dialog_config_free(mDialog->dlgCfg);
+    if (mDialog->config){
+        maker_dialog_config_free(mDialog->config);
     }
 
     maker_dialog_property_table_destroy(mDialog->propertyTable);
@@ -125,9 +127,9 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *
 	ret=FALSE;
     }
     if (ret){
-	if  (mDialog->dlgUi){
-	    if (mDialog->dlgUi->toolkitHandler->widget_set_value){
-		mDialog->dlgUi->toolkitHandler->widget_set_value(mDialog->dlgUi, ctx->spec->key, value);
+	if  (mDialog->ui){
+	    if (mDialog->ui->toolkitInterface->widget_set_value){
+		mDialog->ui->toolkitInterface->widget_set_value(mDialog->ui, ctx->spec->key, value);
 	    }else{
 		ret=FALSE;
 	    }

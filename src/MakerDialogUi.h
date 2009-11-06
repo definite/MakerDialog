@@ -19,13 +19,15 @@
  */
 /**
  * @file MakerDialogUi.h
- * UI relative definitions and functions.
+ * User interface module for MakerDialog.
  *
- * This module declares the UI relative functions,
- * and a interface for toolkit handlers.
- *
- * Toolkit handler is a bridge between MakerDialog and UI toolkit
+ * This module defines the UI relative data structure, functions,
+ * and an interface for bridging between MakerDialog and UI toolkit
  * such as Gtk or Qt.
+ *
+ * In MakerDialog, a property is a configuration option which associate with a
+ * value. According to property specification, MakerDialog generates
+ * corresponding UI component to manipulate the property value.
  */
 
 /**
@@ -90,13 +92,13 @@ typedef struct _MakerDialogButtonSpec{
 typedef struct _MakerDialogUi MakerDialogUi;
 
 /**
- * Data structure of MakerDialog toolkit handler.
+ * Data structure of MakerDialog toolkit interface.
  *
  * Note that normally you don't have to directly use the members here.
- * The values of members will be filled by calling corresponding toolkit handler.
+ * The values of members will be filled by calling corresponding toolkit interface.
  *
  * These members are listed here for convenience for
- * developer of toolkit handlers.
+ * developer of toolkit interfaces.
  */
 typedef struct {
     /**
@@ -141,7 +143,7 @@ typedef struct {
      *  Called by maker_dialog_ui_destroy().
      */
     void (* dialog_destroy)(MakerDialogUi *dlgUi);
-} MakerDialogToolkitHandler;
+} MakerDialogToolkitInterface;
 
 /**
  * UI instance for MakerDialog.
@@ -149,27 +151,27 @@ typedef struct {
 struct _MakerDialogUi{
     MakerDialog	*mDialog;		//!< "Parent" MakerDialog.
     gpointer dlgObj;			//!< The toolkit dialog object.
-    MakerDialogToolkitHandler *toolkitHandler; //!< The toolkit handler which connects to UI toolkit front-end.
+    MakerDialogToolkitInterface *toolkitInterface; //!< The toolkit interface which connects to UI toolkit front-end.
 };
 
 /**
  * Initialize a MakerDialogUi, the UI front-end of MakerDialog.
  *
- * This function initializes an UI front-end using the given toolkit handler
+ * This function initializes an UI front-end using the given toolkit interface
  * for the MakerDialog.
  * During initialization, the new MakerDialogUi is associated to the \a mDialog.
  * Thus, maker_dialog_destroy() can free the associated MakerDialogUi as well.
  *
- * This function is meant for toolkit handler developers.
+ * This function is meant for toolkit interface developers.
  * For Gtk or Qt users, it is more convenient to call
  * maker_dialog_ui_use_gtk() or maker_dialog_ui_use_qt4() than using this
  * function directly.
  *
  * @param mDialog 		A MakeDialog.
- * @param toolkitHandler 	The toolkit handler for that front end.
+ * @param toolkitInterface 	The toolkit interface for that front end.
  * @return A newly allocated MakerDialogUi instance; NULL if failed.
  */
-MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitHandler *toolkitHandler);
+MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitInterface *toolkitInterface);
 
 
 /**
@@ -222,7 +224,7 @@ void maker_dialog_ui_hide(MakerDialog *mDialog);
  * If validateFunc() is also defined, then the argument value will be checked with it,
  * if it does not pass, this function returns FALSE.
  *
- * If widget_get_value() in ::MakerDialogToolkitHandler is not defined,
+ * If widget_get_value() in ::MakerDialogToolkitInterface is not defined,
  * this function returns FALSE as well.
  *
  * @param mDialog A MakerDialog.

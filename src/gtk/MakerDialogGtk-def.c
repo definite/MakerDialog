@@ -1,34 +1,34 @@
-/*=== Start toolkit handler definitions ===*/
-static GValue *maker_dialog_widget_get_value_gtk(MakerDialogUi *dlgUi, const gchar *key){
-    return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(dlgUi->dlgObj),key);
+/*=== Start toolkit interface definitions ===*/
+static GValue *maker_dialog_widget_get_value_gtk(MakerDialogUi *ui, const gchar *key){
+    return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(ui->dlgObj),key);
 }
 
-static void maker_dialog_widget_set_value_gtk(MakerDialogUi *dlgUi, const gchar *key, GValue *value){
-    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(dlgUi->dlgObj),key,value);
+static void maker_dialog_widget_set_value_gtk(MakerDialogUi *ui, const gchar *key, GValue *value){
+    maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(ui->dlgObj),key,value);
 }
 
-static gpointer maker_dialog_construct_gtk(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal){
-    MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(dlgUi,parentWindow,modal);
+static gpointer maker_dialog_construct_gtk(MakerDialogUi *ui, gpointer parentWindow, gboolean modal){
+    MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(ui,parentWindow,modal);
     return (gpointer) dlg_gtk;
 }
 
-static gint maker_dialog_run_gtk(MakerDialogUi *dlgUi){
-    return gtk_dialog_run(GTK_DIALOG (dlgUi->dlgObj));
+static gint maker_dialog_run_gtk(MakerDialogUi *ui){
+    return gtk_dialog_run(GTK_DIALOG (ui->dlgObj));
 }
 
-static void maker_dialog_show_gtk(MakerDialogUi *dlgUi){
-    gtk_widget_show_all(GTK_WIDGET (dlgUi->dlgObj));
+static void maker_dialog_show_gtk(MakerDialogUi *ui){
+    gtk_widget_show_all(GTK_WIDGET (ui->dlgObj));
 }
 
-static void maker_dialog_hide_gtk(MakerDialogUi *dlgUi){
-    gtk_widget_hide(GTK_WIDGET (dlgUi->dlgObj));
+static void maker_dialog_hide_gtk(MakerDialogUi *ui){
+    gtk_widget_hide(GTK_WIDGET (ui->dlgObj));
 }
 
-static void maker_dialog_destroy_gtk(MakerDialogUi *dlgUi){
-    maker_dialog_gtk_destroy(MAKER_DIALOG_GTK( dlgUi->dlgObj));
+static void maker_dialog_destroy_gtk(MakerDialogUi *ui){
+    maker_dialog_gtk_destroy(MAKER_DIALOG_GTK( ui->dlgObj));
 }
 
-static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
+static MakerDialogToolkitInterface makerDialogToolkitInterface_gtk={
     maker_dialog_widget_get_value_gtk,
     maker_dialog_widget_set_value_gtk,
     maker_dialog_construct_gtk,
@@ -40,14 +40,14 @@ static MakerDialogToolkitHandler makerDialogToolkitHandler_gtk={
 
 MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar ***argv){
     if (gtk_init_check(argc, argv)){
-	MakerDialogUi *dlgUi=maker_dialog_ui_init(mDialog, &makerDialogToolkitHandler_gtk);
-	dlgUi->dlgObj=NULL;
-	return dlgUi;
+	MakerDialogUi *ui=maker_dialog_ui_init(mDialog, &makerDialogToolkitInterface_gtk);
+	ui->dlgObj=NULL;
+	return ui;
     }
     return NULL;
 }
 
-/*=== End toolkit handler definitions ===*/
+/*=== End toolkit interface definitions ===*/
 
 /*=== Start foreach functions ===*/
 static void maker_dialog_gtk_construct_ui_PropFunc(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
@@ -225,17 +225,19 @@ static void g_string_chunk_free_wrap(gpointer ptr){
 
 static MkdgColor GValue_get_GdkColor(GValue* value, GdkColor *color){
     MkdgColor colorValue=g_value_get_uint(value);
-    color->red=(colorValue & 0xFF0000) >> 16;
-    color->green=(colorValue & 0x00FF00) >> 8;
-    color->blue=(colorValue & 0x0000FF);
-    printf("*** get red=%X green=%X blue=%X colorValue=%X\n",color->red,color->green,color->blue,colorValue);
+    color->red=((colorValue & 0xFF0000) >> 16)  * 0x101;
+    color->green=((colorValue & 0x00FF00) >> 8) * 0x101;
+    color->blue=(colorValue & 0x0000FF) * 0x101;
+    MAKER_DIALOG_DEBUG_MSG(4,"[I4] GValue_get_GdkColor() red=%X green=%X blue=%X colorValue=%X\n",
+	    color->red,color->green,color->blue,colorValue);
     return colorValue;
 }
 
 static MkdgColor GValue_set_GdkColor(GValue* value, GdkColor *color){
-    MkdgColor colorValue=(color->red>>8<<16) + (color->green>>8<<8) + color->blue>>8;
+    MkdgColor colorValue=(color->red/256<<16) + (color->green/256<<8) + color->blue/256;
     g_value_set_uint(value, colorValue);
-    printf("*** set red=%X green=%X blue=%X colorValue=%X\n",color->red,color->green,color->blue,colorValue);
+    MAKER_DIALOG_DEBUG_MSG(4,"[I4] GValue_set_GdkColor() red=%X green=%X blue=%X colorValue=%X\n",
+	    color->red,color->green,color->blue,colorValue);
     return colorValue;
 }
 
@@ -302,6 +304,13 @@ static gint combo_find_value_index(GtkComboBox *combo, GValue *value, MakerDialo
 static GValue *combo_get_active_value(GtkComboBox *combo,GValue *value){
     GtkTreeIter iter;
     if (!gtk_combo_box_get_active_iter(combo,&iter)){
+	if (GTK_IS_COMBO_BOX_ENTRY(combo)){
+	    /* Edit from entry */
+	    GtkWidget *entry=gtk_bin_get_child(GTK_BIN(combo));
+	    g_value_init(value,G_TYPE_STRING);
+	    g_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(entry)));
+	    return value;
+	}
 	return NULL;
     }
     GtkListStore *listStore=GTK_LIST_STORE(gtk_combo_box_get_model(combo));
@@ -328,23 +337,31 @@ static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
 	maker_dialog_apply_value(ctx->mDialog, ctx->spec->key);
     }else{
 	gchar *prevString=maker_dialog_property_to_string(ctx);
-	GValue *value=maker_dialog_widget_get_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key);
+	GValue *value=maker_dialog_widget_get_value_gtk(ctx->mDialog->ui, ctx->spec->key);
 	gchar *newString=maker_dialog_g_value_to_string(value, NULL);
 	g_warning(_("Invalid value: %s, Fall back to previous value: %s"), newString, prevString);
 	g_free(prevString);
 	g_free(newString);
 	maker_dialog_g_value_free(value);
-	maker_dialog_widget_set_value_gtk(ctx->mDialog->dlgUi, ctx->spec->key, &ctx->value);
+	maker_dialog_widget_set_value_gtk(ctx->mDialog->ui, ctx->spec->key, &ctx->value);
 	ret=FALSE;
     }
     return ret;
 }
 
-static void widget_event_wrap(GtkComboBox *comboBox, gpointer user_data){
+static void widget_event_wrap(GtkWidget *widget, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
     validate_and_apply(ctx);
 }
 
+static void on_combo_box_entry_change_wrap(GtkComboBox *comboBox, gpointer  user_data){
+    if (gtk_combo_box_get_active (comboBox)<0){
+	/* Only Typing. Wait for active signal */
+    }else{
+	MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;
+	validate_and_apply(ctx);
+    }
+}
 
 static void on_radioButton_toggled_wrap(GtkRadioButton *button, gpointer user_data){
     MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)user_data;

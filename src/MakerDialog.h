@@ -32,6 +32,7 @@
  *
  * @todo Implement functions that uses maxSizeInPixel.
  * @todo Implement functions that uses maxSizeInChar.
+ * @todo Display associate image files.
  */
 #ifndef MAKER_DIALOG_H_
 #define MAKER_DIALOG_H_
@@ -48,6 +49,13 @@ typedef struct _MakerDialog MakerDialog;
 #include "MakerDialogConfigKeyFile.h"
 
 /**
+ * Inter-process communication module.
+ * To be implement in the future.
+ * @todo Inter-process communication instance.
+ */
+typedef gpointer MakerDialogIpc;
+
+/**
  * Data structure of a MakerDialog.
  *
  */
@@ -62,8 +70,10 @@ struct _MakerDialog{
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     /// @cond
     GNode *pageRoot;				//!< Store pages and keys under it. Depth 1 is root, point to NULL; Depth 2 stores pages; Depth 3 stores keys.
-    MakerDialogUi *dlgUi;			//!< UI Instance.
-    MakerDialogConfig *dlgCfg;			//!< Config Instance.
+    MakerDialogUi *ui;				//!< UI module.
+    MakerDialogConfig *config;			//!< Configure module.
+    MakerDialogIpc *ipc;			//!< Inter-process communication module.
+    gpointer	userData;			//!< Custom user data.
     /// @endcond
 };
 

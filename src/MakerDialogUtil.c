@@ -40,11 +40,11 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
     }
 }
 
-/*=== Start Type Handler functions ===*/
+/*=== Start Type Interface functions ===*/
 typedef struct{
     GType type;
-    MkdgTypeHandler typeHandler;
-} MkdgTypeHandlerGType;
+    MkdgTypeInterface typeInterface;
+} MkdgTypeInterfaceGType;
 
 static GValue *md_boolean_from_string(GValue *value, const gchar *str, const gchar *parseOption){
     gboolean val=maker_dialog_atob(str);
@@ -242,7 +242,7 @@ static gint md_string_compare(GValue *value1, GValue *value2, MakerDialogCompare
     return strcmp((gchar *) g_value_get_string(value1), (gchar *) g_value_get_string(value2));
 }
 
-const MkdgTypeHandlerGType gtypeHandlers[]={
+const MkdgTypeInterfaceGType gtypeInterfaces[]={
     { G_TYPE_BOOLEAN,	 	{md_boolean_from_string,	md_boolean_to_string,	md_boolean_compare}},
     { G_TYPE_INT,		{md_int_from_string,	md_int_to_string,	md_number_compare}},
     { G_TYPE_UINT,		{md_uint_from_string,	md_uint_to_string, 	md_number_compare}},
@@ -254,16 +254,16 @@ const MkdgTypeHandlerGType gtypeHandlers[]={
     { G_TYPE_INVALID,		{NULL,			NULL,			NULL}},
 };
 
-const MkdgTypeHandler *maker_dialog_find_gtype_handler(GType type){
+const MkdgTypeInterface *maker_dialog_find_gtype_interface(GType type){
     gsize i;
-    for(i=0;gtypeHandlers[i].type!=G_TYPE_INVALID;i++){
-	if (gtypeHandlers[i].type==type){
-	    return &gtypeHandlers[i].typeHandler;
+    for(i=0;gtypeInterfaces[i].type!=G_TYPE_INVALID;i++){
+	if (gtypeInterfaces[i].type==type){
+	    return &gtypeInterfaces[i].typeInterface;
 	}
     }
     return NULL;
 }
-/*=== End Type Handler functions ===*/
+/*=== End Type Interface functions ===*/
 
 
 gboolean maker_dialog_atob(const gchar *string){
@@ -316,28 +316,28 @@ void maker_dialog_g_value_free(gpointer value){
 }
 
 GValue *maker_dialog_g_value_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    const MkdgTypeHandler *typeHandler=maker_dialog_find_gtype_handler(G_VALUE_TYPE(value));
-    if (!typeHandler)
+    const MkdgTypeInterface *typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value));
+    if (!typeInterface)
 	return NULL;
-    typeHandler->from_string(value, str, parseOption);
+    typeInterface->from_string(value, str, parseOption);
     return value;
 }
 
 gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *toStringFormat){
-    const MkdgTypeHandler *typeHandler=maker_dialog_find_gtype_handler(G_VALUE_TYPE(value));
-    if (!typeHandler)
+    const MkdgTypeInterface *typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value));
+    if (!typeInterface)
 	return NULL;
-    return typeHandler->to_string(value, toStringFormat);
+    return typeInterface->to_string(value, toStringFormat);
 }
 
 gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc){
-    const MkdgTypeHandler *typeHandler=maker_dialog_find_gtype_handler(G_VALUE_TYPE(value1));
-    if (!typeHandler)
+    const MkdgTypeInterface *typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value1));
+    if (!typeInterface)
 	return -2;
-    typeHandler=maker_dialog_find_gtype_handler(G_VALUE_TYPE(value1));
-    if (!typeHandler)
+    typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value1));
+    if (!typeInterface)
 	return -2;
-    return typeHandler->compare(value1,value2, compFunc);
+    return typeInterface->compare(value1,value2, compFunc);
 }
 
 gboolean maker_dialog_g_type_is_number(GType type){
