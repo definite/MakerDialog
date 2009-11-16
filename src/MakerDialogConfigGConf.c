@@ -25,7 +25,7 @@
 #include "MakerDialogConfigGConf.h"
 
 /*=== Start Config interface callbacks ===*/
-static gpointer maker_dialog_config_g_conf_create(
+static gpointer maker_dialog_config_gconf_create(
 	MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error){
     if (!configSet->userData){
 	configSet->userData=gconf_client_get_default();
@@ -34,7 +34,7 @@ static gpointer maker_dialog_config_g_conf_create(
     return configSet->userData;
 }
 
-static gpointer  maker_dialog_config_g_conf_open(
+static gpointer  maker_dialog_config_gconf_open(
 	MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error){
     if (!configSet->userData){
 	GConfClient *client=gconf_client_get_default();
@@ -45,7 +45,7 @@ static gpointer  maker_dialog_config_g_conf_open(
     return configSet->userData;
 }
 
-static gboolean maker_dialog_config_g_conf_close(
+static gboolean maker_dialog_config_gconf_close(
 	MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error){
     configFile->filePointer=NULL;
     if (configSet->userData){
@@ -58,7 +58,7 @@ static void maker_dialog_slist_free_individual(gpointer data, gpointer userData)
     g_free(data);
 }
 
-static gboolean maker_dialog_config_g_conf_preload_to_buffer(
+static gboolean maker_dialog_config_gconf_preload_to_buffer(
 	MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
     GString *strBuf=g_string_new(configFile->path);
     g_string_append_printf(strBuf,"/%s/",pageName);
@@ -67,10 +67,25 @@ static gboolean maker_dialog_config_g_conf_preload_to_buffer(
     GSList *sListHead=gconf_client_all_entries(client,strBuf->str, error);
     GSList *sList;
     GError *cfgErr=NULL; *cfgErr_last=NULL;
+    gboolean clean=TRUE;
     for(sList=sListHead;sList!=NULL; sList=g_slist_next(sList)){
 	gchar *key=(gchar *)sList->data;
 	GConfValue *cValue=gconf_client_get(client, key, &cfgErr);
-	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(configSet->mDialog,keys[i]);
+	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(configSet->mDialog,key);
+	if (!ctx){
+	    clean=FALSE;
+	    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
+		cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_INVALID_KEY, "config_gconf_preload_to_buffer()");
+		goto GCONF_LOAD_BUF_END;
+	    }else{
+		if (cfgErr_last){
+		    maker_dialog_config_error_print(cfgErr_last);
+		    g_error_free(cfgErr_last);
+		}
+		cfgErr_last=cfgErr;
+		continue;
+	    }
+	}
 	MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
 	switch(ctx->spec->valueType){
 	    case MKDG_TYPE_BOOLEAN:
@@ -91,24 +106,29 @@ static gboolean maker_dialog_config_g_conf_preload_to_buffer(
 		maker_dialog_value_from_string(mValue, gconf_value_get_string(cValue), NULL);
 		break;
 	}
+	g_hash_table_insert(configSet->configBuf, ctx->spec->key, mValue);
+    }
+GCONF_LOAD_BUF_END:
+    if (cfgErr){
+	if (error){
+	    *error=cfgErr;
+	}else{
+	    maker_dialog_config_error_print(cfgErr);
+	    g_error_free(cfgErr);
+	}
+	return FALSE;
     }
     g_slist_foreach(sListhead,maker_dialog_slist_free_individual,NULL);
     g_slist_free(sListHead);
-
-
-	    const gchar *dir,
-	    GError **err);
-
-    for(i=0; keys[i]!=NULL; i++){
-    }
+    return result;
 }
 
-static gboolean maker_dialog_config_g_conf_preload(
+static gboolean maker_dialog_config_gconf_preload(
 	MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
     gboolean clean=TRUE,ret;
     GError *cfgErr=NULL, *cfgErr_last=NULL;
     if (pageName){
-	clean=maker_dialog_config_g_conf_preload_to_buffer(configSet, configFile, pageName, &cfgErr);
+	clean=maker_dialog_config_gconf_preload_to_buffer(configSet, configFile, pageName, &cfgErr);
     }else{
 	/* All pages in the configuration set */
 	GConfClient *client=(GConfClient *) configSet->userData;
@@ -119,7 +139,7 @@ static gboolean maker_dialog_config_g_conf_preload(
 	    for(;sList!=NULL; sList=g_slist_next(sList)){
 		path=(gchar *)sList->data;
 		pageNameStr=g_path_get_basename(path);
-		ret=maker_dialog_config_g_conf_preload_to_buffer(configSet, configFile, pageNameStr, &cfgErr);
+		ret=maker_dialog_config_gconf_preload_to_buffer(configSet, configFile, pageNameStr, &cfgErr);
 		g_free(pageNameStr);
 		if (!ret){
 		    clean=FALSE;
@@ -149,62 +169,68 @@ FILE_LOAD_END:
     return TRUE;
 }
 
-static gboolean maker_dialog_config_g_conf_save(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
-    MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_g_conf_save(-,%s,%s)",configFile->path, (pageName)? pageName: "-");
-    if (!maker_dialog_file_isWritable(configFile->path)){
-	if (error){
-	    *error=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE, "config_g_conf_save()");
-	}
-	return FALSE;
-    }
-    FILE *outF=fopen(configFile->path,"w+");
-    if (!outF){
-	if (error){
-	    *error=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE, "config_g_conf_save()");
-	}
-	return FALSE;
-    }
-    const gchar *page=NULL;
-    struct SaveFileBind sBind;
-    sBind.counter=0;
-    sBind.configSet=configSet;
-    sBind.outF=outF;
-    sBind.error=error;
+static gboolean maker_dialog_config_gconf_preload_to_buffer(
+	MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
 
+static
+
+static gboolean maker_dialog_config_gconf_save(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
+    MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_gconf_save(-,%s,%s)",configFile->path, (pageName)? pageName: "-");
+    GConfClient *client=(GConfClient *) configSet->userData;
+    GConfigChangeSet *cChangeSet=gconf_change_set_new();
+    if (pageName){
+	ret=maker_dialog_config_gconf_save_private(configSet, configFile, pageNameStr, &cfgErr);
+    }else{
+	/* All pages in the configuration set */
+	GConfClient *client=(GConfClient *) configSet->userData;
+	GSList *sListHead=gconf_client_all_dirs(client,strBuf->str,&cfgErr);
+	GSList *sList=sListHead;
+	if (!cfgErr){
+	    gchar *path;
+	    for(;sList!=NULL; sList=g_slist_next(sList)){
+		path=(gchar *)sList->data;
+		pageNameStr=g_path_get_basename(path);
+		ret=maker_dialog_config_gconf_save_private(configSet, configFile, pageNameStr, &cfgErr);
+		g_free(pageNameStr);
+		if (!ret){
+		    clean=FALSE;
+		    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
+			break;
+		    }else if (cfgErr_last){
+			maker_dialog_config_error_print(cfgErr_last);
+			g_error_free(cfgErr_last);
+		    }
+		    cfgErr_last=cfgErr;
+		}
+	    }
+	}
     if (configSet->pageNames){
 	gsize i;
 	for(i=0;(page=configSet->pageNames[i])!=NULL;i++){
-	    if (sBind.counter>0)
-		fprintf(outF,"\n");
-	    sBind.pageName=page;
-	    maker_dialog_page_foreach_property(configSet->mDialog, page,  maker_dialog_keyfile_save_private, (gpointer) &sBind);
+	    maker_dialog_page_foreach_property(configSet->mDialog, page,  maker_dialog_gconf_save_private, (gpointer) cChangeSet);
 	}
     }else{
 	GNode *pageNode=NULL;
 	for(pageNode=g_node_first_child(configSet->mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
 	    page=(gchar *) pageNode->data;
-	    if (sBind.counter>0)
-		fprintf(outF,"\n");
-	    sBind.pageName=page;
-	    maker_dialog_page_foreach_property(configSet->mDialog, page, maker_dialog_keyfile_save_private, (gpointer) &sBind);
+	    maker_dialog_page_foreach_property(configSet->mDialog, page,  maker_dialog_gconf_save_private, (gpointer) cChangeSet);
 	}
     }
-    fclose(outF);
-    return TRUE;
+    return gconf_client_commit_change_set(client, cChangeSet, TRUE, error);
 }
 
 /*=== End Config interface callbacks ===*/
 
 MakerDialogConfigInterface makerDialogConfigGConfInterface={
-    maker_dialog_config_g_conf_create,
-    maker_dialog_config_g_conf_open,
-    maker_dialog_config_g_conf_close,
-    maker_dialog_config_g_conf_preload,
-    maker_dialog_config_g_conf_save
+    maker_dialog_config_gconf_create,
+    maker_dialog_config_gconf_open,
+    maker_dialog_config_gconf_close,
+    maker_dialog_config_gconf_preload,
+    maker_dialog_config_gconf_save
 };
 
-MakerDialogConfig *maker_dialog_config_use_g_conf(MakerDialog *mDialog){
-    MakerDialogConfig *config=maker_dialog_config_new(mDialog, &makerDialogConfigGConfInterface);
+MakerDialogConfig *maker_dialog_config_use_gconf(MakerDialog *mDialog){
+    MakerDialogConfig *config=maker_dialog_config_new(mDialog, FALSE, &makerDialogConfigGConfInterface);
     return config;
 }
 

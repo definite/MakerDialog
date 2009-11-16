@@ -17,8 +17,15 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <libgen.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 #include "MakerDialogUtil.h"
 
 #ifndef G_LOG_DOMAIN
@@ -405,4 +412,67 @@ gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags){
     return ((~(flagSet & specFlags)) & specFlags)? FALSE : TRUE;
 }
 
+/*=== Start General file functions ===*/
+gboolean maker_dialog_file_isWritable(const gchar *filename){
+    gchar parentDirBuf[PATH_MAX];
+    gchar *parentDir;
+    gboolean result=TRUE;
+
+    if (g_access(filename,W_OK)!=0){
+	if (g_access(filename,F_OK)==0){
+	    // Read only.
+	    return FALSE;
+	}
+	// Can't write the file , test whether the parent director can write
+	g_strlcpy(parentDirBuf,filename,PATH_MAX);
+	parentDir=dirname(parentDirBuf);
+	if (g_access(parentDir,W_OK)!=0){
+	    result=FALSE;
+	}
+    }
+    return result;
+}
+
+gchar* maker_dialog_truepath(const gchar *path, gchar *resolved_path){
+    gchar workingPath[PATH_MAX];
+    gchar fullPath[PATH_MAX];
+    gchar *result=NULL;
+    g_strlcpy(workingPath,path,PATH_MAX);
+
+    if ( workingPath[0] != '~' ){
+	result = realpath(workingPath, resolved_path);
+    }else{
+	gchar *firstSlash, *suffix, *homeDirStr;
+	struct passwd *pw;
+
+	// initialize variables
+	firstSlash = suffix = homeDirStr = NULL;
+
+	firstSlash = strchr(workingPath, DIRECTORY_SEPARATOR);
+	if (firstSlash == NULL)
+	    suffix = "";
+	else
+	{
+	    *firstSlash = 0;    // so userName is null terminated
+	    suffix = firstSlash + 1;
+	}
+
+	if (workingPath[1] == '\0')
+	    pw = getpwuid( getuid() );
+	else
+	    pw = getpwnam( &workingPath[1] );
+
+	if (pw != NULL)
+	    homeDirStr = pw->pw_dir;
+
+	if (homeDirStr != NULL){
+	    gint ret=g_sprintf(fullPath, "%s%c%s", homeDirStr, DIRECTORY_SEPARATOR, suffix);
+	    if (ret>0){
+		result = realpath(fullPath, resolved_path);
+	    }
+
+	}
+    }
+    return result;
+}
 

@@ -31,40 +31,47 @@ MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitInte
     return ui;
 }
 
-gboolean maker_dialog_ui_construct(MakerDialog *mDialog, gpointer parentWindow, gboolean modal){
-    g_assert(mDialog->ui->toolkitInterface->dialog_construct);
-    mDialog->ui->dlgObj=mDialog->ui->toolkitInterface->dialog_construct(mDialog->ui, parentWindow, modal);
-    if (mDialog->ui->dlgObj)
+#include <stdio.h>
+gboolean maker_dialog_ui_construct(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal){
+    g_assert(dlgUi->toolkitInterface->dialog_construct);
+    dlgUi->dlgObj=dlgUi->toolkitInterface->dialog_construct(dlgUi, parentWindow, modal);
+    if (dlgUi->dlgObj)
 	return TRUE;
     return FALSE;
 }
 
-void maker_dialog_ui_destroy(MakerDialog *mDialog){
-    g_assert(mDialog->ui->dlgObj);
-    g_assert(mDialog->ui->toolkitInterface->dialog_destroy);
-    mDialog->ui->toolkitInterface->dialog_destroy(mDialog->ui);
-    //    g_free(mDialog->ui->dlgObj);
+void maker_dialog_ui_destroy(MakerDialogUi *dlgUi){
+    g_assert(dlgUi->dlgObj);
+    g_assert(dlgUi->toolkitInterface->dialog_destroy);
+    dlgUi->toolkitInterface->dialog_destroy(dlgUi);
+    //    g_free(dlgUi->dlgObj);
 }
 
-gint maker_dialog_ui_run(MakerDialog *mDialog){
-    g_assert(mDialog->ui->toolkitInterface->dialog_run);
-    return mDialog->ui->toolkitInterface->dialog_run(mDialog->ui);
+gint maker_dialog_ui_run(MakerDialogUi *dlgUi){
+    g_assert(dlgUi->toolkitInterface->dialog_run);
+    return dlgUi->toolkitInterface->dialog_run(dlgUi);
 }
 
-void maker_dialog_ui_show(MakerDialog *mDialog){
-    g_assert(mDialog->ui->toolkitInterface->dialog_show);
-    mDialog->ui->toolkitInterface->dialog_show(mDialog->ui);
+void maker_dialog_ui_show(MakerDialogUi *dlgUi){
+    g_assert(dlgUi->toolkitInterface->dialog_show);
+    dlgUi->toolkitInterface->dialog_show(dlgUi);
 }
 
-void maker_dialog_ui_hide(MakerDialog *mDialog){
-    g_assert(mDialog->ui->toolkitInterface->dialog_hide);
-    mDialog->ui->toolkitInterface->dialog_hide(mDialog->ui);
+void maker_dialog_ui_hide(MakerDialogUi *dlgUi){
+    g_assert(dlgUi->toolkitInterface->dialog_hide);
+    dlgUi->toolkitInterface->dialog_hide(dlgUi);
 }
 
-gboolean maker_dialog_ui_update(MakerDialog *mDialog, MakerDialogPropertyContext *ctx){
-    g_assert(mDialog->ui->toolkitInterface->widget_get_value);
+static void maker_dialog_ui_each_control_rule(MakerDialogPropertyContext *ctx, MakerDialogWidgetControl control, gpointer userData){
+    MakerDialogUi *dlgUi=(MakerDialogUi *) userData;
+    dlgUi->toolkitInterface->widget_control(dlgUi, ctx->spec->key, control);
+}
 
-    GValue *value=mDialog->ui->toolkitInterface->widget_get_value(mDialog->ui,ctx->spec->key);
+gboolean maker_dialog_ui_update(MakerDialogUi *dlgUi, MakerDialogPropertyContext *ctx){
+    g_assert(dlgUi->toolkitInterface->widget_get_value);
+
+    MAKER_DIALOG_DEBUG_MSG(2,"[I2] maker_dialog_ui_update( , %s)", ctx->spec->key);
+    GValue *value=dlgUi->toolkitInterface->widget_get_value(dlgUi,ctx->spec->key);
     gboolean ret=TRUE;
     if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
 	/* Value is invalid. */
@@ -72,9 +79,17 @@ gboolean maker_dialog_ui_update(MakerDialog *mDialog, MakerDialogPropertyContext
     }else{
 	maker_dialog_property_set_value_fast(ctx, value, -2);
 	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED;
+	maker_dialog_property_foreach_control_rule(ctx, maker_dialog_ui_each_control_rule, (gpointer) dlgUi );
     }
     g_value_unset(value);
     g_free(value);
     return ret;
+}
+
+gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key){
+    if (dlgUi->toolkitInterface->get_widget){
+	return dlgUi->toolkitInterface->get_widget(dlgUi, key);
+    }
+    return NULL;
 }
 

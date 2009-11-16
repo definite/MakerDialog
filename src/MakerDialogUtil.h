@@ -27,6 +27,17 @@
 #define MAKER_DIALOG_UTIL_H_
 #include <glib.h>
 #include <glib-object.h>
+/**
+ * DIRECTORY_SEPARATOR is the separator for splits the directories in paths.
+ *
+ * If WIN32 is defined, DIRECTORY_SEPARATOR is '\\',
+ * otherwise '/' is used as DIRECTORY_SEPARATOR.
+ */
+#ifdef WIN32
+#define DIRECTORY_SEPARATOR '\\'
+#else
+#define DIRECTORY_SEPARATOR '/'
+#endif
 
 /**
  * Environment variable for MakerDialog debug.
@@ -274,6 +285,29 @@ void maker_dialog_g_value_set_number(GValue *value, gdouble number);
  */
 gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags);
 
+/**
+ * Whether the file is writable or can be created.
+ *
+ * This function returns TRUE when \a filename is writable,
+ * or it does not but the parent directory is writable.
+ * Returns FALSE otherwise.
+ *
+ * @param filename Filename to be tested.
+ * @return TRUE for the file is writable or can be created; FALSE otherwise.
+ */
+gboolean maker_dialog_file_isWritable(const gchar *filename);
+
+/**
+ * Return the canonicalized absolute pathname.
+ *
+ * It works exactly the same with realpath(3), except this function can handle the path with ~,
+ * where realpath cannot.
+ *
+ * @param path The path to be resolved.
+ * @param resolved_path Buffer for holding the resolved_path.
+ * @return resolved path, NULL is the resolution is not sucessful.
+ */
+gchar *maker_dialog_truepath(const gchar *path, gchar *resolved_path);
 
 #endif /* MAKER_DIALOG_UTIL_H_ */
 

@@ -42,7 +42,7 @@
  * @return A newly allocated MakerDialogConfig with glib GKeyFile back-end.
  * @see maker_dialog_config_new().
  */
-MakerDialogConfig *maker_dialog_config_use_g_conf(MakerDialog *mDialog);
+MakerDialogConfig *maker_dialog_config_use_gconf(MakerDialog *mDialog);
 
 
 #endif /* MAKER_DIALOG_CONFIG_G_CONF_H_ */

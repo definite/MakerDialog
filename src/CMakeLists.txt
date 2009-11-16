@@ -32,6 +32,7 @@ SET(MAKER_DIALOG_BASE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUiGtk.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.h
     )
@@ -53,7 +54,7 @@ SET_SOURCE_FILES_PROPERTIES(${GOB_GENERATED}
 
 # library
 ADD_LIBRARY(MakerDialog ${MAKER_DIALOG_BASE_SRC})
-ADD_LIBRARY(MakerDialogGtk MakerDialogGtk.h ${GOB_GENERATED})
+ADD_LIBRARY(MakerDialogGtk MakerDialogUiGtk.h ${GOB_GENERATED})
 
 
 # executable built from some source

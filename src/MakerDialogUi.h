@@ -29,6 +29,10 @@
  * value. According to property specification, MakerDialog generates
  * corresponding UI component to manipulate the property value.
  */
+/**
+ * Separator used in Widget ID.
+ */
+#define WIDGET_ID_SEPARATOR "+"
 
 /**
  * Describe the dimension (size) of a visible component.
@@ -103,50 +107,92 @@ typedef struct _MakerDialogUi MakerDialogUi;
 typedef struct {
     /**
      * Callback function to get the value from UI widget.
-     * Called by maker_dialog_ui_get_value().
+     *
+     * Called by maker_dialog_get_value().
+     * @param dlgUi		A MakerDialog UI instance.
+     * @param key		Key of a property.
+     * @return The value held by UI.
      */
     GValue * (* widget_get_value)(MakerDialogUi *dlgUi, const gchar *key);
 
     /**
-     *  Callback function to set a value to a property, so the corresponding UI widget can show the value.
-     *  Called by maker_dialog_ui_set_value().
+     * Callback function to set a value to an UI widget.
+     *
+     * Called by maker_dialog_set_value().
+     * @param dlgUi		A MakerDialog UI instance.
+     * @param key		Key of a property.
+     * @param value		Value to be set to UI widget.
      */
     void (* widget_set_value)(MakerDialogUi *dlgUi, const gchar *key, GValue *value);
 
     /**
-     *  Callback function to construct the "real" toolkit dialog UI.
-     *  Called by maker_dialog_ui_construct().
+     * Callback function to control the widget.
+     *
+     * Called by maker_dialog_ui_update().
+     *
+     * @param dlgUi		A MakerDialog UI instance.
+     * @param key		Key of a property.
+     * @param control		Widget control flag. See #MAKER_DIALOG_WIDGET_CONTROL
+     */
+    void (* widget_control)(MakerDialogUi *dlgUi, const gchar *key, MakerDialogWidgetControl control);
+
+    /**
+     * Callback function to construct the actual toolkit dialog UI.
+     * Called by maker_dialog_ui_construct().
+     *
+     * @param dlgUi		A MakerDialog UI instance.
+     * @param parentWindow	Parent window of the MakerDialog.
+     * @param modal		Whether the dialog prevent interaction with other window in the same application.
+     * @return The actual UI instance.
      */
     gpointer (* dialog_construct)(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal);
 
      /**
-      *  Callback function to execute a dialog UI until the dialog either emits
-      *  the "response" signal, or is destroyed.
-      *  Called by maker_dialog_ui_run().
+      * Callback function to execute a dialog UI until the dialog either emits
+      * the "response" signal, or is destroyed.
+      *
+      * Called by maker_dialog_ui_run().
+      * @param dlgUi		A MakerDialog UI instance.
+      * @return Respond Id.
       */
-     gint (* dialog_run)(MakerDialogUi *dlgUi);
+    MakerDialogResponse (* dialog_run)(MakerDialogUi *dlgUi);
 
      /**
-      *  Callback function to show the dialog UI.
-      *  Called by maker_dialog_ui_show().
+      * Callback function to show the dialog UI.
+      *
+      * Called by maker_dialog_ui_show().
+      * @param dlgUi		A MakerDialog UI instance.
       */
      void (* dialog_show)(MakerDialogUi *dlgUi);
 
      /**
-      *  Callback function to hide the dialog UI.
-      *  Called by maker_dialog_ui_hide().
+      * Callback function to hide the dialog UI.
+      *
+      * Called by maker_dialog_ui_hide().
+      * @param dlgUi		A MakerDialog UI instance.
       */
     void (* dialog_hide)(MakerDialogUi *dlgUi);
 
     /**
-     *  Callback function to destroy the dialog UI.
-     *  Called by maker_dialog_ui_destroy().
+     * Callback function to destroy the dialog UI.
+     *
+     * Called by maker_dialog_ui_destroy().
+     * @param dlgUi		A MakerDialog UI instance.
      */
     void (* dialog_destroy)(MakerDialogUi *dlgUi);
+
+    /**
+     * Callback function to get the UI widget.
+     *
+     * Called by maker_dialog_ui_get_widget().
+     * @param dlgUi		A MakerDialog UI instance.
+     * @param key		Key of a property.
+     */
+    gpointer (* get_widget)(MakerDialogUi *dlgUi, const gchar *key);
 } MakerDialogToolkitInterface;
 
 /**
- * UI instance for MakerDialog.
+ * Data structure of MakerDialog UI.
  */
 struct _MakerDialogUi{
     MakerDialog	*mDialog;		//!< "Parent" MakerDialog.
@@ -173,48 +219,47 @@ struct _MakerDialogUi{
  */
 MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitInterface *toolkitInterface);
 
-
 /**
  * Construct an UI dialog object (such as GtkDialog or QDialog) for later use.
  *
- * @param mDialog A MakerDialog.
+ * @param dlgUi 	A MakerDialog UI instance.
  * @param parentWindow The parent window which can invoke this dialog. Can be
  * NULL.
  * @param modal Whether the dialog is modal.
  * @return TRUE if succeeded; FALSE otherwise.
  */
-gboolean maker_dialog_ui_construct(MakerDialog *mDialog, gpointer parentWindow, gboolean modal);
+gboolean maker_dialog_ui_construct(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal);
 
 /**
  * Destroy and free the UI.
  *
- * @param mDialog A MakerDialog.
+ * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_destroy(MakerDialog *mDialog);
+void maker_dialog_ui_destroy(MakerDialogUi *dlgUi);
 
 /**
  * Blocks in a recursive main loop until the dialog either emits the "response" signal, or is destroyed.
  *
  * This function aspires gtk_dialog_run().
  * Show the dialog by using dialog_show().
- * @param mDialog A MakerDialog.
+ * @param dlgUi 	A MakerDialog UI instance.
  * @return The respond ID.
  */
-gint maker_dialog_ui_run(MakerDialog *mDialog);
+gint maker_dialog_ui_run(MakerDialogUi *dlgUi);
 
 /**
  * Show the dialog by using dialog_show().
  *
- * @param mDialog A MakerDialog.
+ * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_show(MakerDialog *mDialog);
+void maker_dialog_ui_show(MakerDialogUi *dlgUi);
 
 /**
  * Hide the dialog.
  *
- * @param mDialog A MakerDialog.
+ * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_hide(MakerDialog *mDialog);
+void maker_dialog_ui_hide(MakerDialogUi *dlgUi);
 
 /**
  * Update the property value using the value in UI widget.
@@ -227,12 +272,26 @@ void maker_dialog_ui_hide(MakerDialog *mDialog);
  * If widget_get_value() in ::MakerDialogToolkitInterface is not defined,
  * this function returns FALSE as well.
  *
- * @param mDialog A MakerDialog.
+ * @param dlgUi 	A MakerDialog UI instance.
  * @param ctx     A property context to be update.
  * @return TRUE if succeed, FALSE if the property value does not pass
  *  validation, or widget_get_value() does not exist.
  * @see maker_dialog_apply_value()
  * @see maker_dialog_set_value()
  */
-gboolean maker_dialog_ui_update(MakerDialog *mDialog, MakerDialogPropertyContext *ctx);
+gboolean maker_dialog_ui_update(MakerDialogUi *dlgUi, MakerDialogPropertyContext *ctx);
+
+/**
+ * Get the corresponding widget.
+ *
+ * This function gets the UI widget that represent the value of a property.
+ * So further control over the widget is possible.
+ *
+ * However, it may make the program depends on one toolkit and harder to
+ * port to other toolkit, so use it with care.
+ * @param dlgUi 	A MakerDialog UI instance.
+ * @param key		Key of a MakerDialog property.
+ * @return The corresponding UI widget; or \c NULL if get_widget() in MakerDialogToolkitInterface is not implemented.
+ */
+gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key);
 

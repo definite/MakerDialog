@@ -51,7 +51,7 @@ typedef struct _MakerDialog MakerDialog;
 /**
  * Inter-process communication module.
  * To be implement in the future.
- * @todo Inter-process communication instance.
+ * @todo Implement Inter-process communication instance.
  */
 typedef gpointer MakerDialogIpc;
 
@@ -70,9 +70,9 @@ struct _MakerDialog{
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     /// @cond
     GNode *pageRoot;				//!< Store pages and keys under it. Depth 1 is root, point to NULL; Depth 2 stores pages; Depth 3 stores keys.
-    MakerDialogUi *ui;				//!< UI module.
-    MakerDialogConfig *config;			//!< Configure module.
-    MakerDialogIpc *ipc;			//!< Inter-process communication module.
+    MakerDialogUi *ui;				//!< UI instance.
+    MakerDialogConfig *config;			//!< Configure instance.
+    MakerDialogIpc *ipc;			//!< Inter-process communication instance.
     gpointer	userData;			//!< Custom user data.
     /// @endcond
 };
@@ -207,6 +207,18 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *
  * @return GNode that contains the page name; NULL if no such node.
  */
 GNode *maker_dialog_find_page_node(MakerDialog *mDialog, const gchar *pageName);
+
+
+/**
+ * Find the group node by page name and group name.
+ *
+ * Find the group node by page name and group name.
+ * @param mDialog A MakerDialog.
+ * @param pageName Matching page name.
+ * @param groupName Matching group name.
+ * @return GNode that contains the group name under given page name; NULL if no such node.
+ */
+GNode *maker_dialog_find_group_node(MakerDialog *mDialog, const gchar *pageName, const gchar *groupName);
 
 
 /*=== End Function Definition  ===*/

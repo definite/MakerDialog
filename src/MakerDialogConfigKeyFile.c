@@ -64,11 +64,17 @@ static GError *convert_error_code(GError *error, const gchar *filename, const gc
 
 /*=== Start Config interface callbacks ===*/
 static gpointer maker_dialog_config_key_file_create(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error){
-    return configFile;
+    if (!configSet->userData){
+	configSet->userData=(gpointer) g_key_file_new();
+    }
+    return configSet->userData;
 }
 
 static gpointer  maker_dialog_config_key_file_open(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error){
-    return configFile;
+    if (!configSet->userData){
+	configSet->userData=(gpointer) g_key_file_new();
+    }
+    return configSet->userData;
 }
 
 static gboolean maker_dialog_config_key_file_close(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error){
@@ -217,6 +223,7 @@ struct SaveFileBind{
 };
 
 static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
+    MAKER_DIALOG_DEBUG_MSG(5, "[I5] maker_dialog_keyfile_save_private( , %s, )", ctx->spec->key);
     struct SaveFileBind *sBind=(struct SaveFileBind *) userData;
     /* Check whether the line need to be saved */
     gboolean needSave=TRUE;
@@ -238,7 +245,7 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
 
     if (needSave){
 	if (sBind->counter==0){
-	    fprintf(sBind->outF,"[%s]\n",sBind->pageName);
+	    fprintf(sBind->outF,"[%s]\n",ctx->spec->pageName);
 	}
 	if (ctx->spec->valueType==MKDG_TYPE_BOOLEAN){
 	    /* GKeyFile only accept "true" and  "false" */
@@ -251,7 +258,14 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
     }
 }
 
-static gboolean maker_dialog_config_key_file_save(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
+static gboolean maker_dialog_config_key_file_config_set_each_page(MakerDialogConfigSet *configSet, const gchar *pageName, gpointer userData, GError **error){
+    MAKER_DIALOG_DEBUG_MSG(5, "[I5] maker_dialog_config_key_file_config_set_each_page( , %s, , )", (pageName)? pageName: "-");
+    maker_dialog_page_foreach_property(configSet->mDialog, pageName, NULL, NULL, maker_dialog_keyfile_save_private, userData);
+    return TRUE;
+}
+
+static gboolean maker_dialog_config_key_file_save(MakerDialogConfigSet *configSet,
+	MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
     MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_key_file_save(-,%s,%s)",configFile->path, (pageName)? pageName: "-");
     if (!maker_dialog_file_isWritable(configFile->path)){
 	if (error){
@@ -266,35 +280,27 @@ static gboolean maker_dialog_config_key_file_save(MakerDialogConfigSet *configSe
 	}
 	return FALSE;
     }
-    const gchar *page=NULL;
     struct SaveFileBind sBind;
     sBind.counter=0;
     sBind.configSet=configSet;
     sBind.outF=outF;
     sBind.error=error;
-
-    if (configSet->pageNames){
-	gsize i;
-	for(i=0;(page=configSet->pageNames[i])!=NULL;i++){
-	    if (sBind.counter>0)
-		fprintf(outF,"\n");
-	    sBind.pageName=page;
-	    maker_dialog_page_foreach_property(configSet->mDialog, page,  maker_dialog_keyfile_save_private, (gpointer) &sBind);
-	}
-    }else{
-	GNode *pageNode=NULL;
-	for(pageNode=g_node_first_child(configSet->mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
-	    page=(gchar *) pageNode->data;
-	    if (sBind.counter>0)
-		fprintf(outF,"\n");
-	    sBind.pageName=page;
-	    maker_dialog_page_foreach_property(configSet->mDialog, page, maker_dialog_keyfile_save_private, (gpointer) &sBind);
-	}
-    }
+    gboolean ret=maker_dialog_config_set_foreach_page(configSet, maker_dialog_config_key_file_config_set_each_page, (gpointer) &sBind, error);
     fclose(outF);
-    return TRUE;
+    return ret;
 }
 
+//static gchar **maker_dialog_config_key_file_get_pages(MakerDialogConfigSet *configSet,
+//        MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
+//    MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_key_file_get_pages(-,%s,%s)",configFile->path, (pageName)? pageName: "-");
+//    if (configSet->userData){
+//        if (error){
+//            *error=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_NO_CONFIG_SET, "config_key_file_get_pages()");
+//        }
+//        return NULL;
+//    }
+//    return g_key_file_get_groups((GKeyFile *) configSet->userData, NULL);
+//}
 /*=== End Config interface callbacks ===*/
 
 MakerDialogConfigInterface makerDialogConfigKeyFileInterface={
@@ -302,7 +308,8 @@ MakerDialogConfigInterface makerDialogConfigKeyFileInterface={
     maker_dialog_config_key_file_open,
     maker_dialog_config_key_file_close,
     maker_dialog_config_key_file_preload,
-    maker_dialog_config_key_file_save
+    maker_dialog_config_key_file_save,
+    NULL
 };
 
 MakerDialogConfig *maker_dialog_config_use_key_file(MakerDialog *mDialog){
