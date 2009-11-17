@@ -69,7 +69,8 @@
  */
 #define MAKER_DIALOG_PROPERTY_SPEC_ENDER {\
     NULL, MKDG_TYPE_INVALID, 0,\
-    NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0, 0,\
+    NULL, NULL, NULL, NULL, NULL,\
+    0.0, 0.0, 0.0, 0,\
     NULL, NULL, NULL, NULL, NULL,\
     NULL, NULL, NULL}\
 
@@ -161,7 +162,8 @@ typedef struct _MakerDialogPropertySpec{
      * For example "8" can be passed as base for integer property. \c NULL for using default (intuitive) parse.
      */
     const gchar *parseOption;
-    const gchar *toStringFormat;	 //!< printf()-like format string used in to_string functions(). \c NULL for using default  (intuitive) format.
+    const gchar *toStringFormat;	//!< printf()-like format string used in to_string functions(). \c NULL for using default  (intuitive) format.
+    const gchar *compareOption;	 	//!< Option for comparing values. \c NULL for using the natural order.
 
     gdouble min;			//!< Minimum value of a number. Irrelevant to other data type.
     gdouble max;			//!< Maximum value of a number. Or max characters of an input entry.
@@ -197,7 +199,7 @@ typedef struct _MakerDialogPropertyContext MakerDialogPropertyContext;
  * @return TRUE for pass; FALSE for fail.
  * @see MakerDialogApplyCallbackFunc(), ::MakerDialogPropertySpec .
  */
-typedef gboolean (* MakerDialogValidateCallbackFunc)(MakerDialogPropertySpec *spec, GValue *value);
+typedef gboolean (* MakerDialogValidateCallbackFunc)(MakerDialogPropertySpec *spec, MkdgValue *value);
 
 /**
  * Prototype of callback function for applying value.
@@ -210,7 +212,7 @@ typedef gboolean (* MakerDialogValidateCallbackFunc)(MakerDialogPropertySpec *sp
  *
  * @see MakerDialogValidateCallbackFunc(), ::MakerDialogPropertySpec .
  */
-typedef void (* MakerDialogApplyCallbackFunc)(MakerDialogPropertyContext *ctx, GValue *value);
+typedef void (* MakerDialogApplyCallbackFunc)(MakerDialogPropertyContext *ctx, MkdgValue *value);
 
 /**
  * Property context flags.
@@ -241,7 +243,7 @@ typedef guint MakerDialogPropertyContextFlags;
  */
 struct _MakerDialogPropertyContext{
     MakerDialogPropertySpec 	*spec;		//!< Corresponding property spec.
-    GValue 			value;		//!< Current value of the property.
+    MkdgValue 			*value;		//!< Current value of the property.
     gint			valueIndex;	//!< Index of the value in validValues. -1 if value is not in validValues, or validValues does not exist.
     gpointer 			userData;	//!< For storing user data
     MakerDialogValidateCallbackFunc 	validateFunc;	//!< Function to be called for value validation.
@@ -274,7 +276,7 @@ typedef GHashTable MakerDialogPropertyTable;
  * @return A newly allocated MakerDialogPropertyContext.
  * @see maker_dialog_property_spec_new_full()
  */
-MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType valueType);
+MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, MkdgType valueType);
 
 
 /**
@@ -287,29 +289,30 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, GType 
  * @param key			String that identify the property.
  * @param valueType		Data type of the property value.
  * @param propertyFlags		Flags for a configuration property.
- * @param defaultValue		Default value represent in string.
- * @param validValues 		Valid values represent in strings.
- * @param parseOption   	Option for parsing \a defaultValue and \a validValues.
+ * @param defaultValue		Default value represent in string. Can be \c NULL.
+ * @param validValues 		Valid values represent in strings. Can be \c NULL.
+ * @param parseOption   	Option for parsing \a defaultValue and \a validValues. Can be \c NULL.
  * @param toStringFormat	printf()-like format string used in to_string functions(). \c NULL for using default  (intuitive) format.
+ * @param compareOption		Option for comparing values. \c NULL for using the natural order.
  * @param min 			Minimum value of a number. Irrelevant to other data type.
  * @param max			Maximum value of a number. Irrelevant to other data type.
  * @param step			Increment added or subtracted by spinning the widget.
  * @param decimalDigits		Number of digits after decimal digits.
- * @param pageName		Page that this property belongs to. It will appear as a tab label in GUI. Can be NULL.
- * @param groupName		Group that this property belongs to. It will appear as a label in GUI. Can be NULL.
+ * @param pageName		Page that this property belongs to. It will appear as a tab label in GUI. Can be \c NULL.
+ * @param groupName		Group that this property belongs to. It will appear as a label in GUI. Can be \c NULL.
  * @param label			Label of this property.
- * @param translationContext	Translation message context as for dgettext().
- * @param tooltip		Tooltip to be shown when mouse hover over the property.
- * @param imagePaths		Associated image files.
- * @param rules			Control rules.
- * @param userData		For storing custom data structure.
+ * @param translationContext	Translation message context as for dgettext(). Can be \c NULL.
+ * @param tooltip		Tooltip to be shown when mouse hover over the property.  Can be \c NULL.
+ * @param imagePaths		Associated image files.  Can be \c NULL.
+ * @param rules			Control rules.  Can be \c NULL.
+ * @param userData		For storing custom data structure. Can be \c NULL.
  * @return A newly allocated MakerDialogPropertyContext.
  * @see maker_dialog_property_spec_new()
  */
 MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
 	MkdgType valueType,
 	const gchar *defaultValue, const gchar **validValues,
-	const gchar *parseOption, const char *toStringFormat,
+	const gchar *parseOption, const char *toStringFormat, const gchar *compareOption,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
 	MakerDialogPropertyFlags propertyFlags,
 	const gchar *pageName, const gchar *groupName, const gchar *label, const gchar *translationContext,
@@ -407,15 +410,15 @@ gboolean maker_dialog_property_is_default(MakerDialogPropertyContext *ctx);
 const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *spec);
 
 /**
- * Return the "true" default value as a GValue.
+ * Return the "true" default value.
  *
  * This function is similar to maker_dialog_property_get_default_string(),
- * except this function returns a GValue.
+ * except this function returns a MkdgValue.
  *
- * Free the returned GValue after used.
+ * Free the returned result after used.
  *
  * @param spec A MakerDailog property spec.
- * @return A newly allocated GValue which stores the default value.
+ * @return A newly allocated MkdgValue which stores the default value.
  * @see maker_dialog_set_value()
  * @see maker_dialog_property_is_default()
  * @see maker_dialog_property_get_default_string()
@@ -463,7 +466,7 @@ gboolean maker_dialog_property_set_default(MakerDialogPropertyContext *ctx);
  * @see maker_dialog_property_from_string()
  * @see maker_dialog_property_to_string()
  */
-void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, GValue *value, gint valueIndexCtl);
+void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, MkdgValue *value, gint valueIndexCtl);
 
 /**
  * Set a property value from a string.
@@ -558,7 +561,7 @@ MakerDialogPropertyContext *maker_dialog_property_table_lookup(MakerDialogProper
  * @param key Key of property context.
  * @return Corresponding property context; or %NULL if no such property context.
  */
-GValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTable, const gchar *key);
+MkdgValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTable, const gchar *key);
 
 
 /**
@@ -596,6 +599,9 @@ gboolean maker_dialog_group_name_is_empty(const gchar *groupName);
  * Calls the given function for each property.
  * The function is passed the key and value of each pair, and the given user_data parameter.
  * The hash table may not be modified while iterating over it (you can't add/remove items).
+ *
+ * This function does not guarantee the order of keys and pages.
+ * Use maker_dialog_foreach_page_foreach_property() for ordered pages and keys.
  *
  * @param mDialog 	A MakerDialog.
  * @param func 		The callback function to be called for each key/value pair.
@@ -652,11 +658,32 @@ void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageN
  * Calls the given function for each property in certain pages.
  *
  * @param mDialog 	A MakerDialog.
- * @param pageNames 	Page names to be included in the execution. \c NULL for all keys, regardless the pages.
- * @param func 		The callback function to be called.
- * @param userData 	User data to pass to the callback function.
+ * @param pageNames 	Page names to be included in the execution. \c NULL for all pages.
+ * @param groupFunc 		The callback to be run for each group.
+ * @param groupUserData 	User data to pass to \a groupFunc.
+ * @param propFunc 		The callback to be run for each property.
+ * @param propUserData 		User data to pass to \a propFunc.
+ * @see maker_dialog_foreach_page_foreach_property().
  */
-void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pageNames, MakerDialogEachPropertyFunc  func, gpointer userData);
+void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pageNames,
+	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
+
+/**
+ * Call callback for each property in all pages.
+ *
+ * Call callback for each property in all pages.
+ * This function is essentially maker_dialog_pages_foreach_property(mDialog, NULL, groupFunc, groupUserData, propFunc, propUserData).
+ *
+ * @param mDialog 	A MakerDialog.
+ * @param pageNames 	Page names to be included in the execution. \c NULL for all pages.
+ * @param groupFunc 		The callback to be run for each group.
+ * @param groupUserData 	User data to pass to \a groupFunc.
+ * @param propFunc 		The callback to be run for each property.
+ * @param propUserData 		User data to pass to \a propFunc.
+ * @see maker_dialog_pages_foreach_property().
+ */
+ void maker_dialog_foreach_page_foreach_property(MakerDialog *mDialog,
+	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
 
 /*=== End Function Definition  ===*/
 

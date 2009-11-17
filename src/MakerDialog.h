@@ -135,7 +135,7 @@ void maker_dialog_destroy(MakerDialog *mDialog);
  * @param key A property key.
  * @return Value of the property; or NULL if no such property, or value have not been set.
  */
-GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key);
+MkdgValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key);
 
 /**
  * Get the property context.
@@ -196,7 +196,7 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  * @see maker_dialog_property_set_value_fast()
  *
  */
-gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value);
+gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValue *value);
 
 /**
  * Find the page node by page name.

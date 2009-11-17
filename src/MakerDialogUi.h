@@ -113,7 +113,7 @@ typedef struct {
      * @param key		Key of a property.
      * @return The value held by UI.
      */
-    GValue * (* widget_get_value)(MakerDialogUi *dlgUi, const gchar *key);
+    MkdgValue * (* widget_get_value)(MakerDialogUi *dlgUi, const gchar *key);
 
     /**
      * Callback function to set a value to an UI widget.
@@ -123,7 +123,7 @@ typedef struct {
      * @param key		Key of a property.
      * @param value		Value to be set to UI widget.
      */
-    void (* widget_set_value)(MakerDialogUi *dlgUi, const gchar *key, GValue *value);
+    void (* widget_set_value)(MakerDialogUi *dlgUi, const gchar *key, MkdgValue *value);
 
     /**
      * Callback function to control the widget.

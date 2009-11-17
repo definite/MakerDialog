@@ -337,7 +337,14 @@ gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *toStringFormat
     return typeInterface->to_string(value, toStringFormat);
 }
 
-gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc){
+gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, const gchar *compareOption){
+    if (compareOption){
+	return maker_dialog_g_value_compare_with_func(value1, value2, NULL);
+    }
+    return maker_dialog_g_value_compare_with_func(value1, value2, NULL);
+}
+
+gint maker_dialog_g_value_compare_with_func(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc){
     const MkdgTypeInterface *typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value1));
     if (!typeInterface)
 	return -2;

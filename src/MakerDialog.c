@@ -96,11 +96,11 @@ void maker_dialog_destroy(MakerDialog *mDialog){
     g_free(mDialog);
 }
 
-GValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key){
+MkdgValue *maker_dialog_get_value(MakerDialog *mDialog, const gchar *key){
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
     if (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE)
 	return NULL;
-    return &ctx->value;
+    return ctx->value;
 }
 
 MakerDialogPropertyContext *maker_dialog_get_property_context(MakerDialog *mDialog, const gchar *key){
@@ -112,12 +112,12 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key){
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
 
     gboolean ret=TRUE;
-    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, &ctx->value))){
+    if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, ctx->value))){
 	/* Value is invalid. */
 	ret=FALSE;
     }
     if (ret && ctx->applyFunc){
-	ctx->applyFunc(ctx,&ctx->value);
+	ctx->applyFunc(ctx,ctx->value);
 	ctx->flags &= ~MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED;
     }else{
 	ret=FALSE;
@@ -126,14 +126,14 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key){
     return ret;
 }
 
-gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, GValue *value){
+gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValue *value){
     MAKER_DIALOG_DEBUG_MSG(2,"[I2] set_value( , %s, )", key);
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, key);
     if (!value){
 	return maker_dialog_property_set_default(ctx);
     }
     if (MAKER_DIALOG_DEBUG_RUN(3)){
-	gchar *str=maker_dialog_g_value_to_string(value, ctx->spec->toStringFormat);
+	gchar *str=maker_dialog_value_to_string(value, ctx->spec->toStringFormat);
 	g_debug("[I3] set_value( , %s, %s)",ctx->spec->key, str);
 	g_free(str);
     }

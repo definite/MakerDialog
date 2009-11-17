@@ -71,7 +71,7 @@ gboolean maker_dialog_ui_update(MakerDialogUi *dlgUi, MakerDialogPropertyContext
     g_assert(dlgUi->toolkitInterface->widget_get_value);
 
     MAKER_DIALOG_DEBUG_MSG(2,"[I2] maker_dialog_ui_update( , %s)", ctx->spec->key);
-    GValue *value=dlgUi->toolkitInterface->widget_get_value(dlgUi,ctx->spec->key);
+    MkdgValue *value=dlgUi->toolkitInterface->widget_get_value(dlgUi,ctx->spec->key);
     gboolean ret=TRUE;
     if (ctx->validateFunc && (!ctx->validateFunc(ctx->spec, value))){
 	/* Value is invalid. */
@@ -81,8 +81,7 @@ gboolean maker_dialog_ui_update(MakerDialogUi *dlgUi, MakerDialogPropertyContext
 	ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED;
 	maker_dialog_property_foreach_control_rule(ctx, maker_dialog_ui_each_control_rule, (gpointer) dlgUi );
     }
-    g_value_unset(value);
-    g_free(value);
+    maker_dialog_value_free(value);
     return ret;
 }
 

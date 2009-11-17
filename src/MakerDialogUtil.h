@@ -219,6 +219,27 @@ gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *toStringFormat
 /**
  * Compare value of two GValues.
  *
+ * This function is similar with maker_dialog_g_value_compare(),
+ * except it accepts a pre-defined compare option string,
+ * which can be used in property spec.
+ *
+ * @param value1 	The first value.
+ * @param value2 	The second value.
+ * @param compareOption	Comparison option. \c NULL for using the natural order.
+ * @retval -3  if the values cannot be compared.
+ * @retval -2 if the type is not supported.
+ * @retval -1 if \a value1 \< \a value2.
+ * @retval 0 if \a value1 = \a value2.
+ * @retval 1 if \a value1 \> \a value2.
+ * @see maker_dialog_g_value_compare_with_func()
+ * @see maker_dialog_value_compare()
+ * @see maker_dialog_value_compare_with_func()
+ */
+gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, const gchar *compareOption);
+
+/**
+ * Compare value of two GValues.
+ *
  * This function compares value of two GValues.
  * It is similar to maker_dialog_value_compare(),
  * except this function only compares GValues
@@ -234,9 +255,11 @@ gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *toStringFormat
  * @retval -1 if \a value1 \< \a value2.
  * @retval 0 if \a value1 = \a value2.
  * @retval 1 if \a value1 \> \a value2.
+ * @see maker_dialog_g_value_compare()
  * @see maker_dialog_value_compare()
+ * @see maker_dialog_value_compare_with_func()
  */
-gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc);
+gint maker_dialog_g_value_compare_with_func(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc);
 
 /**
  * Whether a GType is  number.

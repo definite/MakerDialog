@@ -22,9 +22,8 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DI
 SET(MAKER_DIALOG_BASE_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
@@ -54,16 +53,19 @@ SET_SOURCE_FILES_PROPERTIES(${GOB_GENERATED}
 
 # library
 ADD_LIBRARY(MakerDialog ${MAKER_DIALOG_BASE_SRC})
+TARGET_LINK_LIBRARIES(MakerDialog ${GLIB2_LIBRARIES})
+
 ADD_LIBRARY(MakerDialogGtk MakerDialogUiGtk.h ${GOB_GENERATED})
+TARGET_LINK_LIBRARIES(MakerDialogGtk MakerDialog ${GTK2_LIBRARIES})
 
+ADD_LIBRARY(MakerDialogGConf MakerDialogConfigGConf.h MakerDialogConfigGConf.c)
+TARGET_LINK_LIBRARIES(MakerDialogGConf MakerDialog ${GCONF2_LIBRARIES})
 
-# executable built from some source
 
 # Link the executable to the library.
 
-TARGET_LINK_LIBRARIES(MakerDialog ${GLIB2_LIBRARIES})
 
-TARGET_LINK_LIBRARIES(MakerDialogGtk MakerDialog ${GTK2_LIBRARIES})
+
 
 #TARGET_LINK_LIBRARIES(generate-gconf-schemas ${GTK2_LIBRARIES})
 

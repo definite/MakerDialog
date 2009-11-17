@@ -67,7 +67,7 @@ typedef enum {
  */
 typedef struct{
     MkdgType mType;		//!< MakerDialog type.
-    GValue *value;		//!< Value stores here.
+    GValue *data;		//!< Value stores here.
 } MkdgValue;
 
 
@@ -134,6 +134,168 @@ MkdgValue *maker_dialog_value_new(MkdgType mType, GValue *gValue);
  */
 void maker_dialog_value_free(gpointer mValue);
 
+/**
+ * Get a boolean value from a MakerDialog value.
+ *
+ * Get a boolean value from a MakerDialog value.
+ * @param mValue A MkdgaValue.
+ * @return The boolean value.
+ */
+#define maker_dialog_value_get_boolean(mValue)		g_value_get_boolean(mValue->data)
+
+/**
+ * Set a boolean value to a MakerDialog value
+ *
+ * Set a boolean value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The boolean value.
+ */
+#define maker_dialog_value_set_boolean(mValue, value)	g_value_set_boolean(mValue->data, value)
+
+/**
+ * Get an integer value from a MakerDialog value.
+ *
+ * Get an integer value from a MakerDialog value.
+ * @param mValue A MkdgaValue.
+ * @return The integer value.
+ */
+#define maker_dialog_value_get_int(mValue) 		g_value_get_int(mValue->data)
+
+/**
+ * Set an integer value to a MakerDialog value
+ *
+ * Set an integer value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The integer value.
+ */
+#define maker_dialog_value_set_int(mValue, value)	g_value_set_int(mValue->data, value)
+
+/**
+ * Get an unsigned integer value from a MakerDialog value.
+ *
+ * Get an unsigned integer value from a MakerDialog value.
+ * @param mValue A MkdgaValue.
+ * @return The integer value.
+ */
+#define maker_dialog_value_get_uint(mValue) 		g_value_get_uint(mValue->data)
+
+/**
+ * Set an unsigned integer value to a MakerDialog value
+ *
+ * Set an unsigned integer value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The integer value.
+ */
+#define maker_dialog_value_set_uint(mValue, value)	g_value_set_uint(mValue->data, value)
+
+/**
+ * Get a long integer value from a MakerDialog value.
+ *
+ * Get a long integer value from a MakerDialog value.
+ * @param mValue A MkdgaValue.
+ * @return The long integer value.
+ */
+#define maker_dialog_value_get_long(mValue) 		g_value_get_long(mValue->data)
+
+/**
+ * Set a long integer value to a MakerDialog value
+ *
+ * Set a long integer value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The long integer value.
+ */
+#define maker_dialog_value_set_long(mValue, value)	g_value_set_long(mValue->data, value)
+
+/**
+ * Get an unsigned long integer value from a MakerDialog value.
+ *
+ * Get an unsigned long integer value from a MakerDialog value.
+ * @param mValue A MkdgaValue.
+ * @return The unsigned long integer value.
+ */
+#define maker_dialog_value_get_ulong(mValue) 		g_value_get_ulong(mValue->data)
+
+/**
+ * Set an unsigned long integer value to a MakerDialog value
+ *
+ * Set an unsigned long integer value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The unsigned long integer value.
+ */
+#define maker_dialog_value_set_ulong(mValue, value)	g_value_set_ulong(mValue->data, value)
+
+/**
+ * Get a floating-point value from a makerdialog value.
+ *
+ * Get a floating-point value from a makerdialog value.
+ * @param mvalue a mkdgavalue.
+ * @return the floating-point value.
+ */
+#define maker_dialog_value_get_float(mValue) 		g_value_get_float(mValue->data)
+
+/**
+ * Set a floating-point value to a MakerDialog value
+ *
+ * Set a floating-point value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The floating-point value.
+ */
+#define maker_dialog_value_set_float(mValue, value)	g_value_set_float(mValue->data, value)
+
+/**
+ * Get a double precision floating-point value from a makerdialog value.
+ *
+ * Get a double precision floating-point value from a makerdialog value.
+ * @param mvalue a mkdgavalue.
+ * @return the double precision floating-point value.
+ */
+#define maker_dialog_value_get_double(mValue) 		g_value_get_double(mValue->data)
+
+/**
+ * Set a double precision floating-point value to a MakerDialog value
+ *
+ * Set a double precision floating-point value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The double precision floating-point value.
+ */
+#define maker_dialog_value_set_double(mValue, value)	g_value_set_double(mValue->data, value)
+
+/**
+ * Get a string value from a makerdialog value.
+ *
+ * Get a string value from a makerdialog value.
+ * @param mvalue a mkdgavalue.
+ * @return the string value.
+ */
+#define maker_dialog_value_get_string(mValue) 		g_value_get_string(mValue->data)
+
+/**
+ * Set a string value to a MakerDialog value
+ *
+ * Set a string value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The string value.
+ */
+#define maker_dialog_value_set_string(mValue, value)	g_value_set_string(mValue->data, value)
+
+/**
+ * Get a color value from a makerdialog value.
+ *
+ * Get a color value from a makerdialog value.
+ * @param mvalue a mkdgavalue.
+ * @return the color value.
+ */
+#define maker_dialog_value_get_color(mValue) 		g_value_get_uint(mValue->data)
+
+/**
+ * Set a color value to a MakerDialog value
+ *
+ * Set a color value to a MakerDialog value
+ * @param mValue A MkdgaValue.
+ * @param value The color value.
+ */
+#define maker_dialog_value_set_color(mValue, value)	g_value_set_uint(mValue->data, value)
+
 
 /**
  * Set the content of MakerDialog value from a given string.
@@ -196,6 +358,50 @@ gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType);
 /**
  * Compare value of two MakerDialog values.
  *
+ * This function is similar with maker_dialog_value_compare(),
+ * except it accepts a pre-defined compare option string,
+ * which can be used in property spec.
+ * This function compares value of two MakerDialog values,
+ * and returns:
+ *  - -1 if \a mValue1 \< \a mValue2.
+ *  - 0 if \a mValue1 = \a mValue2.
+ *  - 1 if \a mValue1 \> \a mValue2.
+ *
+ * Currently, this function supports following types:
+ *  - MKDG_TYPE_BOOLEAN: TRUE is greater than FALSE.
+ *  - MKDG_TYPE_INT: Natural order.
+ *  - MKDG_TYPE_UINT: Natural order.
+ *  - MKDG_TYPE_LONG: Natural order.
+ *  - MKDG_TYPE_ULONG: Natural order.
+ *  - MKDG_TYPE_FLOAT: Natural order.
+ *  - MKDG_TYPE_DOUBLE: Natural order.
+ *  - MKDG_TYPE_STRING: As in strcmp.
+ *  - MKDG_TYPE_COLOR: Converted to unsigned integers with RRGGBB format, then do integer comparison.
+ *
+ * Numeric values can be compared each other, but MKDG_TYPE_BOOLEAN does not count as
+ * number. Nor can number compare with string.
+ *
+ * -3 is returned if the values cannot be compared.
+ * -2 is returned if the either of value types is not supported.
+ * Beware, this function uses values \<= -2 to returns error.
+ *
+ * @param mValue1 	The first value.
+ * @param mValue2 	The second value.
+ * @param compareOption	Comparison option. \c NULL for using the natural order.
+ * @retval -3  if the values cannot be compared.
+ * @retval -2 if the type is not supported.
+ * @retval -1 if \a mValue1 \< \a mValue2.
+ * @retval 0 if \a mValue1 = \a mValue2.
+ * @retval 1 if \a mValue1 \> \a mValue2.
+ * @see maker_dialog_g_value_compare()
+ * @see maker_dialog_g_value_compare_with_func()
+ * @see maker_dialog_value_compare_with_func()
+ */
+gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption);
+
+/**
+ * Compare value of two MakerDialog values.
+ *
  * This function compares value of two MakerDialog values,
  * and returns:
  *  - -1 if \a mValue1 \< \a mValue2.
@@ -229,6 +435,8 @@ gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType);
  * @retval 0 if \a mValue1 = \a mValue2.
  * @retval 1 if \a mValue1 \> \a mValue2.
  * @see maker_dialog_g_value_compare()
+ * @see maker_dialog_g_value_compare_with_func()
+ * @see maker_dialog_value_compare()
  */
-gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, MakerDialogCompareFunc compFunc);
+gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2, MakerDialogCompareFunc compFunc);
 #endif /* MAKER_DIALOG_TYPES_H_ */

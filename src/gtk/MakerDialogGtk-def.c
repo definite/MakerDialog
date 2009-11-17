@@ -1,9 +1,9 @@
 /*=== Start toolkit interface definitions ===*/
-static GValue *maker_dialog_widget_get_value_gtk(MakerDialogUi *ui, const gchar *key){
+static MkdgValue *maker_dialog_widget_get_value_gtk(MakerDialogUi *ui, const gchar *key){
     return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(ui->dlgObj),key);
 }
 
-static void maker_dialog_widget_set_value_gtk(MakerDialogUi *ui, const gchar *key, GValue *value){
+static void maker_dialog_widget_set_value_gtk(MakerDialogUi *ui, const gchar *key, MkdgValue *value){
     maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(ui->dlgObj),key,value);
 }
 
@@ -277,20 +277,20 @@ static void g_string_chunk_free_wrap(gpointer ptr){
     g_string_chunk_free((GStringChunk *) ptr);
 }
 
-static MkdgColor GValue_get_GdkColor(GValue* value, GdkColor *color){
-    MkdgColor colorValue=g_value_get_uint(value);
+static MkdgColor MkdgValue_get_GdkColor(MkdgValue* value, GdkColor *color){
+    MkdgColor colorValue=g_value_get_uint(value->data);
     color->red=((colorValue & 0xFF0000) >> 16)  * 0x101;
     color->green=((colorValue & 0x00FF00) >> 8) * 0x101;
     color->blue=(colorValue & 0x0000FF) * 0x101;
-    MAKER_DIALOG_DEBUG_MSG(4,"[I4] GValue_get_GdkColor() red=%X green=%X blue=%X colorValue=%X\n",
+    MAKER_DIALOG_DEBUG_MSG(4,"[I4] MkdgValue_get_GdkColor() red=%X green=%X blue=%X colorValue=%X\n",
 	    color->red,color->green,color->blue,colorValue);
     return colorValue;
 }
 
-static MkdgColor GValue_set_GdkColor(GValue* value, GdkColor *color){
+static MkdgColor MkdgValue_set_GdkColor(MkdgValue* value, GdkColor *color){
     MkdgColor colorValue=(color->red/256<<16) + (color->green/256<<8) + color->blue/256;
-    g_value_set_uint(value, colorValue);
-    MAKER_DIALOG_DEBUG_MSG(4,"[I4] GValue_set_GdkColor() red=%X green=%X blue=%X colorValue=%X\n",
+    g_value_set_uint(value->data, colorValue);
+    MAKER_DIALOG_DEBUG_MSG(4,"[I4] MkdgValue_set_GdkColor() red=%X green=%X blue=%X colorValue=%X\n",
 	    color->red,color->green,color->blue,colorValue);
     return colorValue;
 }
@@ -380,13 +380,13 @@ static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
 	maker_dialog_apply_value(ctx->mDialog, ctx->spec->key);
     }else{
 	gchar *prevString=maker_dialog_property_to_string(ctx);
-	GValue *value=maker_dialog_widget_get_value_gtk(ctx->mDialog->ui, ctx->spec->key);
-	gchar *newString=maker_dialog_g_value_to_string(value, NULL);
+	MkdgValue *value=maker_dialog_widget_get_value_gtk(ctx->mDialog->ui, ctx->spec->key);
+	gchar *newString=maker_dialog_value_to_string(value, NULL);
 	g_warning(_("Invalid value: %s, Fall back to previous value: %s"), newString, prevString);
 	g_free(prevString);
 	g_free(newString);
 	maker_dialog_g_value_free(value);
-	maker_dialog_widget_set_value_gtk(ctx->mDialog->ui, ctx->spec->key, &ctx->value);
+	maker_dialog_widget_set_value_gtk(ctx->mDialog->ui, ctx->spec->key, ctx->value);
 	ret=FALSE;
     }
     return ret;
@@ -421,138 +421,4 @@ static void on_radioButton_toggled_wrap(GtkRadioButton *button, gpointer userDat
 }
 
 /*=== End Widget Callback function wraps ===*/
-
-typedef enum{
-    XML_TAMKDG_TYPE_NO_TAG,
-    XML_TAMKDG_TYPE_EMPTY,
-    XML_TAMKDG_TYPE_SHORT,
-    XML_TAMKDG_TYPE_LONG,
-    XML_TAMKDG_TYPE_BEGIN_ONLY,
-    XML_TAMKDG_TYPE_END_ONLY,
-} XmlTagsType;
-#define INDENT_SPACES 4
-
-//static void append_indent_space(GString *strBuf, gint indentLevel){
-//    int i,indentLen=indentLevel*INDENT_SPACES;
-//    for(i=0;i<indentLen;i++){
-//        g_string_append_c(strBuf,' ');
-//    }
-//}
-
-//static GString *xml_tags_to_string(const gchar *tagName, XmlTagsType type,
-//        const gchar *attribute, const gchar *value,gint indentLevel){
-//    GString *strBuf=g_string_new(NULL);
-//    append_indent_space(strBuf,indentLevel);
-
-//    if(type!=XML_TAMKDG_TYPE_NO_TAG){
-//        g_string_append_printf(strBuf,"<%s%s%s%s%s>",
-//                (type==XML_TAMKDG_TYPE_END_ONLY) ? "/": "",
-//                (!isEmptyString(tagName))? tagName : "",
-//                (!isEmptyString(attribute)) ? " ":"",  (!isEmptyString(attribute))? attribute : "",
-//                (type==XML_TAMKDG_TYPE_EMPTY) ? "/": ""
-//        );
-//    }
-//    if (type==XML_TAMKDG_TYPE_EMPTY)
-//        return strBuf;
-//    if (type==XML_TAMKDG_TYPE_BEGIN_ONLY)
-//        return strBuf;
-//    if (type==XML_TAMKDG_TYPE_END_ONLY)
-//        return strBuf;
-
-//    if (type==XML_TAMKDG_TYPE_LONG){
-//        g_string_append_c(strBuf,'\n');
-//    }
-
-//    if (value){
-//        if (type==XML_TAMKDG_TYPE_LONG || type==XML_TAMKDG_TYPE_NO_TAG){
-//            append_indent_space(strBuf,indentLevel+1);
-//            int i, valueLen=strlen(value);
-//            for(i=0;i<valueLen;i++){
-//                g_string_append_c(strBuf,value[i]);
-//                if (value[i]=='\n'){
-//                    append_indent_space(strBuf,indentLevel+1);
-//                }
-//            }
-//            g_string_append_c(strBuf,'\n');
-//            if (type==XML_TAMKDG_TYPE_LONG){
-//                append_indent_space(strBuf,indentLevel);
-//            }
-//        }else{
-//            g_string_append(strBuf,value);
-//        }
-//    }
-
-//    if (type==XML_TAMKDG_TYPE_LONG || type==XML_TAMKDG_TYPE_SHORT){
-//        g_string_append_printf(strBuf,"</%s>",tagName);
-//    }
-//    return strBuf;
-//}
-
-//static void xml_tags_write(FILE *outF, const gchar *tagName, XmlTagsType type,
-//        const gchar *attribute, const gchar *value){
-//    static int indentLevel=0;
-//    if (type==XML_TAMKDG_TYPE_END_ONLY)
-//        indentLevel--;
-
-//    GString *strBuf=xml_tags_to_string(tagName, type, attribute, value, indentLevel);
-//    MAKER_DIALOG_DEBUG_MSG(3,",xml_tags_write:%s",strBuf->str);
-//    fprintf(outF,"%s\n",strBuf->str);
-
-//    if (type==XML_TAMKDG_TYPE_BEGIN_ONLY)
-//        indentLevel++;
-//    g_string_free(strBuf,TRUE);
-//}
-
-typedef struct{
-    const gchar *schemasHome;
-    const gchar *owner;
-    const gchar *locales;
-    FILE *outF;
-} SchemasFileData;
-
-//static void ctx_write_locale(MakerDialogPropertyContext *ctx, SchemasFileData *sData, const gchar *localeStr){
-//    gchar buf[50];
-//    g_snprintf(buf,50,"name=\"%s\"",localeStr);
-//    setlocale(LC_MESSAGES,localeStr);
-//    xml_tags_write(sData->outF,"locale",XML_TAMKDG_TYPE_BEGIN_ONLY,buf,NULL);
-//    xml_tags_write(sData->outF,"short",XML_TAMKDG_TYPE_SHORT,NULL, gettext(ctx->spec->label));
-//    xml_tags_write(sData->outF,"long",XML_TAMKDG_TYPE_LONG,NULL, gettext(ctx->spec->tooltip));
-//    xml_tags_write(sData->outF,"locale",XML_TAMKDG_TYPE_END_ONLY,NULL,NULL);
-//}
-
-//static void ctx_write_callback(gpointer data, gpointer user_data){
-//    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) data;
-//    SchemasFileData *sData=(SchemasFileData *) user_data;
-//    xml_tags_write(sData->outF,"schema",XML_TAMKDG_TYPE_BEGIN_ONLY,NULL,NULL);
-//    gchar buf[STRING_BUFFER_SIZE_DEFAULT];
-//    g_snprintf(buf,STRING_BUFFER_SIZE_DEFAULT,"/schemas%s/%s",sData->schemasHome,ctx->spec->key);
-//    xml_tags_write(sData->outF,"key",XML_TAMKDG_TYPE_SHORT,NULL,buf);
-//    xml_tags_write(sData->outF,"applyto",XML_TAMKDG_TYPE_SHORT,NULL,buf+strlen("/schemas"));
-//    xml_tags_write(sData->outF,"owner",XML_TAMKDG_TYPE_SHORT,NULL,sData->owner);
-//    switch(ctx->spec->valueType){
-//        case MKDG_TYPE_BOOLEAN:
-//            xml_tags_write(sData->outF,"type",XML_TAMKDG_TYPE_SHORT,NULL,"bool");
-//            break;
-//        case MKDG_TYPE_INT:
-//        case MKDG_TYPE_UINT:
-//            xml_tags_write(sData->outF,"type",XML_TAMKDG_TYPE_SHORT,NULL,"int");
-//            break;
-//        case MKDG_TYPE_STRING:
-//            xml_tags_write(sData->outF,"type",XML_TAMKDG_TYPE_SHORT,NULL,"string");
-//            break;
-//        default:
-//            break;
-//    }
-//    if (ctx->spec->defaultValue){
-//        xml_tags_write(sData->outF,"default",XML_TAMKDG_TYPE_SHORT,NULL,ctx->spec->defaultValue);
-//    }
-//    gchar **localeArray=g_strsplit_set(sData->locales,":;",-1);
-//    int i;
-//    for(i=0;localeArray[i]!=NULL;i++){
-//        ctx_write_locale(ctx,sData,localeArray[i]);
-//    }
-//    setlocale(LC_ALL,NULL);
-//    xml_tags_write(sData->outF,"schema",XML_TAMKDG_TYPE_END_ONLY,NULL,NULL);
-//}
-
 

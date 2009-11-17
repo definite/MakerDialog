@@ -223,17 +223,17 @@ const MkdgTypeInterface *maker_dialog_find_type_interface(MkdgType mType){
 MkdgValue *maker_dialog_value_new(MkdgType mType, GValue *gValue){
     MkdgValue *mValue=g_new(MkdgValue, 1);
     mValue->mType=mType;
-    mValue->value=g_new0(GValue, 1);
-    g_value_init(mValue->value, maker_dialog_type_to_g_type(mType));
+    mValue->data=g_new0(GValue, 1);
+    g_value_init(mValue->data, maker_dialog_type_to_g_type(mType));
     if (gValue){
-	g_value_copy(gValue,mValue->value);
+	g_value_copy(gValue,mValue->data);
     }
     return mValue;
 }
 
 void maker_dialog_value_free(gpointer mValue){
     MkdgValue *mV=(MkdgValue *) mValue;
-    maker_dialog_g_value_free(mV->value);
+    maker_dialog_g_value_free(mV->data);
     g_free(mV);
 }
 
@@ -241,7 +241,7 @@ MkdgValue *maker_dialog_value_from_string(MkdgValue *mValue, const gchar *str, c
     const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
     if (!typeInterface)
 	return NULL;
-    typeInterface->from_string(mValue->value, str, parseOption);
+    typeInterface->from_string(mValue->data, str, parseOption);
     return mValue;
 }
 
@@ -249,7 +249,7 @@ gchar *maker_dialog_value_to_string(MkdgValue *mValue, const gchar *toStringForm
     const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
     if (!typeInterface)
 	return NULL;
-    return typeInterface->to_string(mValue->value, toStringFormat);
+    return typeInterface->to_string(mValue->data, toStringFormat);
 }
 
 gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType){
@@ -260,14 +260,21 @@ gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType){
     return result;
 }
 
-gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, MakerDialogCompareFunc compFunc){
+gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption){
+    if (compareOption){
+	return maker_dialog_value_compare_with_func(mValue1, mValue2, NULL);
+    }
+    return maker_dialog_value_compare_with_func(mValue1, mValue2, NULL);
+}
+
+gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2, MakerDialogCompareFunc compFunc){
     const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue2->mType);
     if (!typeInterface)
 	return -2;
     typeInterface=maker_dialog_find_type_interface(mValue1->mType);
     if (!typeInterface)
 	return -2;
-    return typeInterface->compare(mValue1->value,mValue2->value, compFunc);
+    return typeInterface->compare(mValue1->data,mValue2->data, compFunc);
 }
 
 

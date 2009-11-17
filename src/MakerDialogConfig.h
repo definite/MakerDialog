@@ -206,7 +206,7 @@ typedef struct{
      * @param configSet		A configuration set.
      * @param configFile	The configuration file to be manipulated;
      *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Return location for a \c GError, or \c NULL.
+     * @param error		Error return location, or \c NULL.
      * @return File object if success, \c NULL if error occurs.
      */
     gpointer (* config_create)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error);
@@ -217,7 +217,7 @@ typedef struct{
      * @param configSet		A configuration set.
      * @param configFile	The configuration file to be manipulated;
      *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Return location for a \c GError, or \c NULL.
+     * @param error		Error return location, or \c NULL.
      * @return File object if success, \c NULL if error occurs.
      */
     gpointer (* config_open)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error);
@@ -228,7 +228,7 @@ typedef struct{
      * @param configSet		A configuration set.
      * @param configFile	The configuration file to be manipulated;
      *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Return location for a \c GError, or \c NULL.
+     * @param error		Error return location, or \c NULL.
      * @return File object if success, \c NULL if error occurs.
      */
     gboolean (* config_close)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, GError **error);
@@ -252,7 +252,7 @@ typedef struct{
      * @param configSet		A configuration set.
      * @param configFile	The configuration file to be manipulated;
      *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Return location for a \c GError, or \c NULL.
+     * @param error		Error return location, or \c NULL.
      * @return File object if success, \c NULL if error occurs.
      */
     gboolean (* config_preload)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error);
@@ -264,7 +264,7 @@ typedef struct{
      * @param configSet		A configuration set.
      * @param configFile	The configuration file to be manipulated;
      *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Return location for a \c GError, or \c NULL.
+     * @param error		Error return location, or \c NULL.
      * @return File object if success, \c NULL if error occurs.
      */
     gboolean (* config_save)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error);
@@ -276,7 +276,7 @@ typedef struct{
      * @param configSet		A configuration set.
      * @param configFile	The configuration file to be manipulated;
      *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Return location for a \c GError, or \c NULL.
+     * @param error		Error return location, or \c NULL.
      * @return File object if success, \c NULL if error occurs.
      */
     gchar * (* config_get_pages)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error);
@@ -297,8 +297,8 @@ typedef struct{
     MakerDialog *mDialog;			//!< Referring MakerDialog.
     MakerDialogConfigInterface *configInterface;	//!< A configuration interface which connects to configuration back-end.
     /// @cond
-    GHashTable *pageConfigSetTable;	//!< Hash table whose key is a page name, value is a MakerDialogConfigSet.
-    GPtrArray  *configSetArray;		//!< Pointer array that hold the config sets.
+    GHashTable *pageSetTable;		//!< Hash table whose key is a page name, value is a MakerDialogConfigSet.
+    GPtrArray  *setArray;		//!< Pointer array that hold the config sets.
     gboolean fileBased;			//!< The config back-end is file based.
     /// @endcond
 
@@ -397,7 +397,7 @@ void maker_dialog_config_free(MakerDialogConfig *config);
  * Error code is returned via \a error. Pass NULL to ignore error.
  * @param config 	A MakerDialog config.
  * @param configSet 	The configuration set to be added.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @see ::MakerDialogConfig.
  */
 void maker_dialog_config_add_config_set(MakerDialogConfig *config, MakerDialogConfigSet *configSet, GError **error);
@@ -410,7 +410,7 @@ void maker_dialog_config_add_config_set(MakerDialogConfig *config, MakerDialogCo
  *
  * Note that all configuration set should be added before this function.
  * @param config	A MakerDialog config instance.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
 gboolean maker_dialog_config_open_all(MakerDialogConfig *config, GError **error);
@@ -420,7 +420,7 @@ gboolean maker_dialog_config_open_all(MakerDialogConfig *config, GError **error)
  *
  * This function closes all configuration set and associated files.
  * @param config	A MakerDialog config instance.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
 gboolean maker_dialog_config_close_all(MakerDialogConfig *config, GError **error);
@@ -432,7 +432,7 @@ gboolean maker_dialog_config_close_all(MakerDialogConfig *config, GError **error
  *
  * Note that at least one configure set need to be added before this function.
  * @param config	A MakerDialog config instance.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
 gboolean maker_dialog_config_load_all(MakerDialogConfig *config, GError **error);
@@ -444,7 +444,7 @@ gboolean maker_dialog_config_load_all(MakerDialogConfig *config, GError **error)
  *
  * Note that at least one configure set need to be added before this function.
  * @param config	A MakerDialog config instance.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
 gboolean maker_dialog_config_save_all(MakerDialogConfig *config, GError **error);
@@ -457,7 +457,7 @@ gboolean maker_dialog_config_save_all(MakerDialogConfig *config, GError **error)
  * Note that at least one configure set need to be added before this function.
  * @param config	A MakerDialog config instance.
  * @param pageName 	Page name to be loaded.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  *
  * @return MAKER_DIALOG_CONFIG_OK if success; non-zero ::MakerDialogConfigErrorCode code otherwise.
@@ -471,7 +471,7 @@ gboolean maker_dialog_config_load_page(MakerDialogConfig *config, const gchar *p
  * Note that at least one configure set need to be added before this function.
  * @param config	A MakerDialog config instance.
  * @param pageName 	Page name to be loaded.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
 gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *pageName, GError **error);
@@ -485,7 +485,7 @@ gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *p
  * @param configSet 	A MakerDialog configure set.
  * @param page 		Page in \a configSet.
  * @param userData	Custom data to be passed to this callback.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TRUE to continue iteration; FALSE to stop.
  */
 typedef gboolean (* MakerDialogConfigSetEachPageFunc)(MakerDialogConfigSet *configSet, const gchar *page, gpointer userData, GError **error);
@@ -500,7 +500,7 @@ typedef gboolean (* MakerDialogConfigSetEachPageFunc)(MakerDialogConfigSet *conf
  * @param configSet 	A MakerDialog configure set.
  * @param func		Callback function.
  * @param userData	Custom data to be passed to \a func.
- * @param error		Return location for a \c GError, or \c NULL.
+ * @param error		Error return location, or \c NULL.
  * @return TURE if all callback returns TRUE; FALSE if one or more callback
  * return FALSE.
  */
@@ -548,9 +548,31 @@ GError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gch
  * [WW] domain:\<domain\> [\<code\>] \<message\>
  * @endcode
  *
+ * To suppress the error message, set environment variable \c MAKER_DIALOG_VERBOSE to a negative number.
+ *
  * @param error 	Error to be printed.
  */
 void maker_dialog_config_error_print(GError *error);
+
+/**
+ * Handle the error.
+ *
+ * This function provide a convenient function to handle error by keeping the latest error if error output is not \c NULL,
+ * while prints and purges the old error.
+ *
+ * That is, if \a errOut is \c NULL, the error in \a errIn will be printed and freed.
+ *  If \a errOut is not \c NULL, the error in \a errIn will be kept as \a errOut,
+ *  while the old error in \a errOut will be printed and freed.
+ *
+ *  Note that this function does nothing but returns FALSE if \a errIn is \c
+ *  NULL.
+ *
+ * @param errIn		Error input.
+ * @param errOut	Error output stored here;
+ * or \c NULL to print and purge error.
+ * @return TRUE if error input is not NULL (has error); FALSE otherwise.
+ */
+gboolean maker_dialog_config_error_handle(GError *errIn, GError **errOut);
 
 
 #endif /* MAKER_DIALOG_CONFIG_H_ */

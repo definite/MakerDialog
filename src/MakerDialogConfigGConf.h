@@ -45,5 +45,22 @@
 MakerDialogConfig *maker_dialog_config_use_gconf(MakerDialog *mDialog);
 
 
+/**
+ * Output the property as a GConf schemes file.
+ *
+ * Output the property as a GConf schemes file.
+ * @param config		A MakerDialog config instance.
+ * @param filename		Output filename.
+ * @param indentSpace		Number of spaces for indent.
+ * @param owner			Owner of the schemas.
+ * @param locales		Supported locales, use ';' as delimiter.
+ * @param error		Error return location, or \c NULL.
+ * @return TRUE if succeed; FALSE otherwise.
+ *
+ * Output the parameters as GConf schemes file.
+ */
+gboolean maker_dialog_config_gconf_write_schemas_file
+(MakerDialogConfig *config, const gchar *filename, gint indentSpace, const gchar *owner, const gchar *locales, GError **error);
+
 #endif /* MAKER_DIALOG_CONFIG_G_CONF_H_ */
 

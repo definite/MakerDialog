@@ -9,12 +9,17 @@ INCLUDE_DIRECTORIES(${GLIB2_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS}
 LINK_DIRECTORIES(${GLIB2_LIBRARY_DIRS} ${GTK2_LIBRARY_DIRS}
     ${GCONF2_LIBRARY_DIRS} ../bin)
 
-# library
-ADD_EXECUTABLE(md-example.exe
-   md-example.c
+ADD_EXECUTABLE(md-example-gtk-keyfile.exe
+   md-example-gtk-keyfile.c
 )
+TARGET_LINK_LIBRARIES(md-example-gtk-keyfile.exe MakerDialog MakerDialogGtk)
 
-TARGET_LINK_LIBRARIES(md-example.exe MakerDialog MakerDialogGtk)
+ADD_EXECUTABLE(md-example-gtk-gconf.exe
+    md-example-gtk-gconf.c
+)
+TARGET_LINK_LIBRARIES(md-example-gtk-gconf.exe MakerDialog MakerDialogGtk  MakerDialogGConf)
+
+
 
 INSTALL(TARGETS
     RUNTIME DESTINATION bin

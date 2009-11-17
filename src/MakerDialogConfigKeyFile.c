@@ -230,7 +230,7 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
     MkdgValue *bufValue=(MkdgValue *)g_hash_table_lookup(sBind->configSet->configBuf->keyValueTable, ctx->spec->key);
     if (bufValue){
 	if ((sBind->configSet->flags & MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE)
-		&& maker_dialog_g_value_compare(bufValue->value,&ctx->value, NULL)==0){
+		&& maker_dialog_value_compare(bufValue, ctx->value, ctx->spec->compareOption)==0){
 	    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_key_file_save_private() duplicated, no need to save.");
 	    needSave=FALSE;
 	}
@@ -249,7 +249,7 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
 	}
 	if (ctx->spec->valueType==MKDG_TYPE_BOOLEAN){
 	    /* GKeyFile only accept "true" and  "false" */
-	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, (g_value_get_boolean(&ctx->value))? "true" : "false");
+	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, (g_value_get_boolean(ctx->value->data))? "true" : "false");
 	}else{
 	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, maker_dialog_property_to_string(ctx));
 	}
