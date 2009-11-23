@@ -142,7 +142,7 @@ static gboolean maker_dialog_config_key_file_preload_to_buffer(
 		MAKER_DIALOG_DEBUG_MSG(2, "[I2] Load key %s with value %s", keys[i], str );
 		g_free(str);
 	    }
-	    g_hash_table_insert(configSet->configBuf->keyValueTable, g_strdup(keys[i]), mValue);
+	    maker_dialog_config_buffer_insert(configSet->configBuf, keys[i], mValue);
 	}
     }
 FILE_LOAD_TO_BUFFER_END:
@@ -216,14 +216,13 @@ FILE_LOAD_END:
 
 struct SaveFileBind{
     gint counter;
-    const gchar *pageName;
     MakerDialogConfigSet *configSet;
     FILE *outF;
     GError **error;
 };
 
 static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] maker_dialog_keyfile_save_private( , %s, )", ctx->spec->key);
+    MAKER_DIALOG_DEBUG_MSG(5, "[I5] conf_keyfile_save_private( , %s, )", ctx->spec->key);
     struct SaveFileBind *sBind=(struct SaveFileBind *) userData;
     /* Check whether the line need to be saved */
     gboolean needSave=TRUE;
@@ -240,8 +239,8 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
 	    needSave=FALSE;
 	}
     }
-    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_key_file_save_private(-,%s,%s) needSave=%s",
-	    ctx->spec->key, (sBind->pageName)? sBind->pageName: "-", (needSave)? "TRUE": "FALSE");
+    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_key_file_save_private( , %s, ) page=%s needSave=%s",
+	    ctx->spec->key, (ctx->spec->pageName)? ctx->spec->pageName: "-", (needSave)? "TRUE": "FALSE");
 
     if (needSave){
 	if (sBind->counter==0){
@@ -249,7 +248,7 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
 	}
 	if (ctx->spec->valueType==MKDG_TYPE_BOOLEAN){
 	    /* GKeyFile only accept "true" and  "false" */
-	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, (g_value_get_boolean(ctx->value->data))? "true" : "false");
+	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, (maker_dialog_value_get_boolean(ctx->value))? "true" : "false");
 	}else{
 	    fprintf(sBind->outF,"%s=%s\n",ctx->spec->key, maker_dialog_property_to_string(ctx));
 	}
@@ -259,7 +258,7 @@ static void maker_dialog_keyfile_save_private(MakerDialog *mDialog, MakerDialogP
 }
 
 static gboolean maker_dialog_config_key_file_config_set_each_page(MakerDialogConfigSet *configSet, const gchar *pageName, gpointer userData, GError **error){
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] maker_dialog_config_key_file_config_set_each_page( , %s, , )", (pageName)? pageName: "-");
+    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_key_file_config_set_each_page( , %s, , )", (pageName)? pageName: "-");
     maker_dialog_page_foreach_property(configSet->mDialog, pageName, NULL, NULL, maker_dialog_keyfile_save_private, userData);
     return TRUE;
 }

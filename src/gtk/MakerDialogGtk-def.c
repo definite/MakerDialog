@@ -278,7 +278,7 @@ static void g_string_chunk_free_wrap(gpointer ptr){
 }
 
 static MkdgColor MkdgValue_get_GdkColor(MkdgValue* value, GdkColor *color){
-    MkdgColor colorValue=g_value_get_uint(value->data);
+    MkdgColor colorValue=maker_dialog_value_get_color(value);
     color->red=((colorValue & 0xFF0000) >> 16)  * 0x101;
     color->green=((colorValue & 0x00FF00) >> 8) * 0x101;
     color->blue=(colorValue & 0x0000FF) * 0x101;
@@ -289,7 +289,7 @@ static MkdgColor MkdgValue_get_GdkColor(MkdgValue* value, GdkColor *color){
 
 static MkdgColor MkdgValue_set_GdkColor(MkdgValue* value, GdkColor *color){
     MkdgColor colorValue=(color->red/256<<16) + (color->green/256<<8) + color->blue/256;
-    g_value_set_uint(value->data, colorValue);
+    maker_dialog_value_set_color(value, colorValue);
     MAKER_DIALOG_DEBUG_MSG(4,"[I4] MkdgValue_set_GdkColor() red=%X green=%X blue=%X colorValue=%X\n",
 	    color->red,color->green,color->blue,colorValue);
     return colorValue;
@@ -320,10 +320,10 @@ static void listStore_prepend(GtkListStore *listStore, const gchar *listKey, con
 	    -1);
 }
 
-static gint listStore_find_value(GtkListStore *listStore, GValue *value, MakerDialogPropertySpec *spec){
+static gint listStore_find_value(GtkListStore *listStore, MkdgValue *value, MakerDialogPropertySpec *spec){
     int i=0,index=-1;
     GtkTreeIter iter;
-    gchar *valueStr=maker_dialog_g_value_to_string(value, NULL);
+    gchar *valueStr=maker_dialog_value_to_string(value, spec->toStringFormat);
     MAKER_DIALOG_DEBUG_MSG(5,"[I5] Gtk:listStore_find_value(-,%s,%s)", valueStr, spec->key);
     GValue val={0};
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(listStore), &iter)){
@@ -350,7 +350,7 @@ static gint listStore_find_value(GtkListStore *listStore, GValue *value, MakerDi
 
 /*=== End listStore functions ===*/
 
-static gint combo_find_value_index(GtkComboBox *combo, GValue *value, MakerDialogPropertySpec *spec){
+static gint combo_find_value_index(GtkComboBox *combo, MkdgValue *value, MakerDialogPropertySpec *spec){
     GtkListStore *listStore=GTK_LIST_STORE(gtk_combo_box_get_model(combo));
     return listStore_find_value(listStore, value, spec);
 }

@@ -44,6 +44,7 @@
 typedef struct _MakerDialog MakerDialog;
 
 #include "MakerDialogProperty.h"
+#include "MakerDialogPage.h"
 #include "MakerDialogUi.h"
 #include "MakerDialogConfig.h"
 #include "MakerDialogConfigKeyFile.h"
@@ -62,7 +63,6 @@ typedef gpointer MakerDialogIpc;
 struct _MakerDialog{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.
     MakerDialogPropertyTable *propertyTable;	//!< Hash table that stores property context.
-    guint buttonSpecCount;			//!< Number of button specs.
     MakerDialogButtonSpec *buttonSpecs;		//!< Button specs.
     MakerDialogDimension maxSizeInPixel;	//!< The maximum size in pixel. Default is (-1, -1).
     MakerDialogDimension maxSizeInChar;		//!< The maximum size in characters. Default is (-1, -1).
@@ -81,19 +81,22 @@ struct _MakerDialog{
 /**
  * Initialize a MakerDialog.
  *
- * Note this does not create the actual toolkit dialog yet.
- * Use maker_dialog_construct() after this function to create the actual
- * toolkit dialog.
+ * This function initialize an MakerDialog instance.
+ * The title and buttons are specified in this function, however,
+ * no property is specified at this point.
+ * Run maker_dialog_add_property() to add property context and specification.
+ *
+ * Buttons, if specified, will be shown at bottom of dialog UI.
+ * Use \c MAKER_DIALOG_RESPONSE_NIL as respond id at end of button
+ * specification to signified the end of \a buttonSpec.
  *
  * @param title Title of the dialog. This string will be duplicated in MakerDialog.
- * @param buttonSpecCount Number of button specs.
- * @param buttonSpecs Button specs.
+ * @param buttonSpecs Button specification. Can be \c NULL.
  * @return A newly allocate MakerDialog.
  *
  * @see maker_dialog_construct().
  */
-MakerDialog *maker_dialog_init(const gchar *title,
-	guint buttonSpecCount, MakerDialogButtonSpec *buttonSpecs);
+MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *buttonSpecs);
 
 /**
  * Add a property context to the maker dialog.
@@ -197,29 +200,6 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  *
  */
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValue *value);
-
-/**
- * Find the page node by page name.
- *
- * Find the page node by page name.
- * @param mDialog A MakerDialog.
- * @param pageName Page name to be found.
- * @return GNode that contains the page name; NULL if no such node.
- */
-GNode *maker_dialog_find_page_node(MakerDialog *mDialog, const gchar *pageName);
-
-
-/**
- * Find the group node by page name and group name.
- *
- * Find the group node by page name and group name.
- * @param mDialog A MakerDialog.
- * @param pageName Matching page name.
- * @param groupName Matching group name.
- * @return GNode that contains the group name under given page name; NULL if no such node.
- */
-GNode *maker_dialog_find_group_node(MakerDialog *mDialog, const gchar *pageName, const gchar *groupName);
-
 
 /*=== End Function Definition  ===*/
 

@@ -4,18 +4,16 @@ Release:    @PRJ_VER_RELEASE@%{?dist}
 Summary:    @PROJECT_DESCRIPTION@
 License:    LGPLv3+
 Group:      System Environment/Libraries
-URL:        ***USER_DEFINE***
-Source0:    ***USER_DEFINE***%{name}-%{version}-Source.tar.gz
+URL:        http://wiki.github.com/definite/MakerDialog
+Source0:    http://wiki.github.com/definite/MakerDialog/%{name}-%{version}-Source.tar.gz
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cmake >= 2.4
-BuildRequires:  gob2
-BuildRequires:  GConf2-devel
 
 %description
-Developers can easily make an configuration dialog with maker-dialog.
-Maker-dialog generates corresponding UI components for configuration
+Developers can easily make an configuration dialog with MakerDialog.
+MakerDialog generates corresponding UI components for configuration
 properties, such as data type, default value, valid values.
 That is, developers no longer need to worry about the implementation
 details for various toolkit.
@@ -23,9 +21,54 @@ details for various toolkit.
 Developers, however, need to provide either callback functions or dbus
 messages for value getting and setting to handle such events.
 
-Maker-dialog can also output GConf2 schemas files.
+MakerDialog can also output GConf2 schemas files.
 
 Currently, Gtk toolkit is supported. Will extend to Qt or console mode.
+
+%package devel
+Summary:    Files required for developing with MakerDialog
+Group:      Development/Libraries
+Requires:       %{name} = %{version}-%{release}
+
+%description devel
+Necessary header files and libraries for developing with MakerDialog.
+
+%package gtk
+Summary:    MakerDialog GTK binding
+Group:      Development/Libraries
+BuildRequires:  gob2
+Requires:       %{name} = %{version}-%{release}
+Requires:       gtk2
+
+
+%description gtk
+Package for Gtk2 front end.
+
+%package gtk-devel
+Summary:    MakerDialog GTK binding development files.
+Group:      Development/Libraries
+Requires:       %{name}-gtk = %{version}-%{release}
+
+%description gtk-devel
+Package for creating Gtk2 front end.
+
+%package gconf
+Summary:    MakerDialog GConf binding
+Group:      Development/Libraries
+BuildRequires:  GConf2-devel
+Requires:       %{name} = %{version}-%{release}
+Requires:       GConf2
+
+%description gconf
+Package for GConf configuration back-end.
+
+%package gconf-devel
+Summary:    MakerDialog GConf binding development files.
+Group:      Development/Libraries
+Requires:       %{name} = %{version}-%{release}
+
+%description gconf-devel
+Package for creating GConf configuration back-end.
 
 %prep
 %setup -q -n %{name}-%{version}-Source
@@ -33,20 +76,23 @@ Currently, Gtk toolkit is supported. Will extend to Qt or console mode.
 %build
 # $RPM_OPT_FLAGS should be  loaded from cmake macro.
 %cmake -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo .
-make VERBOSE=1  %{?_smp_mflags}
+make VERBOSE=1  %{?_smp_mflags} C_DEFINES="$RPM_OPT_FLAGS"  LDFLAGS+=--build-id
+make doxygen
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
-%find_lang %{name}
-
+make install DESTDIR=$RPM_BUILD_ROOT LDFLAGS+=--build-id
+#%find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files -f %{name}.lang
+#%files -f %{name}.lang
+%files
 %defattr(-,root,root,-)
-%doc AUTHORS README ChangeLog COPYING
+%doc AUTHORS README ChangeLog COPYING COPYING.LESSER RELEASE-NOTES.txt
+
+%files devel
 
 %changelog
 @RPM_CHANGELOG@

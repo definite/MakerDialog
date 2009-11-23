@@ -48,229 +48,6 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
 }
 
 /*=== Start Type Interface functions ===*/
-typedef struct{
-    GType type;
-    MkdgTypeInterface typeInterface;
-} MkdgTypeInterfaceGType;
-
-static GValue *md_boolean_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    gboolean val=maker_dialog_atob(str);
-    g_value_set_boolean(value,val);
-    return value;
-}
-
-static gchar *md_boolean_to_string(GValue *value, const gchar *toStringFormat){
-    return g_strdup((g_value_get_boolean(value))? "TRUE" : "FALSE");
-}
-
-static gint md_boolean_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc func){
-    if (G_VALUE_TYPE(value2)!=G_TYPE_BOOLEAN){
-	return -3;
-    }
-    gboolean val1=g_value_get_boolean (value1);
-    gboolean val2=g_value_get_boolean (value2);
-    if (func){
-	return func(&val1, &val2);
-    }
-    if (val1==val2){
-	return 0;
-    }
-    if (val1==TRUE){
-	return 1;
-    }
-    return -1;
-}
-
-static gint md_number_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc func){
-    if (!maker_dialog_g_type_is_number(G_VALUE_TYPE(value2))){
-	return -3;
-    }
-    gdouble val1=maker_dialog_g_value_get_double(value1);
-    gdouble val2=maker_dialog_g_value_get_double(value2);
-    if (func){
-	return func(&val1, &val2);
-    }
-    if (val1==val2){
-	return 0;
-    }
-    if (val1>val2){
-	return 1;
-    }
-    return -1;
-}
-
-static gint determine_base(const gchar *str, const gchar *parseOption, gchar **startPtr){
-    gint base=10;
-    *startPtr=(gchar *) str;
-    if (parseOption){
-	base=atoi (parseOption);
-    }else{
-	if (strlen(str)>2 && str[0]=='0' && str[1]=='x'){
-	    base=16;
-	    *startPtr= (gchar *) str+2;
-	}else if (strlen(str)>2 && str[0]=='0' && str[1]!='.'){
-	    base=8;
-	    *startPtr= (gchar *) str+1;
-	}
-    }
-    return base;
-}
-
-static GValue *md_int_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	g_value_set_int(value,0);
-    }else{
-	gint base=determine_base(str, parseOption, &startPtr);
-	gint val=(gint) strtol(startPtr, NULL, base);
-	g_value_set_int(value,val);
-    }
-    return value;
-}
-
-static gchar *md_int_to_string(GValue *value, const gchar *toStringFormat){
-    GString *strBuf=g_string_new(NULL);
-    if (!toStringFormat)
-	toStringFormat="%d";
-    g_string_printf(strBuf, toStringFormat ,g_value_get_int(value));
-    return g_string_free(strBuf, FALSE);
-}
-
-static GValue *md_uint_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	g_value_set_uint(value,0);
-    }else{
-	gint base=determine_base(str, parseOption, &startPtr);
-	guint val=(guint) strtol(startPtr, NULL, base);
-	g_value_set_uint(value,val);
-    }
-    return value;
-}
-
-static gchar *md_uint_to_string(GValue *value, const gchar *toStringFormat){
-    GString *strBuf=g_string_new(NULL);
-    if (!toStringFormat)
-	toStringFormat="%u";
-    g_string_printf(strBuf, toStringFormat ,g_value_get_uint(value));
-    return g_string_free(strBuf, FALSE);
-}
-
-
-static GValue *md_long_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	g_value_set_long(value,0l);
-    }else{
-	gint base=determine_base(str,  parseOption, &startPtr);
-	glong val= strtol(startPtr, NULL, base);
-	g_value_set_long(value,val);
-    }
-    return value;
-}
-
-static gchar *md_long_to_string(GValue *value, const gchar *toStringFormat){
-    GString *strBuf=g_string_new(NULL);
-    if (!toStringFormat)
-	toStringFormat="%ld";
-    g_string_printf(strBuf, toStringFormat ,g_value_get_long(value));
-    return g_string_free(strBuf, FALSE);
-}
-
-static GValue *md_ulong_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	g_value_set_ulong(value,0);
-    }else{
-	gint base=determine_base(str, parseOption, &startPtr);
-	gulong val= (gulong) strtoll(startPtr, NULL, base);
-	g_value_set_ulong(value,val);
-    }
-    return value;
-}
-
-static gchar *md_ulong_to_string(GValue *value, const gchar *toStringFormat){
-    GString *strBuf=g_string_new(NULL);
-    if (!toStringFormat)
-	toStringFormat="%lu";
-    g_string_printf(strBuf, toStringFormat ,g_value_get_ulong(value));
-    return g_string_free(strBuf, FALSE);
-}
-
-static GValue *md_float_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    gfloat val= (G_UNLIKELY(maker_dialog_string_is_empty(str))) ? 0.0f: (gfloat) strtod(str, NULL);
-    g_value_set_float(value,val);
-    return value;
-}
-
-static gchar *md_float_to_string(GValue *value, const gchar *toStringFormat){
-    GString *strBuf=g_string_new(NULL);
-    if (!toStringFormat)
-	toStringFormat="%g";
-    g_string_printf(strBuf, toStringFormat ,g_value_get_float(value));
-    return g_string_free(strBuf, FALSE);
-}
-
-static GValue *md_double_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    gdouble val= (G_UNLIKELY(maker_dialog_string_is_empty(str))) ? 0.0 : (gdouble) strtod(str, NULL);
-    g_value_set_double(value,val);
-    return value;
-}
-
-static gchar *md_double_to_string(GValue *value, const gchar *toStringFormat){
-    GString *strBuf=g_string_new(NULL);
-    if (!toStringFormat)
-	toStringFormat="%g";
-    g_string_printf(strBuf, toStringFormat ,g_value_get_double(value));
-    return g_string_free(strBuf, FALSE);
-}
-
-static GValue *md_string_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    const gchar *strValue= (G_UNLIKELY(maker_dialog_string_is_empty(str))) ? "" : str;
-    g_value_set_string(value, strValue);
-    return value;
-}
-
-static gchar *md_string_to_string(GValue *value, const gchar *toStringFormat){
-    GString *strBuf=g_string_new(NULL);
-    if (!toStringFormat)
-	toStringFormat="%s";
-    g_string_printf(strBuf, toStringFormat ,g_value_get_string(value));
-    return g_string_free(strBuf, FALSE);
-}
-
-static gint md_string_compare(GValue *value1, GValue *value2, MakerDialogCompareFunc func){
-    if (G_VALUE_TYPE(value2)!=G_TYPE_STRING){
-	return -3;
-    }
-    if (func){
-	return func((gchar *)g_value_get_string(value1), (gchar *) g_value_get_string(value2));
-    }
-    return strcmp((gchar *) g_value_get_string(value1), (gchar *) g_value_get_string(value2));
-}
-
-const MkdgTypeInterfaceGType gtypeInterfaces[]={
-    { G_TYPE_BOOLEAN,	 	{md_boolean_from_string,	md_boolean_to_string,	md_boolean_compare}},
-    { G_TYPE_INT,		{md_int_from_string,	md_int_to_string,	md_number_compare}},
-    { G_TYPE_UINT,		{md_uint_from_string,	md_uint_to_string, 	md_number_compare}},
-    { G_TYPE_LONG,		{md_long_from_string,	md_long_to_string,	md_number_compare}},
-    { G_TYPE_ULONG,		{md_ulong_from_string,	md_ulong_to_string,	md_number_compare}},
-    { G_TYPE_FLOAT,		{md_float_from_string,	md_float_to_string, 	md_number_compare}},
-    { G_TYPE_DOUBLE,		{md_double_from_string,	md_double_to_string, 	md_number_compare}},
-    { G_TYPE_STRING,		{md_string_from_string,	md_string_to_string, 	md_string_compare}},
-    { G_TYPE_INVALID,		{NULL,			NULL,			NULL}},
-};
-
-const MkdgTypeInterface *maker_dialog_find_gtype_interface(GType type){
-    gsize i;
-    for(i=0;gtypeInterfaces[i].type!=G_TYPE_INVALID;i++){
-	if (gtypeInterfaces[i].type==type){
-	    return &gtypeInterfaces[i].typeInterface;
-	}
-    }
-    return NULL;
-}
-/*=== End Type Interface functions ===*/
 
 
 gboolean maker_dialog_atob(const gchar *string){
@@ -322,38 +99,6 @@ void maker_dialog_g_value_free(gpointer value){
     g_free(gValue);
 }
 
-GValue *maker_dialog_g_value_from_string(GValue *value, const gchar *str, const gchar *parseOption){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value));
-    if (!typeInterface)
-	return NULL;
-    typeInterface->from_string(value, str, parseOption);
-    return value;
-}
-
-gchar *maker_dialog_g_value_to_string(GValue *value, const gchar *toStringFormat){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value));
-    if (!typeInterface)
-	return NULL;
-    return typeInterface->to_string(value, toStringFormat);
-}
-
-gint maker_dialog_g_value_compare(GValue *value1, GValue *value2, const gchar *compareOption){
-    if (compareOption){
-	return maker_dialog_g_value_compare_with_func(value1, value2, NULL);
-    }
-    return maker_dialog_g_value_compare_with_func(value1, value2, NULL);
-}
-
-gint maker_dialog_g_value_compare_with_func(GValue *value1, GValue *value2, MakerDialogCompareFunc compFunc){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value1));
-    if (!typeInterface)
-	return -2;
-    typeInterface=maker_dialog_find_gtype_interface(G_VALUE_TYPE(value1));
-    if (!typeInterface)
-	return -2;
-    return typeInterface->compare(value1,value2, compFunc);
-}
-
 gboolean maker_dialog_g_type_is_number(GType type){
     switch (type){
 	case G_TYPE_INT:
@@ -369,7 +114,7 @@ gboolean maker_dialog_g_type_is_number(GType type){
     return FALSE;
 }
 
-gdouble maker_dialog_g_value_get_double(GValue *value){
+gdouble maker_dialog_g_value_to_double(GValue *value){
     switch (G_VALUE_TYPE(value)){
 	case G_TYPE_INT:
 	    return (gdouble) g_value_get_int(value);
@@ -389,7 +134,7 @@ gdouble maker_dialog_g_value_get_double(GValue *value){
     return  0.0;
 }
 
-void maker_dialog_g_value_set_number(GValue *value, gdouble number){
+void maker_dialog_g_value_from_double(GValue *value, gdouble number){
     switch (G_VALUE_TYPE(value)){
     	case G_TYPE_INT:
 	    g_value_set_int(value, (gint) number);

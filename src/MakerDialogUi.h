@@ -61,7 +61,7 @@ typedef struct _MakerDialogAlignment{
  * These ids are actually coming from GTK_RESPONSE ids.
  */
 typedef enum{
-    MAKER_DIALOG_RESPONSE_NONE=-1,		//!< Returned if an action widget has no response id, or if the dialog gets programmatically hidden or destroyed.
+    MAKER_DIALOG_RESPONSE_NIL=-1,		//!< Returned if the dialog gets programmatically hidden or destroyed, or serves as button definition terminator.
     MAKER_DIALOG_RESPONSE_REJECT=-2,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
     MAKER_DIALOG_RESPONSE_ACCEPT=-3,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
     MAKER_DIALOG_RESPONSE_DELETE_EVENT=-4,	//!< Returned if the dialog is deleted.

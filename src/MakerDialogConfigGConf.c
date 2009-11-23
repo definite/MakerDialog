@@ -62,150 +62,164 @@ static gboolean maker_dialog_config_gconf_close
     return TRUE;
 }
 
-static void maker_dialog_slist_free_individual(gpointer data, gpointer userData){
+static void maker_dialog_slist_each_cfgEntry_free(gpointer data, gpointer userData){
+    gconf_entry_free((GConfEntry *) data);
+}
+
+static void maker_dialog_slist_each_free(gpointer data, gpointer userData){
     g_free(data);
 }
 
 static gboolean maker_dialog_config_gconf_preload_to_buffer
-(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
-    GString *strBuf=g_string_new(configFile->path);
-    g_string_append_printf(strBuf,"/%s/",pageName);
+(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pagePath, GError **error){
     GConfClient *client=(GConfClient *) configSet->userData;
-    GSList *sListHead=gconf_client_all_entries(client,strBuf->str, error);
-    GSList *sList;
-    GError *cfgErr=NULL, *cfgErr_last=NULL;
+    GError *cfgErr=NULL;
+    GSList *sListHead=gconf_client_all_entries(client, pagePath, &cfgErr);
     gboolean clean=TRUE;
+    if (maker_dialog_config_error_handle(cfgErr, error)){
+	clean=FALSE;
+	goto GCONF_LOAD_BUF_END;
+    }
+    GSList *sList;
     for(sList=sListHead;sList!=NULL; sList=g_slist_next(sList)){
-	gchar *key=(gchar *)sList->data;
-	GConfValue *cValue=gconf_client_get(client, key, &cfgErr);
+	GConfEntry *cfgEntry=(GConfEntry *) sList->data;
+	gchar *key=g_path_get_basename(cfgEntry->key);
 	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(configSet->mDialog,key);
 	if (!ctx){
 	    clean=FALSE;
+	    cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_INVALID_KEY, "config_gconf_preload_to_buffer() key=%s, cfgEntry->key=%s", key, cfgEntry->key);
 	    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
-		cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_INVALID_KEY, "config_gconf_preload_to_buffer()");
 		goto GCONF_LOAD_BUF_END;
-	    }else{
-		if (cfgErr_last){
-		    maker_dialog_config_error_print(cfgErr_last);
-		    g_error_free(cfgErr_last);
-		}
-		cfgErr_last=cfgErr;
-		continue;
 	    }
+	    maker_dialog_config_error_handle(cfgErr, error);
+	    g_free(key);
+	    continue;
 	}
+	g_free(key);
 	MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
 	switch(ctx->spec->valueType){
 	    case MKDG_TYPE_BOOLEAN:
-		maker_dialog_value_set_boolean(mValue, gconf_value_get_bool(cValue));
+		maker_dialog_value_set_boolean(mValue, gconf_value_get_bool(cfgEntry->value));
 	        break;
 	    case MKDG_TYPE_INT:
-		maker_dialog_value_set_int(mValue, gconf_value_get_int(cValue));
+		maker_dialog_value_set_int(mValue, gconf_value_get_int(cfgEntry->value));
 		break;
 	    case MKDG_TYPE_UINT:
-		maker_dialog_value_set_uint(mValue, (guint) gconf_value_get_int(cValue));
+		maker_dialog_value_set_uint(mValue, (guint) gconf_value_get_int(cfgEntry->value));
 		break;
 	    case MKDG_TYPE_LONG:
-		maker_dialog_value_set_long(mValue,  gconf_value_get_int(cValue));
+		maker_dialog_value_set_long(mValue,  gconf_value_get_int(cfgEntry->value));
 		break;
 	    case MKDG_TYPE_ULONG:
-		maker_dialog_value_set_ulong(mValue, (gulong) gconf_value_get_int(cValue));
+		maker_dialog_value_set_ulong(mValue, (gulong) gconf_value_get_int(cfgEntry->value));
 		break;
 	    case MKDG_TYPE_FLOAT:
-		maker_dialog_value_set_float(mValue, (gfloat) gconf_value_get_float(cValue));
+		maker_dialog_value_set_float(mValue, (gfloat) gconf_value_get_float(cfgEntry->value));
 	    case MKDG_TYPE_DOUBLE:
-		maker_dialog_value_set_double(mValue, gconf_value_get_float(cValue));
+		maker_dialog_value_set_double(mValue, gconf_value_get_float(cfgEntry->value));
 		break;
 	    case MKDG_TYPE_STRING:
 	    case MKDG_TYPE_COLOR:
-		maker_dialog_value_from_string(mValue, gconf_value_get_string(cValue), NULL);
+		maker_dialog_value_from_string(mValue, gconf_value_get_string(cfgEntry->value), NULL);
 		break;
 	    default:
 		break;
 	}
-	g_hash_table_insert(configSet->configBuf->keyValueTable, (gchar *) ctx->spec->key, mValue);
+	MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_gconf_preload_to_buffer( , , %s, ) value %s preload to key %s ",
+		pagePath, maker_dialog_value_to_string(mValue, ctx->spec->toStringFormat), ctx->spec->key );
+	maker_dialog_config_buffer_insert(configSet->configBuf, ctx->spec->key, mValue);
     }
 GCONF_LOAD_BUF_END:
-    if (cfgErr){
-	if (error){
-	    *error=cfgErr;
-	}else{
-	    maker_dialog_config_error_print(cfgErr);
-	    g_error_free(cfgErr);
-	}
-	return FALSE;
+    if (maker_dialog_config_error_handle(cfgErr, error)){
+	clean=FALSE;
     }
-    g_slist_foreach(sListHead,maker_dialog_slist_free_individual,NULL);
+    if (sListHead){
+	g_slist_foreach(sListHead,maker_dialog_slist_each_cfgEntry_free,NULL);
+    }
     g_slist_free(sListHead);
     return clean;
 }
 
 static gboolean maker_dialog_config_gconf_preload
 (MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_preload( , %s, %s, )", configFile->path, (pageName)? pageName : "");
+    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_gconf_preload( , %s, %s, )", configFile->path, (pageName)? pageName : "");
     gboolean clean=TRUE,ret;
-    GError *cfgErr=NULL, *cfgErr_last=NULL;
+    GError *cfgErr=NULL;
+    gchar *pagePath=NULL;
     if (pageName){
+	pagePath=g_strjoin("/", configFile->path, pageName, NULL);
 	clean=maker_dialog_config_gconf_preload_to_buffer(configSet, configFile, pageName, &cfgErr);
+	g_free(pagePath);
     }else{
 	/* All pages in the configuration set */
 
+	MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_gconf_preload( , %s, %s, ) 2", configFile->path, (pageName)? pageName : "");
 	GConfClient *client=(GConfClient *) configSet->userData;
 	GSList *sListHead=gconf_client_all_dirs(client,configFile->path,&cfgErr);
 	GSList *sList=sListHead;
 	if (!cfgErr){
-	    gchar *path;
+	    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_gconf_preload( , %s, %s, ) 3", configFile->path, (pageName)? pageName : "");
 	    for(;sList!=NULL; sList=g_slist_next(sList)){
-		path=(gchar *)sList->data;
-		gchar *pageNameStr=g_path_get_basename(path);
-		ret=maker_dialog_config_gconf_preload_to_buffer(configSet, configFile, pageNameStr, &cfgErr);
-		g_free(pageNameStr);
+		pagePath=(gchar *)sList->data;
+		MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_preload( , %s, , ) path=%s", configFile->path, pagePath);
+		ret=maker_dialog_config_gconf_preload_to_buffer(configSet, configFile, pagePath, &cfgErr);
 		if (!ret){
 		    clean=FALSE;
+		    maker_dialog_config_error_handle(cfgErr, error);
 		    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
 			break;
-		    }else if (cfgErr_last){
-			maker_dialog_config_error_print(cfgErr_last);
-			g_error_free(cfgErr_last);
 		    }
-		    cfgErr_last=cfgErr;
 		}
 	    }
 	}
 	/* Free sList */
-	g_slist_foreach(sListHead,maker_dialog_slist_free_individual,NULL);
+	g_slist_foreach(sListHead,maker_dialog_slist_each_free,NULL);
 	g_slist_free(sListHead);
     }
     if (cfgErr){
-	if (error){
-	    *error=cfgErr;
-	}else{
-	    maker_dialog_config_error_print(cfgErr);
-	    g_error_free(cfgErr);
-	}
+	maker_dialog_config_error_handle(cfgErr, error);
 	return FALSE;
     }
-    return TRUE;
+    return clean;
 }
 
+
+typedef struct{
+    GConfClient *client;
+    GConfChangeSet *cChangeSet;
+    const gchar *homePath;
+    GError *cfgErr;
+} MKDG_GConfSaveData;
+
+static gchar *mkdg_key_to_gconf_key(MakerDialogPropertyContext *ctx, MKDG_GConfSaveData *sData){
+    return g_strjoin("/", sData->homePath, (ctx->spec->pageName)?  ctx->spec->pageName : MAKER_DIALOG_PAGE_UNNAMED, ctx->spec->key, NULL);
+}
+
+
 static void maker_dialog_config_gconf_save_property_private(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
+    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_gconf_save_private( , %s, ) Unsaved=%s", ctx->spec->key, (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED)? "TRUE": "FALSE");
     if (ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED){
-	GConfChangeSet *cChangeSet=(GConfChangeSet *) userData;
+	MKDG_GConfSaveData *sData=(MKDG_GConfSaveData *) userData;
 	GConfValue *confValue=NULL;
 	switch(ctx->spec->valueType){
 	    case MKDG_TYPE_BOOLEAN:
 		confValue=gconf_value_new(GCONF_VALUE_BOOL);
-		gconf_value_set_bool(confValue, g_value_get_boolean(ctx->value->data));
+		gconf_value_set_bool(confValue, maker_dialog_value_get_boolean(ctx->value));
 		break;
 	    case MKDG_TYPE_INT:
 	    case MKDG_TYPE_UINT:
+	    case MKDG_TYPE_INT32:
+	    case MKDG_TYPE_UINT32:
+	    case MKDG_TYPE_INT64:
+	    case MKDG_TYPE_UINT64:
 	    case MKDG_TYPE_LONG:
 	    case MKDG_TYPE_ULONG:
 		confValue=gconf_value_new(GCONF_VALUE_INT);
-		gconf_value_set_int(confValue, (gint) maker_dialog_g_value_get_double(ctx->value->data));
+		gconf_value_set_int(confValue, (gint) maker_dialog_value_to_double(ctx->value));
 		break;
 	    case MKDG_TYPE_FLOAT:
 		confValue=gconf_value_new(GCONF_VALUE_FLOAT);
-		gconf_value_set_float(confValue, maker_dialog_g_value_get_double(ctx->value->data));
+		gconf_value_set_float(confValue, maker_dialog_value_to_double(ctx->value));
 		break;
 	    case MKDG_TYPE_STRING:
 		confValue=gconf_value_new(GCONF_VALUE_STRING);
@@ -219,84 +233,51 @@ static void maker_dialog_config_gconf_save_property_private(MakerDialog *mDialog
 		break;
 	}
 	if (confValue){
-	    gconf_change_set_set_nocopy(cChangeSet, ctx->spec->key, confValue);
+	    gchar *gconfKey=mkdg_key_to_gconf_key(ctx, sData);
+	    gconf_change_set_set_nocopy(sData->cChangeSet, gconfKey, confValue);
+	    g_free(gconfKey);
 	}
     }
-
 }
 
-static gboolean maker_dialog_config_gconf_save_private(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile,
-	GConfChangeSet *cChangeSet, const gchar *pageName, GError **error){
-    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_gconf_save_private(-,%s,%s)",configFile->path, (pageName)? pageName: "-");
-    maker_dialog_page_foreach_property(configSet->mDialog, pageName, NULL, NULL,
-	    maker_dialog_config_gconf_save_property_private, (gpointer) cChangeSet);
-    return TRUE;
+static void maker_dialog_config_gconf_save_private(MakerDialog *mDialog, const gchar *pageName, gpointer userData){
+    MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_gconf_save_private( , %s, )", (pageName)? pageName: "-");
+    maker_dialog_page_foreach_property(mDialog, pageName, NULL, NULL,
+	    maker_dialog_config_gconf_save_property_private, userData);
 }
 
 static gboolean maker_dialog_config_gconf_save(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, GError **error){
     MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_gconf_save(-,%s,%s)",configFile->path, (pageName)? pageName: "-");
-    GConfClient *client=(GConfClient *) configSet->userData;
-    GError *cfgErr=NULL, *cfgErr_last=NULL;
-    gboolean clean=TRUE,ret;
-    GConfChangeSet *cChangeSet=gconf_change_set_new();
+    gboolean clean=TRUE;
+    MKDG_GConfSaveData sData;
+    sData.client=(GConfClient *) configSet->userData;
+    sData.cChangeSet=gconf_change_set_new();
+    sData.homePath=configFile->path;
+    sData.cfgErr=NULL;
     if (pageName){
-	clean=maker_dialog_config_gconf_save_private(configSet, configFile, cChangeSet, pageName, &cfgErr);
+	maker_dialog_config_gconf_save_private(configSet->mDialog, pageName, &sData);
     }else{
 	/* All pages in the configuration set */
-	GConfClient *client=(GConfClient *) configSet->userData;
-	GSList *sListHead=gconf_client_all_dirs(client,configFile->path,&cfgErr);
-	GSList *sList=sListHead;
-	if (!cfgErr){
-	    gchar *path;
-	    for(;sList!=NULL; sList=g_slist_next(sList)){
-		path=(gchar *)sList->data;
-		gchar *pageNameStr=g_path_get_basename(path);
-		ret=maker_dialog_config_gconf_save_private(configSet, configFile, cChangeSet, pageNameStr, &cfgErr);
-		g_free(pageNameStr);
-		if (!ret){
-		    clean=FALSE;
-		    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
-			break;
-		    }else if (cfgErr_last){
-			maker_dialog_config_error_print(cfgErr_last);
-			g_error_free(cfgErr_last);
-		    }
-		    cfgErr_last=cfgErr;
-		}
-	    }
-	}
+	maker_dialog_foreach_page(configSet->mDialog, maker_dialog_config_gconf_save_private, &sData);
     }
-    if (cfgErr && configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
-	if (error){
-	    *error=cfgErr;
-	}else{
-	    maker_dialog_config_error_print(cfgErr);
-	    g_error_free(cfgErr);
-	}
-	return FALSE;
+    if (sData.cfgErr){
+	clean=FALSE;
+	maker_dialog_config_error_handle(sData.cfgErr, error);
+	if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR)
+	    goto GCONF_SAVE_END;
+	sData.cfgErr=NULL;
     }
 
-    GError *cfgErr2=NULL;
-    ret=gconf_client_commit_change_set(client, cChangeSet, TRUE, &cfgErr2);
-    if (cfgErr2 || cfgErr){
-	if (cfgErr2 && cfgErr){
-	    cfgErr_last=cfgErr2;
-	    maker_dialog_config_error_print(cfgErr);
-	    g_error_free(cfgErr);
-	}else if (cfgErr2){
-	    cfgErr_last=cfgErr2;
-	}else{
-	    cfgErr_last=cfgErr;
-	}
-	if (error){
-	    *error=cfgErr_last;
-	}else{
-	    maker_dialog_config_error_print(cfgErr_last);
-	    g_error_free(cfgErr_last);
-	}
-	return FALSE;
+    if (!gconf_client_commit_change_set(sData.client, sData.cChangeSet, TRUE, &sData.cfgErr)){
+	maker_dialog_config_error_handle(sData.cfgErr, error);
+	clean=FALSE;
+	MAKER_DIALOG_DEBUG_MSG(0, "[I0] config_gconf_save() change not submitted.");
+    }else{
+	MAKER_DIALOG_DEBUG_MSG(1, "[I1] config_gconf_save() change submitted.");
     }
-    return TRUE;
+GCONF_SAVE_END:
+    gconf_change_set_unref(sData.cChangeSet);
+    return clean;
 }
 
 /*=== End Config interface callbacks ===*/
@@ -328,7 +309,7 @@ typedef enum{
 typedef struct{
     const gchar *schemasHome;
     const gchar *owner;
-    const gchar **localeArray;
+    gchar **localeArray;
     gint indentSpace;
     FILE *outF;
 } SchemasFileData;
@@ -414,38 +395,43 @@ static void ctx_write_locale(MakerDialogPropertyContext *ctx, SchemasFileData *s
     xml_tags_write(sData,"locale",XML_TAG_TYPE_END_ONLY,NULL,NULL);
 }
 
-#define STRING_BUFFER_SIZE_DEFAULT 2000
 static void xml_each_page_each_property_func(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] xml_each_page_each_property_func()");
+    //    MAKER_DIALOG_DEBUG_MSG(5,"[I5] xml_each_page_each_property_func(%s, %s, )",
+//            mDialog->title, ctx->spec->key);
     SchemasFileData *sData=(SchemasFileData *) userData;
     xml_tags_write(sData,"schema",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
-    gchar buf[STRING_BUFFER_SIZE_DEFAULT];
-    g_snprintf(buf,STRING_BUFFER_SIZE_DEFAULT,"/schemas%s/%s",sData->schemasHome,ctx->spec->key);
-    xml_tags_write(sData,"key",XML_TAG_TYPE_SHORT,NULL,buf);
-    xml_tags_write(sData,"applyto",XML_TAG_TYPE_SHORT,NULL,buf+strlen("/schemas"));
+    GString *strBuf=g_string_new(NULL);
+    g_string_printf(strBuf, "/schemas%s/%s/%s",
+	    sData->schemasHome,
+	    (maker_dialog_string_is_empty(ctx->spec->pageName)) ? MAKER_DIALOG_PAGE_UNNAMED : ctx->spec->pageName,
+	    ctx->spec->key);
+    xml_tags_write(sData,"key",XML_TAG_TYPE_SHORT,NULL,strBuf->str);
+    xml_tags_write(sData,"applyto",XML_TAG_TYPE_SHORT,NULL,strBuf->str + strlen("/schemas"));
     xml_tags_write(sData,"owner",XML_TAG_TYPE_SHORT,NULL,sData->owner);
     switch(ctx->spec->valueType){
 	case MKDG_TYPE_BOOLEAN:
-	    xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"bool");
+	    xml_tags_write(sData,"type",XML_TAG_TYPE_SHORT,NULL,"bool");
 	    break;
 	case MKDG_TYPE_INT:
 	case MKDG_TYPE_UINT:
 	case MKDG_TYPE_LONG:
 	case MKDG_TYPE_ULONG:
-	    xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"int");
+	    xml_tags_write(sData,"type",XML_TAG_TYPE_SHORT,NULL,"int");
 	    break;
 	case MKDG_TYPE_FLOAT:
 	case MKDG_TYPE_DOUBLE:
-	    xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"float");
+	    xml_tags_write(sData,"type",XML_TAG_TYPE_SHORT,NULL,"float");
 	    break;
 	case MKDG_TYPE_STRING:
 	case MKDG_TYPE_COLOR:
-	    xml_tags_write(sData->outF,"type",XML_TAG_TYPE_SHORT,NULL,"string");
+	    xml_tags_write(sData,"type",XML_TAG_TYPE_SHORT,NULL,"string");
 	    break;
 	default:
 	    break;
     }
     if (ctx->spec->defaultValue){
-	xml_tags_write(sData->outF,"default",XML_TAG_TYPE_SHORT,NULL,ctx->spec->defaultValue);
+	xml_tags_write(sData,"default",XML_TAG_TYPE_SHORT,NULL,ctx->spec->defaultValue);
     }
     gboolean hasCLocale=FALSE;
     if (sData->localeArray){
@@ -461,41 +447,46 @@ static void xml_each_page_each_property_func(MakerDialog *mDialog, MakerDialogPr
 	ctx_write_locale(ctx,sData,"C");
     setlocale(LC_ALL,NULL);
     xml_tags_write(sData,"schema",XML_TAG_TYPE_END_ONLY,NULL,NULL);
+    g_string_free(strBuf,TRUE);
 }
+#undef STRING_BUFFER_SIZE_DEFAULT
 
 gboolean maker_dialog_config_gconf_write_schemas_file
-(MakerDialogConfig *config, const gchar *filename, gint indentSpace, const gchar *owner, const gchar *locales, GError **error){
-    MAKER_DIALOG_DEBUG_MSG(4,"[I4] config_gconf_write_schemas_file( , %s, %s, %s, %s, )",
-	    filename, owner, schemasHome, (locales)? locales: "-");
+(MakerDialog *mDialog, const gchar *filename, gint indentSpace, const gchar *schemasHome, const gchar *owner, const gchar *locales, GError **error){
+    g_assert(filename);
+    g_assert(schemasHome);
+    g_assert(owner);
+    MAKER_DIALOG_DEBUG_MSG(4,"[I4] config_gconf_write_schemas_file( , %s, %d, %s, %s, %s, )",
+	    filename, indentSpace, schemasHome, owner, (locales)? locales: "");
 
     FILE *outF=fopen(filename,"w");
     GError *cfgErr=NULL;
     if (outF==NULL){
 	cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE, "config_gconf_write_schemas_file");
-	maker_dialog_config_error_handling(cfgErr, error);
+	maker_dialog_config_error_handle(cfgErr, error);
 	return FALSE;
     }
     SchemasFileData sData;
-    MakerDialogConfigSet *configSet=g_ptr_array_index(config->setArray,0);
-    MakerDialogConfigFile *configFile=g_ptr_array_index(configSet->fileArray,0);
-    sData.schemasHome=configFile->path;
+    sData.schemasHome=schemasHome;
     sData.owner=owner;
     if (locales){
-	sData.localeArray=g_strsplit_set(locales);
+	sData.localeArray=g_strsplit_set(locales, ";", -1);
     }else{
 	sData.localeArray=NULL;
     }
     sData.outF=outF;
     xml_tags_write(&sData,"gconfschemafile",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
     xml_tags_write(&sData,"schemalist",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
-    maker_dialog_foreach_page_foreach_property(configSet->mDialog, NULL, NULL, xml_each_page_each_property_func, &sData);
-    g_ptr_array_foreach(self->_priv->propList,ctx_write_callback,&sData);
+    maker_dialog_foreach_page_foreach_property(mDialog, NULL, NULL, xml_each_page_each_property_func, &sData);
     xml_tags_write(&sData,"schemalist",XML_TAG_TYPE_END_ONLY,NULL,NULL);
     xml_tags_write(&sData,"gconfschemafile",XML_TAG_TYPE_END_ONLY,NULL,NULL);
     if (fclose(outF)){
 	cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE, "config_gconf_write_schemas_file fclose()");
-	maker_dialog_config_error_handling(cfgErr, error);
+	maker_dialog_config_error_handle(cfgErr, error);
 	return FALSE;
+    }
+    if (sData.localeArray){
+	g_strfreev(sData.localeArray);
     }
     return TRUE;
 }

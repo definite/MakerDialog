@@ -511,16 +511,37 @@ gboolean maker_dialog_config_set_foreach_page(MakerDialogConfigSet *configSet,
 /**
  * New a MakerDialog config buffer.
  *
+ * This function news a MakerDialog config buffer.
+ * MakerDialog config buffer is a buffer of property key and value pairs.
+ * The buffer is filled in preload stage,
+ * and freed after load or save stage.
+ *
+ * This function is meant to be used internally,
+ * so most people do not need to call it.
  * @return A newly allocated MakerDialogConfigBuffer instance.
  */
 MakerDialogConfigBuffer *maker_dialog_config_buffer_new();
 
 /**
+ * Insert a value to a MakerDialog config buffer.
+ *
+ * Insert a value to a MakerDialog config buffer.
+ * @param configBuf 	A MakerDialog config buffer.
+ * @param key		Property key to be inserted. This key will be duplicated in MakerDialog config buffer.
+ * @param value		Value for the property.
+ */
+void maker_dialog_config_buffer_insert(MakerDialogConfigBuffer *configBuf, const gchar *key, MkdgValue *value);
+
+/**
  * Free a MakerDialog config buffer.
  *
- * @param dlgCfgBuf A MakerDialog config buffer.
+ * Free a MakerDialog config buffer.
+ *
+ * This function is meant to be used internally,
+ * so most people do not need to call it.
+ * @param configBuf A MakerDialog config buffer.
  */
-void maker_dialog_config_buffer_free(MakerDialogConfigBuffer *dlgCfgBuf);
+void maker_dialog_config_buffer_free(MakerDialogConfigBuffer *configBuf);
 
 /**
  * GQuark for MakerDialog configuration domain.
@@ -535,10 +556,11 @@ GQuark maker_dialog_config_error_quark (void);
  *
  * New a MakerDialog configuration error.
  * @param code 		Error code.
- * @param prefix	Prefix of the error message. Can be \c NULL.
+ * @param formatStr	printf() format string.
+ * @param ...		Argument for formatStr.
  * @return A newly allocated MakerDialog config error instance.
  */
-GError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *prefix);
+GError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *formatStr, ...);
 
 /**
  * Print a MakerDialog configuration error message.

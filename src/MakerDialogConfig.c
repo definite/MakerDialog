@@ -372,6 +372,7 @@ static gboolean maker_dialog_config_set_preload(
 
 static void maker_dialog_config_file_load_buffer(gpointer hashKey, gpointer value, gpointer userData){
     gchar *key= (gchar *) hashKey;
+    MAKER_DIALOG_DEBUG_MSG(5,"[I5] config_file_load_buffer (%s, , )", key);
     MkdgValue *mValue=(MkdgValue *) value;
     MakerDialogConfigSet *configSet=(MakerDialogConfigSet *) userData;
     MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(configSet->mDialog, key);
@@ -386,11 +387,15 @@ static gboolean maker_dialog_config_set_load(
     MAKER_DIALOG_DEBUG_MSG(3,"[I3] config_set_load(%s, %d, , )",
 	    (configSet->pageNames)? configSet->pageNames[0]  : "NULL",untilIndex);
     gboolean ret=maker_dialog_config_set_preload(configSet, untilIndex, userData, error);
+    MAKER_DIALOG_DEBUG_MSG(4,"[I4] config_set_load(%s, %d, , ) preload done.",
+	    (configSet->pageNames)? configSet->pageNames[0]  : "NULL",untilIndex);
     if (!ret && configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
 	return ret;
     }
     g_hash_table_foreach(configSet->configBuf->keyValueTable,maker_dialog_config_file_load_buffer, configSet);
     maker_dialog_config_buffer_free(configSet->configBuf);
+    MAKER_DIALOG_DEBUG_MSG(4,"[I4] config_set_load(%s, %d, , ) load done.",
+	    (configSet->pageNames)? configSet->pageNames[0]  : "NULL",untilIndex);
     return ret;
 }
 
@@ -443,12 +448,12 @@ static gboolean maker_dialog_config_set_save(MakerDialogConfigSet *configSet, gi
 	if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
 	    return FALSE;
 	}
-	cfgErr=NULL;
     }
 
     MakerDialogConfigFile *configFile=g_ptr_array_index(configSet->fileArray, configSet->writeIndex);
-    cfgErr=NULL;
     configSet->mDialog->config->configInterface->config_save(configSet, configFile, pageName, &cfgErr);
+    if (cfgErr)
+	clean=FALSE;
     maker_dialog_config_buffer_free(configSet->configBuf);
     maker_dialog_config_error_handle(cfgErr, error);
     return clean;
@@ -480,15 +485,24 @@ MakerDialogConfigBuffer *maker_dialog_config_buffer_new(){
     return configBuf;
 }
 
-void maker_dialog_config_buffer_free(MakerDialogConfigBuffer *configBuf){
-    g_hash_table_destroy(configBuf->keyValueTable);
-//    g_free(configBuf);
+void maker_dialog_config_buffer_insert(MakerDialogConfigBuffer *configBuf, const gchar *key, MkdgValue *value){
+    g_hash_table_insert(configBuf->keyValueTable, g_strdup(key), value);
 }
 
-GError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *prefix){
-    if (prefix)
-	return g_error_new(MAKER_DIALOG_CONFIG_ERROR, code, "%s [%d] %s",prefix, code,configErrorString[code]);
-    return g_error_new(MAKER_DIALOG_CONFIG_ERROR, code, "[%d] %s", code,configErrorString[code]);
+void maker_dialog_config_buffer_free(MakerDialogConfigBuffer *configBuf){
+    g_hash_table_destroy(configBuf->keyValueTable);
+    g_free(configBuf);
+}
+
+GError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *formatStr, ...){
+    va_list ap;
+    gchar *errMsg=(formatStr) ? g_strdup_vprintf(formatStr, ap): NULL;
+    gchar *errMsg_final=g_strdup_printf("%s%s%s",
+	    configErrorString[code], (errMsg)? ": " : "", (errMsg)? errMsg : "");
+    GError *error=g_error_new_literal(MAKER_DIALOG_CONFIG_ERROR, code, errMsg_final);
+    g_free(errMsg);
+    g_free(errMsg_final);
+    return error;
 }
 
 void maker_dialog_config_error_print(GError *error){

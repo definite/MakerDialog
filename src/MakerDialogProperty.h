@@ -30,24 +30,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * The page name for no page.
- *
- * If key does not have a page name associate with it,
- * then this name is assigned as the page name.
- * Because some of the configuration back-ends (such as glib KeyFile)
- * expect a page name associate with it.
- */
-#define MAKER_DIALOG_PROPERTY_UNPAGED "_UNPAGED_"
-
-/**
- * The group name for no group.
- *
- * If key does not have a group name associate with it,
- * then this name is assigned as the page name.
- */
-#define MAKER_DIALOG_PROPERTY_UNGROUPED "_UNGROUPED_"
-
 
 /**
  * An end-of-property-spec-list definition.
@@ -563,35 +545,12 @@ MakerDialogPropertyContext *maker_dialog_property_table_lookup(MakerDialogProper
  */
 MkdgValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTable, const gchar *key);
 
-
 /**
  * Destroys all keys and values in the GHashTable and decrements its reference count by 1.
  *
  * @param hTable A MakerDialogPropertyTable.
  */
 void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
-
-/**
- * Whether the page name is empty.
- *
- * Whether the page name is empty, that is,
- * page name is NULL, "", or MAKER_DIALOG_PROPERTY_UNPAGED.
- *
- * @param pageName	Page name to be tested.
- * @return TRUE if page name is empty; FALSE otherwise.
- */
-gboolean maker_dialog_page_name_is_empty(const gchar *pageName);
-
-/**
- * Whether the group name is empty.
- *
- * Whether the group name is empty, that is,
- * group name is NULL, "", or MAKER_DIALOG_PROPERTY_UNGROUPED.
- *
- * @param groupName	Group name to be tested.
- * @return TRUE if group name is empty; FALSE otherwise.
- */
-gboolean maker_dialog_group_name_is_empty(const gchar *groupName);
 
 /**
  * Call callback for each property.
@@ -608,85 +567,7 @@ gboolean maker_dialog_group_name_is_empty(const gchar *groupName);
  * @param userData 	User data to pass to the callback function.
  */
 void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData);
-
-/**
- * Prototype of callback function for foreach property function.
- *
- * The callback function should implement the actions for each property.
- * It will be called by maker_dialog_page_foreach_property() and maker_dialog_pages_foreach_property().
- *
- * @param mDialog 	A MakerDialog.
- * @param ctx  		The property context.
- * @param userData 	User data to be passed into the callback.
- * @see maker_dialog_pages_foreach_property().
- */
-typedef void (* MakerDialogEachPropertyFunc)(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData);
-
-/**
- * Prototype of callback function for foreach property function.
- *
- * The callback function should implement the actions for each property.
- * It will be called by maker_dialog_page_foreach_property() and maker_dialog_pages_foreach_property().
- *
- * @param mDialog 	A MakerDialog.
- * @param pageNode 	The page node to be working on.
- * @param groupNode 	The group node to be working on.
- * @param userData 	User data to be passed into the callback.
- * @see maker_dialog_pages_foreach_property().
- */
-typedef void (* MakerDialogEachGroupNodeFunc)(MakerDialog *mDialog, GNode *pageNode, GNode *groupNode, gpointer userData);
-
-/**
- * Call callback for each property in a page.
- *
- * Calls the given function for each property in a page.
- *
- * @param mDialog 		A MakerDialog.
- * @param pageName 		The page to be working on.
- * @param groupFunc 		The callback to be run for each group.
- * @param groupUserData 	User data to pass to \a groupFunc.
- * @param propFunc 		The callback to be run for each property.
- * @param propUserData 		User data to pass to \a propFunc.
- */
-void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageName, MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,
-	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
-
-
-/**
- * Call callback for each property in certain pages.
- *
- * Calls the given function for each property in certain pages.
- *
- * @param mDialog 	A MakerDialog.
- * @param pageNames 	Page names to be included in the execution. \c NULL for all pages.
- * @param groupFunc 		The callback to be run for each group.
- * @param groupUserData 	User data to pass to \a groupFunc.
- * @param propFunc 		The callback to be run for each property.
- * @param propUserData 		User data to pass to \a propFunc.
- * @see maker_dialog_foreach_page_foreach_property().
- */
-void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pageNames,
-	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
-
-/**
- * Call callback for each property in all pages.
- *
- * Call callback for each property in all pages.
- * This function is essentially maker_dialog_pages_foreach_property(mDialog, NULL, groupFunc, groupUserData, propFunc, propUserData).
- *
- * @param mDialog 	A MakerDialog.
- * @param pageNames 	Page names to be included in the execution. \c NULL for all pages.
- * @param groupFunc 		The callback to be run for each group.
- * @param groupUserData 	User data to pass to \a groupFunc.
- * @param propFunc 		The callback to be run for each property.
- * @param propUserData 		User data to pass to \a propFunc.
- * @see maker_dialog_pages_foreach_property().
- */
- void maker_dialog_foreach_page_foreach_property(MakerDialog *mDialog,
-	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
-
 /*=== End Function Definition  ===*/
-
 
 #endif /* MAKER_DIALOG_PROPERTY_H_ */
 

@@ -161,9 +161,6 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
     }else{
 	/* No default value */
 	if (spec->validValues){
-	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET){
-		return NULL;
-	    }
 	    return spec->validValues[0];
 	}
     }
@@ -203,13 +200,12 @@ static void maker_dialog_property_context_update_index(MakerDialogPropertyContex
 	    ctx->valueIndex=i;
 	    return;
 	}
-	g_value_reset(mValue->data);
     }
     ctx->valueIndex=-1;
 }
 
 void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, MkdgValue *value, gint valueIndexCtl){
-    g_value_copy(value->data,ctx->value->data);
+    maker_dialog_value_copy(value,ctx->value);
     ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE | MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED;
     if (ctx->spec->validValues && valueIndexCtl!=-3){
 	if (valueIndexCtl==-2){
@@ -320,70 +316,7 @@ void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable){
     g_hash_table_destroy(hTable);
 }
 
-gboolean maker_dialog_page_name_is_empty(const gchar *pageName){
-    if (maker_dialog_string_is_empty(pageName)){
-	return TRUE;
-    }
-    if (strcmp(pageName, MAKER_DIALOG_PROPERTY_UNPAGED)==0){
-	return TRUE;
-    }
-    return FALSE;
-}
-
-gboolean maker_dialog_group_name_is_empty(const gchar *groupName){
-    if (maker_dialog_string_is_empty(groupName)){
-	return TRUE;
-    }
-    if (strcmp(groupName, MAKER_DIALOG_PROPERTY_UNGROUPED)==0){
-	return TRUE;
-    }
-    return FALSE;
-}
-
 void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData){
     g_hash_table_foreach(mDialog->propertyTable, func, userData);
 }
-
-void maker_dialog_group_foreach_property(MakerDialog* mDialog, const gchar *pageName, const gchar *groupName, MakerDialogEachPropertyFunc  func, gpointer userData){
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] group_foreach_property( , %s, %s, , )", (pageName)? pageName : "", (groupName)? groupName: "");
-    GNode *groupNode=maker_dialog_find_group_node(mDialog, pageName, groupName);
-    g_assert(groupNode);
-    GNode *keyNode=NULL;
-    for(keyNode=g_node_first_child(groupNode);keyNode!=NULL; keyNode=g_node_next_sibling(keyNode)){
-	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, (gchar *) keyNode->data);
-	func(mDialog, ctx, userData);
-    }
-}
-
-void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageName,
-	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData){
-    GNode *pageNode=maker_dialog_find_page_node(mDialog, pageName);
-    g_assert(pageNode);
-    GNode *groupNode=NULL;
-    for(groupNode=g_node_first_child(pageNode);groupNode!=NULL; groupNode=g_node_next_sibling(groupNode)){
-	if (groupFunc)
-	    groupFunc(mDialog, pageNode, groupNode, groupUserData);
-	maker_dialog_group_foreach_property(mDialog, (gchar *) pageNode->data, (gchar *) groupNode->data, propFunc, propUserData);
-    }
-}
-
-void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pageNames,
-	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData){
-    if (pageNames){
-	gsize i;
-	for(i=0;pageNames[i]!=NULL;i++){
-	    maker_dialog_page_foreach_property(mDialog, pageNames[i], groupFunc, groupUserData, propFunc, propUserData);
-	}
-    }else{
-	GNode *pageNode=NULL;
-	for(pageNode=g_node_first_child(mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
-	    maker_dialog_page_foreach_property(mDialog, (gchar *) pageNode->data, groupFunc, groupUserData, propFunc, propUserData);
-	}
-    }
-}
-void maker_dialog_foreach_page_foreach_property(MakerDialog *mDialog,
-	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData){
-    maker_dialog_pages_foreach_property(mDialog, NULL, groupFunc, groupUserData, propFunc, propUserData);
-}
-
 

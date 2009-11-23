@@ -1,4 +1,8 @@
-MakerDialogButtonSpec buttonSpec={MAKER_DIALOG_RESPONSE_CLOSE, NULL};
+MakerDialogButtonSpec buttonSpecs[]={
+    {MAKER_DIALOG_RESPONSE_CLOSE, NULL},
+    {MAKER_DIALOG_RESPONSE_NIL, NULL}
+};
+
 const gchar *kbType_ids[]={
     N_("default"),
     N_("hsu"),
@@ -115,7 +119,7 @@ MakerDialogPropertySpec propSpecs[]={
 };
 
 void applyFunc(MakerDialogPropertyContext *ctx, MkdgValue *value){
-    printf("Key %s= %s\n", ctx->spec->key, maker_dialog_value_to_string(value,ctx->spec->toStringFormat));
+    g_printf("Key %s= %s\n", ctx->spec->key, maker_dialog_value_to_string(value,ctx->spec->toStringFormat));
 }
 
 

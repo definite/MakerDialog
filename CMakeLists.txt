@@ -8,8 +8,7 @@ INCLUDE(init.CMakeLists.txt)
 # Project basic information
 ####################################################################
 PROJECT(MakerDialog)
-SET(PROJECT_DESCRIPTION "MakerDialog provides a simple way to make a
-    configuration dialog.")
+SET(PROJECT_DESCRIPTION "MakerDialog provides a simple way to make a configuration dialog")
 SET(CMAKE_C_FLAGS "-Wall")
 
 SET(RELEASE_FILE ${CMAKE_SOURCE_DIR}/RELEASE-NOTES.txt)
@@ -18,8 +17,8 @@ SETTING_FILE_GET_ATTRIBUTE(PRJ_VER_PATTERN "PRJ_VER" ${RELEASE_FILE})
 #MESSAGE("PRJ_VER_PATTERN=${PRJ_VER_PATTERN}")
 SETTING_FILE_GET_ATTRIBUTE(PRJ_VER_RELEASE "RPM_RELEASE" ${RPM_RELEASE_FILE})
 
-SETTING_FILE_GET_ATTRIBUTE(PRJ_VER_PATTERN "SO_VER_MAJOR" ${RELEASE_FILE})
-SETTING_FILE_GET_ATTRIBUTE(PRJ_VER_PATTERN "SO_VER_MINOR" ${RELEASE_FILE})
+SETTING_FILE_GET_ATTRIBUTE(SO_VER_MAJOR "SO_VER_MAJOR" ${RELEASE_FILE})
+SETTING_FILE_GET_ATTRIBUTE(SO_VER_MINOR "SO_VER_MINOR" ${RELEASE_FILE})
 SET(AUTHORS "Ding-Yi Chen")
 SET(MAINTAINER "Ding-Yi Chen <dchen at redhat.com>")
 
@@ -89,6 +88,7 @@ ADD_DEFINITIONS(-DSYSTEMDIR='"${PROJECT_DATADIR}"')
 ####################################################################
 FIND_PACKAGE(PkgConfig)
 PKG_CHECK_MODULES(GLIB2 REQUIRED glib-2.0)
+PKG_CHECK_MODULES(GOBJECT2 REQUIRED gobject-2.0)
 PKG_CHECK_MODULES(GTK2 REQUIRED gtk+-2.0>=2.10)
 PKG_CHECK_MODULES(GCONF2 REQUIRED gconf-2.0)
 
@@ -102,7 +102,11 @@ ENDIF()
 # Sub directories
 ####################################################################
 ADD_SUBDIRECTORY(src bin)
+ADD_SUBDIRECTORY(test)
+
 ADD_SUBDIRECTORY(examples)
+ADD_CUSTOM_TARGET(examples)
+ADD_DEPENDENCIES(examples md-example-gtk-keyfile.exe md-example-gtk-gconf.exe)
 
 ####################################################################
 # Packing
@@ -139,4 +143,12 @@ SET(CPACK_PACKAGE_IGNORE_FILES ${CPACK_BINARY_IGNORE_FILES} ${PRJ_COMMON_IGNORE_
 INCLUDE(CPack)
 
 ADD_DEPENDENCIES(pack_src pot_file)
+
+####################################################################
+# Test Suites.
+####################################################################
+ENABLE_TESTING()
+
+ADD_TEST(check_maker_dialog_types
+    ${PROJECT_BINARY_DIR}/test/check_types 0)
 

@@ -26,11 +26,9 @@
 #include "MakerDialog.h"
 extern gint makerDialogVerboseLevel;
 
-MakerDialog *maker_dialog_init(const gchar *title,
-	guint buttonSpecCount, MakerDialogButtonSpec *buttonSpecs){
+MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *buttonSpecs){
     MakerDialog *mDialog=g_new(MakerDialog,1);
     mDialog->title=g_strdup(title);
-    mDialog->buttonSpecCount=buttonSpecCount;
     mDialog->buttonSpecs=buttonSpecs;
     mDialog->propertyTable=maker_dialog_property_table_new();
     mDialog->pageRoot=g_node_new(mDialog);
@@ -52,7 +50,7 @@ MakerDialog *maker_dialog_init(const gchar *title,
 }
 
 static GNode *maker_dialog_prepare_page_node(MakerDialog *mDialog, const gchar *pageName){
-    const gchar *pageName_tmp=(pageName)? pageName : MAKER_DIALOG_PROPERTY_UNPAGED;
+    const gchar *pageName_tmp=(pageName)? pageName : MAKER_DIALOG_PAGE_UNNAMED;
     GNode *result=maker_dialog_find_page_node(mDialog, (gpointer) pageName_tmp);
     if (!result){
 	result=g_node_new((gpointer) pageName_tmp);
@@ -62,7 +60,7 @@ static GNode *maker_dialog_prepare_page_node(MakerDialog *mDialog, const gchar *
 }
 
 static GNode *maker_dialog_prepare_group_node(MakerDialog *mDialog, const gchar *pageName, const gchar *groupName){
-    const gchar *groupName_tmp=(groupName)? groupName : MAKER_DIALOG_PROPERTY_UNGROUPED;
+    const gchar *groupName_tmp=(groupName)? groupName : MAKER_DIALOG_GROUP_UNNAMED;
     GNode *pageNode=maker_dialog_prepare_page_node(mDialog, pageName);
     GNode *result=maker_dialog_find_group_node(mDialog, pageName, (gpointer) groupName_tmp);
     if (!result){
@@ -134,7 +132,7 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValu
     }
     if (MAKER_DIALOG_DEBUG_RUN(3)){
 	gchar *str=maker_dialog_value_to_string(value, ctx->spec->toStringFormat);
-	g_debug("[I3] set_value( , %s, %s)",ctx->spec->key, str);
+	g_debug("[I3] set_value( , %s, ) value=%s",ctx->spec->key, str);
 	g_free(str);
     }
     gboolean ret=TRUE;
@@ -154,28 +152,4 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValu
     }
     return ret;
 }
-
-GNode *maker_dialog_find_page_node(MakerDialog *mDialog, const gchar *pageName){
-    const gchar *pageName_tmp=(pageName)? pageName : MAKER_DIALOG_PROPERTY_UNPAGED;
-    GNode *result=NULL;
-    for(result=g_node_first_child(mDialog->pageRoot); result!=NULL; result=g_node_next_sibling(result)){
-	if (strcmp(pageName_tmp, (gchar *) result->data)==0){
-	    return result;
-	}
-    }
-    return NULL;
-}
-
-GNode *maker_dialog_find_group_node(MakerDialog *mDialog, const gchar *pageName, const gchar *groupName){
-    const gchar *groupName_tmp=(groupName)? groupName : MAKER_DIALOG_PROPERTY_UNGROUPED;
-    GNode *pageNode=maker_dialog_find_page_node(mDialog, pageName);
-    GNode *result=NULL;
-    for(result=g_node_first_child(pageNode); result!=NULL; result=g_node_next_sibling(result)){
-	if (strcmp(groupName_tmp, (gchar *) result->data)==0){
-	    return result;
-	}
-    }
-    return NULL;
-}
-
 
