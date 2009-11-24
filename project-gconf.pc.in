@@ -1,0 +1,13 @@
+prefix=/usr
+exec_prefix=/usr/bin
+libdir=/usr/lib@IS_64@
+includedir=/usr/include
+
+
+Name: @PROJECT_NAME@-gconf
+Description: @PROJECT_NAME@ GConf binding.
+Version: @PRJ_VER_PATTERN@
+Libs: -L${libdir} -l@PROJECT_NAME@GConf
+Libs.private:
+Cflags: -I${includedir}/@PROJECT_NAME@
+

@@ -22,6 +22,7 @@ stamp-h1
 py-compile
 *.tar.*
 *.spec
+MakerDialog*.pc
 CMakeCache.txt
 cmake_*install.cmake
 CPack*Config.cmake
@@ -39,6 +40,6 @@ po/CMakeFiles/
 SOURCES/
 doc/
 Doxyfile
-src/gtk/maker-dialog*
+src/gtk/maker-dialog-gtk.o
 src/config.h
 

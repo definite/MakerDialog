@@ -8,7 +8,7 @@ INCLUDE(init.CMakeLists.txt)
 # Project basic information
 ####################################################################
 PROJECT(MakerDialog)
-SET(PROJECT_DESCRIPTION "MakerDialog provides a simple way to make a configuration dialog")
+SET(PROJECT_DESCRIPTION "Make dialogs by simply defining configuration properties")
 SET(CMAKE_C_FLAGS "-Wall")
 
 SET(RELEASE_FILE ${CMAKE_SOURCE_DIR}/RELEASE-NOTES.txt)
@@ -45,7 +45,7 @@ ENDIF(${NEED_RPM_RELEASE_INFO})
 #==================================================================
 # Developer setting.
 #
-SET(CVS_DIST_TAGS F-10 F-11)
+SET(CVS_DIST_TAGS F-11 F-12)
 SET(HOSTING_SERVICE_PROVIDER "GitHub")
 SET(DEVELOPER_SETTING_FILE "DEVELOPER_SETTING_NO_PACK")
 #SET(DEVELOPER_DEPENDS ***USER_DEFINE***)
@@ -69,12 +69,21 @@ INCLUDE(common.CMakeLists.txt)
 ####################################################################
 # Post Include setting
 ####################################################################
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/project.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc" @ONLY)
+
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/project-gtk.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-gtk.pc" @ONLY)
+
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/project-gconf.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-gconf.pc" @ONLY)
 
 ####################################################################
 # RPM configuration
 ####################################################################
 FILE(READ ${CMAKE_SOURCE_DIR}/SPECS/RPM-ChangeLog RPM_CHANGELOG)
 GENERATE_SPEC(SPECS/project.spec.in)
+
 
 ####################################################################
 # Definitions
@@ -115,12 +124,17 @@ ADD_DEPENDENCIES(examples md-example-gtk-keyfile.exe md-example-gtk-gconf.exe)
 #====================================================================
 # Files to be install.
 #
-SET(MAIN_DOCS AUTHORS README ChangeLog COPYING)
+SET(MAIN_DOCS AUTHORS README ChangeLog COPYING COPYING.LESSER
+    RELEASE-NOTES.txt)
 
 #INSTALL(FILES ${MAIN_DOCS}
 #    DESTINATION "${PROJECT_DOCDIR}")
 
-
+INSTALL(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}-gtk.pc
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}-gconf.pc
+    DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 
 #====================================================================
 # CPack configuration
@@ -130,8 +144,11 @@ SET(CPACK_RESOURCE_FILE_LICENSE
     ${CMAKE_CURRENT_SOURCE_DIR}/COPYING)
 SET(PRJ_COMMON_IGNORE_FILES
     "/docs/"
+    "/user/"
     "\\\\.cache$"  "\\\\.spec$" "/doc/"
     "\\\\.exe$"
+    "Doxyfile$"
+    "MakerDialog.*\\\\.pc$"
     "messages.po$"
 )
 
@@ -150,5 +167,5 @@ ADD_DEPENDENCIES(pack_src pot_file)
 ENABLE_TESTING()
 
 ADD_TEST(check_maker_dialog_types
-    ${PROJECT_BINARY_DIR}/test/check_types 0)
+    ${PROJECT_BINARY_DIR}/test/check_types.exe 0)
 

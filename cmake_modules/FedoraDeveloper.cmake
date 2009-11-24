@@ -31,7 +31,7 @@
 #
 
 INCLUDE(RPM)
-SET(RAWHIDE_VER 12)
+SET(RAWHIDE_VER 13)
 
 IF(NOT DEFINED KOJI_CVS_PATH)
     SET(KOJI_CVS_PATH "./")
@@ -88,7 +88,7 @@ FOREACH(_dist_tag ${CVS_DIST_TAGS})
 	    "${KOJI_SCRATCH_BUILD_CMD} && koji build --scratch dist-f${_curr_tag} ${SRPM_FILE}"
 	    )
 	IF(NOT DEFINED BODHI_DIST_TAGS)
-	    SET(_bodhi_dist_tags "fc${_curr_tag}")
+	    SET(_bodhi_dist_tags ${_bodhi_dist_tags} "fc${_curr_tag}")
 	ENDIF(NOT DEFINED BODHI_DIST_TAGS)
     ENDIF(_curr_tag)
 ENDFOREACH(_dist_tag)

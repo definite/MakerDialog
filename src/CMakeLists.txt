@@ -19,24 +19,30 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DI
 #==================================================================
 # Sources
 #
-SET(MAKER_DIALOG_BASE_SRC
+SET(MAKER_DIALOG_BASE_SRC_C
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogPage.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUiGtk.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.c
+    )
+
+SET(MAKER_DIALOG_BASE_SRC_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogPage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.h
+    )
+
+SET(MAKER_DIALOG_BASE_SRC
+    ${MAKER_DIALOG_BASE_SRC_C} ${MAKER_DIALOG_BASE_SRC_H}
     )
 
 SET(GOB_GENERATED
@@ -71,16 +77,10 @@ SET_TARGET_PROPERTIES(MakerDialog MakerDialogGtk MakerDialogGConf
     PROPERTIES SOVERSION "${SO_VER_MAJOR}"
     VERSION "${SO_VER_MAJOR}.${SO_VER_MINOR}")
 
-
 IF(NOT DEFINED LIB_INSTALL_DIR)
-    IF( $ENV{MACHTYPE} MATCHES "64")
-	SET(LIB_INSTALL_DIR lib64)
-	ADD_DEFINITIONS(-DLIB_INSTALL_DIR='"${LIB_INSTALL_DIR}"')
-    ELSE()
-	SET(LIB_INSTALL_DIR lib)
-	ADD_DEFINITIONS(-DLIB_INSTALL_DIR='"${LIB_INSTALL_DIR}"')
-    ENDIF()
+    SET(LIB_INSTALL_DIR "lib${IS_64}")
 ENDIF()
+ADD_DEFINITIONS(-DLIB_INSTALL_DIR='"${LIB_INSTALL_DIR}"')
 
 #ADD_CUSTOM_COMMAND(TARGET generate-gconf-schemas POST_BUILD
 #    COMMAND ${CMAKE_BINARY_DIR}/bin/generate-gconf-schemas -v 3 -l
@@ -94,4 +94,14 @@ INSTALL(TARGETS MakerDialog MakerDialogGtk MakerDialogGConf
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/static
 )
+
+INSTALL(FILES ${MAKER_DIALOG_BASE_SRC_H} MakerDialogUiGtk.h
+    MakerDialogConfigGConf.h
+    DESTINATION include/${PROJECT_NAME}
+    )
+
+INSTALL(FILES  ${CMAKE_CURRENT_SOURCE_DIR}/gtk/maker-dialog-gtk.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/gtk/maker-dialog-gtk-private.h
+    DESTINATION include/${PROJECT_NAME}/gtk
+    )
 

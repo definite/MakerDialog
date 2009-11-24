@@ -44,11 +44,13 @@ typedef struct{
 } MkdgType_TestRec;
 
 
-#define COMPARISON_DATASET_SIZE 2
+#define COMPARISON_DATASET_SIZE 4
 
 MkdgType_TestRec COMPARISON_DATASET[COMPARISON_DATASET_SIZE]={
     {-1, {MKDG_TYPE_STRING, "default", "hsu", NULL, NULL}},
     {0, {MKDG_TYPE_STRING, "dvorak", "dvorak", NULL, NULL}},
+    {-1, {MKDG_TYPE_STRING, "dvorak", "dvorak_hsu", NULL, NULL}},
+    {-1, {MKDG_TYPE_INT, "32", "103", NULL, NULL}},
 };
 
 /*==========================================================

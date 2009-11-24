@@ -1,3 +1,5 @@
+%define     so_ver_major    @SO_VER_MAJOR@
+%define     so_ver          @SO_VER_MAJOR@.@SO_VER_MINOR@
 Name:       @PROJECT_NAME@
 Version:    @PRJ_VER@
 Release:    @PRJ_VER_RELEASE@%{?dist}
@@ -45,7 +47,7 @@ Requires:       gtk2
 Package for Gtk2 front end.
 
 %package gtk-devel
-Summary:    MakerDialog GTK binding development files.
+Summary:    MakerDialog GTK binding development files
 Group:      Development/Libraries
 Requires:       %{name}-gtk = %{version}-%{release}
 
@@ -63,9 +65,9 @@ Requires:       GConf2
 Package for GConf configuration back-end.
 
 %package gconf-devel
-Summary:    MakerDialog GConf binding development files.
+Summary:    MakerDialog GConf binding development files
 Group:      Development/Libraries
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}-gconf = %{version}-%{release}
 
 %description gconf-devel
 Package for creating GConf configuration back-end.
@@ -75,7 +77,7 @@ Package for creating GConf configuration back-end.
 
 %build
 # $RPM_OPT_FLAGS should be  loaded from cmake macro.
-%cmake -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo .
+%cmake .
 make VERBOSE=1  %{?_smp_mflags} C_DEFINES="$RPM_OPT_FLAGS"  LDFLAGS+=--build-id
 make doxygen
 
@@ -87,12 +89,62 @@ make install DESTDIR=$RPM_BUILD_ROOT LDFLAGS+=--build-id
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post -p /sbin/ldconfig
+
+%postun  -p /sbin/ldconfig
+
+%post gtk -p /sbin/ldconfig
+
+%postun gtk -p /sbin/ldconfig
+
+%post gconf -p /sbin/ldconfig
+
+%postun gconf -p /sbin/ldconfig
+
 #%files -f %{name}.lang
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS README ChangeLog COPYING COPYING.LESSER RELEASE-NOTES.txt
+%{_libdir}/lib%{name}.so.%{so_ver_major}
+%{_libdir}/lib%{name}.so.%{so_ver}
 
 %files devel
+%defattr(-,root,root,-)
+%doc doc/html/
+%{_libdir}/lib%{name}.so
+%dir %{_includedir}/%{name}
+%{_includedir}/%{name}/MakerDialog.h
+%{_includedir}/%{name}/MakerDialogConfig.h
+%{_includedir}/%{name}/MakerDialogConfigKeyFile.h
+%{_includedir}/%{name}/MakerDialogPage.h
+%{_includedir}/%{name}/MakerDialogProperty.h
+%{_includedir}/%{name}/MakerDialogTypes.h
+%{_includedir}/%{name}/MakerDialogUi.h
+%{_includedir}/%{name}/MakerDialogUtil.h
+%{_libdir}/pkgconfig/MakerDialog.pc
+
+%files gtk
+%defattr(-,root,root,-)
+%{_libdir}/lib%{name}Gtk.so.%{so_ver_major}
+%{_libdir}/lib%{name}Gtk.so.%{so_ver}
+
+%files gtk-devel
+%defattr(-,root,root,-)
+%{_libdir}/lib%{name}Gtk.so
+%{_includedir}/%{name}/MakerDialogUiGtk.h
+%{_includedir}/%{name}/gtk
+%{_libdir}/pkgconfig/MakerDialog-gtk.pc
+
+%files gconf
+%defattr(-,root,root,-)
+%{_libdir}/lib%{name}GConf.so.%{so_ver_major}
+%{_libdir}/lib%{name}GConf.so.%{so_ver}
+
+%files gconf-devel
+%defattr(-,root,root,-)
+%{_libdir}/lib%{name}GConf.so
+%{_includedir}/%{name}/MakerDialogConfigGConf.h
+%{_libdir}/pkgconfig/MakerDialog-gconf.pc
 
 %changelog
 @RPM_CHANGELOG@

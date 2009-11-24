@@ -12,7 +12,7 @@ SET(check_functions_SRCS
 )
 
 # Test programs
-ADD_EXECUTABLE(check_types check_types.c
+ADD_EXECUTABLE(check_types.exe check_types.c
     ${check_functions_SRCS})
-TARGET_LINK_LIBRARIES(check_types MakerDialog)
+TARGET_LINK_LIBRARIES(check_types.exe MakerDialog)
 

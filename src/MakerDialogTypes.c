@@ -411,6 +411,10 @@ static gint md_string_compare(MkdgValue *value1, MkdgValue *value2, const gchar 
     }else{
 	ret=strcmp(str1, str2);
     }
+    if (ret>0)
+	ret=1;
+    else if (ret<0)
+	ret=-1;
     return ret;
 }
 

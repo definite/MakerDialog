@@ -43,8 +43,6 @@ typedef guint32 MkdgColor;
  *
  * These are constants, which can be used in initializer elements.
  *
- * #MKDG_G_TYPE_COLOR on the other hand, is a GType but not constant,
- * thus cannot be used in initializer elements.
  */
 typedef enum {
     MKDG_TYPE_INVALID=-1,	//!< "Invalid" type. Usually use as terminator.
@@ -201,7 +199,7 @@ MkdgValue *maker_dialog_value_new_static(MkdgType mType, gpointer setValue);
  * This function returns \c FALSE if types of these values are not identical.
  *
  * @param srcValue	A MakerDialog value to be copied from.
- * @param srcValue	A MakerDialog value to be copied to.
+ * @param destValue	A MakerDialog value to be copied to.
  * @return \c TRUE if succeed; \c FALSE if types of these values are not identical.
  */
 gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue);

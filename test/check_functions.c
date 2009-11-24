@@ -39,14 +39,14 @@ gint verboseMsg_print(gint verboseLevel, const gchar *format, ...){
 
 gboolean int_verify_func(gint actual, gint expect, const gchar *prompt, const gchar *inStr){
     const gchar *input=(inStr) ? inStr :"";
-    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%d, expect=%d\n",prompt, input, actual, expect);
+    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%d, expected=%d\n",prompt, input, actual, expect);
     if (actual<expect){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is lesser than expect %ld", actual, expect);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %d is lesser than expected %d\n", actual, expect);
 	return FALSE;
     }else if (actual>expect){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is greater than expect %ld", actual, expect);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %d is greater than expected %d\n", actual, expect);
 	return FALSE;
     }
     verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: expect and actual are equal to %ld\n", expect);
@@ -55,14 +55,14 @@ gboolean int_verify_func(gint actual, gint expect, const gchar *prompt, const gc
 
 gboolean long_int_verify_func(glong actual, glong expect, const gchar *prompt, const gchar *inStr){
     const gchar *input=(inStr) ? inStr :"";
-    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%ld, expect=%ld\n",prompt, input, actual, expect);
+    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%ld, expected=%ld\n",prompt, input, actual, expect);
     if (actual<expect){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is lesser than expect %ld\n", actual, expect);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is lesser than expected %ld\n", actual, expect);
 	return FALSE;
     }else if (actual>expect){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is greater than expect %ld\n", actual, expect);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is greater than expected %ld\n", actual, expect);
 	return FALSE;
     }
     verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: expect and actual are equal to %ld\n", expect);
