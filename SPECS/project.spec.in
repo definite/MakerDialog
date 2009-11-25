@@ -12,20 +12,17 @@ Source0:    http://wiki.github.com/definite/MakerDialog/%{name}-%{version}-Sourc
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  cmake >= 2.4
+BuildRequires:  glib2-devel >= 2.12
+BuildRequires:  doxygen
 
 %description
-Developers can easily make an configuration dialog with MakerDialog.
-MakerDialog generates corresponding UI components for configuration
-properties, such as data type, default value, valid values.
-That is, developers no longer need to worry about the implementation
-details for various toolkit.
+MakerDialog is an utility that conveniently handle configuration properties
+by producing corresponding UI widgets and load/save functions.
 
-Developers, however, need to provide either callback functions or dbus
-messages for value getting and setting to handle such events.
-
-MakerDialog can also output GConf2 schemas files.
-
-Currently, Gtk toolkit is supported. Will extend to Qt or console mode.
+It generates corresponding UI widgets according to the
+specification of configuration properties, such as data type, default
+value, valid values and limitation. Developers no longer need to worry
+about the event handling details of various toolkit.
 
 %package devel
 Summary:    Files required for developing with MakerDialog
@@ -39,9 +36,9 @@ Necessary header files and libraries for developing with MakerDialog.
 Summary:    MakerDialog GTK binding
 Group:      Development/Libraries
 BuildRequires:  gob2
+BuildRequires:  gtk2-devel >= 2.10
 Requires:       %{name} = %{version}-%{release}
 Requires:       gtk2
-
 
 %description gtk
 Package for Gtk2 front end.
@@ -50,6 +47,7 @@ Package for Gtk2 front end.
 Summary:    MakerDialog GTK binding development files
 Group:      Development/Libraries
 Requires:       %{name}-gtk = %{version}-%{release}
+Requires:       %{name}-devel = %{version}-%{release}
 
 %description gtk-devel
 Package for creating Gtk2 front end.
@@ -68,6 +66,7 @@ Package for GConf configuration back-end.
 Summary:    MakerDialog GConf binding development files
 Group:      Development/Libraries
 Requires:       %{name}-gconf = %{version}-%{release}
+Requires:       %{name}-devel = %{version}-%{release}
 
 %description gconf-devel
 Package for creating GConf configuration back-end.
@@ -78,7 +77,7 @@ Package for creating GConf configuration back-end.
 %build
 # $RPM_OPT_FLAGS should be  loaded from cmake macro.
 %cmake .
-make VERBOSE=1  %{?_smp_mflags} C_DEFINES="$RPM_OPT_FLAGS"  LDFLAGS+=--build-id
+make %{?_smp_mflags} C_DEFINES="$RPM_OPT_FLAGS"  LDFLAGS+=--build-id
 make doxygen
 
 %install
@@ -91,17 +90,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %post -p /sbin/ldconfig
 
-%postun  -p /sbin/ldconfig
-
-%post gtk -p /sbin/ldconfig
-
-%postun gtk -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %post gconf -p /sbin/ldconfig
 
 %postun gconf -p /sbin/ldconfig
 
-#%files -f %{name}.lang
+%post gtk -p /sbin/ldconfig
+
+%postun gtk -p /sbin/ldconfig
+
 %files
 %defattr(-,root,root,-)
 %doc AUTHORS README ChangeLog COPYING COPYING.LESSER RELEASE-NOTES.txt
@@ -110,7 +108,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%doc doc/html/
+%doc doc/html/  examples/
 %{_libdir}/lib%{name}.so
 %dir %{_includedir}/%{name}
 %{_includedir}/%{name}/MakerDialog.h

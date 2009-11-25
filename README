@@ -1,13 +1,32 @@
-Developers can easily make an configuration dialog with maker-dialog.
-Maker-dialog generates corresponding UI components for configuration
-properties, such as data type, default value, valid values.
-That is, developers no longer need to worry about the implementation
-details for various toolkit.
+MakerDialog is an utility that conveniently handle configuration properties
+by producing corresponding UI widgets and load/save functions.
 
-Developers, however, need to provide either callback functions or dbus
-messages for value getting and setting to handle such events.
+Indeed, various utilities are already available for building a
+configuration/preference dialog with an easy-to-use GUI.
+However, it is still necessary to implement the event handling and
+load/save functions all by themselves.
+Moreover, developers need to implement those functions again, should
+they change different UI toolkits or configuration file back-end.
 
-Maker-dialog can also output GConf2 schemas files.
+On the other hand, it is easier to make a configuration dialogs with
+MakerDialog. It generates corresponding UI widgets according to the
+specification of configuration properties, such as data type, default
+value, valid values and limitation. Developers no longer need to worry
+about the event handling details of various toolkit.
 
-Currently, Gtk toolkit is supported. Will extend to Qt or console mode.
+Features:
+* Produce UI widgets according to the specification of configuration
+  properties.
+* Provide load and save supports with various configuration back-end.
+* Few package dependent, it only depends what it need.
+* Low version requirement. It supports Fedora 6.
+
+Currently supported interface:
+* UI front-ends:
+  * Gtk2
+* Configuration back-ends:
+  * Keyfile from glib2.
+  * GConf2.
+
+Ncurse, Qt4, and kconfig supports will be provided.
 

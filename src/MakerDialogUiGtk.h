@@ -27,16 +27,6 @@
 #define MAKER_DIALOG_UI_GTK_H_
 #include <glib.h>
 #include <glib-object.h>
-
-//typedef enum {
-//    MAKER_DIALOG_GTK_PLACEMENT_NONE,
-//    MAKER_DIALOG_GTK_PLACEMENT_LEFT,
-//    MAKER_DIALOG_GTK_PLACEMENT_RIGHT,
-//    MAKER_DIALOG_GTK_PLACEMENT_TOP,
-//    MAKER_DIALOG_GTK_PLACEMENT_BOTTOM,
-//    MAKER_DIALOG_GTK_PLACEMENT_IN_FRAME
-//} MakerDialogGtkPlacement;
-
 #include "gtk/maker-dialog-gtk.h"
 
 /**

@@ -1,9 +1,10 @@
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
-#include "MakerDialog.h"
-#include "MakerDialogUiGtk.h"
-#include "MakerDialogConfigGConf.h"
+#include <MakerDialog.h>
+#include <MakerDialogUiGtk.h>
+#include <MakerDialogConfigGConf.h>
 #include "md-example.c"
 
 int main(int argc,char *argv[]){
