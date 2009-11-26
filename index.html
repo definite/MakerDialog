@@ -6,12 +6,12 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
 	<title>definite/MakerDialog @ GitHub</title>
-	
+
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
   		background-color: #a1f252;
-		  font-family: "Helvetica,Arial,FreeSans"; 
+		  font-family: "Helvetica,Arial,FreeSans";
   		color: #000000;
     }
     #container {
@@ -30,12 +30,12 @@
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
 	</style>
-	
+
 </head>
 
 <body>
   <a href="http://github.com/definite/MakerDialog"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-  
+
   <div id="container">
 
     <div class="download">
@@ -44,90 +44,82 @@
       <a href="http://github.com/definite/MakerDialog/tarball/master">
         <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
     </div>
-      
-    <h1><a href="http://github.com/definite/MakerDialog">MakerDialog</a> 
+
+    <h1><a href="http://github.com/definite/MakerDialog">MakerDialog</a>
       <span class="small">by <a href="http://github.com/definite">definite</a></span></h1>
 
     <div class="description">
-      Utility that conveniently handle configuration properties
+      Utility that conveniently handles configuration properties
     </div>
 
-    <p>MakerDialog is an utility that conveniently handle configuration properties by producing corresponding UI widgets and load/save functions.
+    <p>MakerDialog is an utility that conveniently handles configuration properties by producing corresponding UI widgets and load/save functions.
+    It generates corresponding UI widgets according to the specification of configuration properties, such as data type, default value, valid values and limitation.
+    Developers no longer need to worry about the event handling details of various toolkit.</p>
 
-It generates corresponding UI widgets according to the specification of configuration properties, such as data type, default value, valid values and limitation. Developers no longer need to worry about the event handling details of various toolkit.
-</p><h2>Dependencies</h2>
-<p>   CMake >=2.4
-   glib >=2.12
-   doxygen
-   pkgconfig
-   gtk2 >=2.10
-   gob2
-  GConf</p>
-<h2>Install</h2>
-<p>Installation Instructions
-*************************
-1. Build Requires:
-   Main package: (MakerDialog)
+    <h2>Dependencies</h2>
+    <ul>
+	<li>Main package:
+	<ul>
+	    <li>glib &gt;=2.12 </li>
+	    <li>CMake &gt;=2.4 (not required for runtime)</li>
+	    <li>doxygen (not required for runtime)</li>
+	    <li>pkgconfig (not required for runtime)</li>
+	</ul>
+	</li>
+	<li>Gtk binding:
+	<ul>
+	    <li>gtk2 &gt;=2.10</li>
+	    <li>gob2 (not required for runtime)</li>
+	</ul>
+	<li>GConf2 binding:
+	<ul>
+	    <li>GConf2</li>
+	</ul>
+	</li>
+    </ul>
+    <h2>Installation instruction</h2>
+    <h3>Building stage</h3>
+    <ol>
+	<li>Download and extract source tarball from the <a href="">download page</a>.</li>
+	<li>Enter the extracted directory<./li>
+	<li>Run:
+<table style="background=#CCCCC;"><tr><td><pre>cmake . -DCMAKE_INSTALL_PREFIX='/usr'
+make</pre></td></tr></table></li>
+	<li>(Optional) If API documents are needed, then: <table style="background=#CCCCC;"><tr><td><pre>make doxygen</pre></td></tr></table></li>
+	<li>(Optional) Build the example programs: <table style="background=#CCCCC;"><tr><td><pre>make examples</pre></td></tr></table></li>
+	<li>(Optional) Test the build: <table style="background=#CCCCC;"><tr><td><pre>make test</pre></td></tr></table></li>
+    </ol>
+    <h3>Installation/packing stage</h3>
+    <p>Install libraries, header files and pkgconfig files of MakerDialog and all the bindings.
+    <table style="background=#CCCCC;"><tr><td><pre>make install</pre></td></tr></table>
+    </p>
+    <p>Make RPM packages for MakerDialog:
+    <table style="background=#CCCCC;"><tr><td><pre>make rpm</pre></td></tr></table>
+    </p>
+    <p>Run rpmlint on built RPMs:
+    <table style="background=#CCCCC;"><tr><td><pre>make rpmlint</pre></td></tr></table>
+    </p>
+    <p>See more make targets by:
+    <table style="background=#CCCCC;"><tr><td><pre>make help</pre></td></tr></table>
+    </p>
+    <h2>Trouble shooting</h2>
+    <p>If gtk2 binding fail to build, it is usually because of the strcpy bug in gob2
+    (see <a href="https://bugzilla.redhat.com/show_bug.cgi?id=519108">here</a> for details).
+    Thus, MakerDialog is packed with generated source codes:
+<table style="background=#CCCCC;"><tr><td><pre>src/gtk/maker-dialog-gtk.c
+src/gtk/maker-dialog-gtk.h
+src/gtk/maker-dialog-gtk-private.h</pre></td></tr></table>
+    </p>
 
-      cmake >= 2.4
-      glib2 >= 2.12
-
-   Gtk2 binding:
-      gtk2 >= 2.10
-
-   GConf2 binding:
-      GConf2
-
-2. Build MakerDialog:
-   - Extract source and enter the extracted directory, then:
-     cmake . -DCMAKE_INSTALL_PREFIX='/usr'
-     make
-
-     Change CMAKE_INSTALL_PREFIX if you want to install
-     in different directories.
-
-   - For API documentation:
-     make doxygen
-
-   - Build RPM:
-     make rpm
-
-   - Run rpmlint on built RPMs:
-     make rpmlint
-
-   - Testing (Optional) :
-     make test
-
-   - Build examples (Optional) :
-     make examples
-
-   - See other build targets:
-     make help
-
-3. Install MakerDialog:
-  make install
-
-* Trouble shooting:
-  If gtk2 binding fail to build, it is usually because of the strcpy bug in
-   gob2 (see https://bugzilla.redhat.com/show_bug.cgi?id=519108 for details).
-
-  Thus, MakerDialog is packed with generated source code
-  (src/gtk/maker-dialog-gtk.c, src/gtk/maker-dialog-gtk.h and
-  src/gtk/maker-dialog-gtk-private.h).
-  Should you use make clean to clean but cannot build them back,
-  please either:
-   - Extract these files from the tarball, or
-   - Patch gob2 accordingly.
-
-Enjoy!</p>
-<h2>License</h2>
-<p>LGPLv3+</p>
-<h2>Authors</h2>
-<p>Ding-Yi Chen (dingyichen@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Ding-Yi Chen (dingyichentw@yahoo.com)<br/>      </p>
-
-
+    <p>Should you use make clean to clean but cannot build them back,  please either:
+    <ul>
+	<li> Extract these files from the tarball; or </li>
+	<li> Patch gob2 accordingly.</li>
+    </ul>
+    <h2>License</h2>
+    <p>LGPLv3+</p>
+    <h2>Authors</h2>
+    <p>Ding-Yi Chen (dchen at redhat.com)</p>
     <h2>Download</h2>
     <p>
       You can download this project in either
@@ -138,21 +130,21 @@ Enjoy!</p>
       by running:
       <pre>$ git clone git://github.com/definite/MakerDialog</pre>
     </p>
-      
+
     <div class="footer">
       get the source code on GitHub : <a href="http://github.com/definite/MakerDialog">definite/MakerDialog</a>
     </div>
-    
-  </div>
+</div>
 
-  <script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+<script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 </script>
 <script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-11783823-1");
-pageTracker._trackPageview();
-} catch(err) {}</script>
+    try {
+       var pageTracker = _gat._getTracker("UA-11783823-1");
+       pageTracker._trackPageview();
+    } catch(err) {}
+</script>
 </body>
 </html>
