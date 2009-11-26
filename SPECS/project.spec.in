@@ -7,7 +7,7 @@ Summary:    @PROJECT_DESCRIPTION@
 License:    LGPLv3+
 Group:      System Environment/Libraries
 URL:        http://wiki.github.com/definite/MakerDialog
-Source0:    http://wiki.github.com/definite/MakerDialog/%{name}-%{version}-Source.tar.gz
+Source0:    http://cloud.github.com/downloads/definite/%{name}/%{name}-%{version}-Source.tar.gz
 
 BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
