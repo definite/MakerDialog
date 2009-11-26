@@ -28,6 +28,7 @@ about the event handling details of various toolkit.
 Summary:    Files required for developing with MakerDialog
 Group:      Development/Libraries
 Requires:       %{name} = %{version}-%{release}
+Requires:       pkgconfig
 
 %description devel
 Necessary header files and libraries for developing with MakerDialog.
