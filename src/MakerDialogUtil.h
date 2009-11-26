@@ -116,50 +116,6 @@ gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_
 gboolean maker_dialog_string_is_empty(const gchar *str);
 
 /**
- * Free a GValue.
- *
- * This function unset the \a value and free the space \a value occupies.
- * @param value		A GValue.
- */
-void maker_dialog_g_value_free(gpointer value);
-
-/**
- * Whether a GType is  number.
- *
- * Whether a GType is  number.
- * @param type		A GType.
- * @return TRUE if GValue holds number; FALSE otherwise.
- * @see maker_dialog_value_get_double().
- */
-gboolean maker_dialog_g_type_is_number(GType type);
-
-/**
- * Get a double from a numeric GValue.
- *
- * This function gets a double from a numeric GValue.
- * It returns \c 0.0 if the value is non-numeric.
- * Use maker_dialog_value_is_number() to determine whether the returned \c 0.0
- * is because of non-numeric GValue.
- *
- * @param value	A MakerDialog value.
- * @return TRUE if GValue holds number; FALSE otherwise.
- * @see maker_dialog_type_is_number().
- * @see maker_dialog_value_set_double().
- */
-gdouble maker_dialog_g_value_to_double(GValue *value);
-
-/**
- * Set a double to a numeric GValue.
- *
- * This function sets a double to a numeric GValue.
- *
- * @param value	A MakerDialog value.
- * @param number	Number to set.
- * @see maker_dialog_value_get_double()
- */
-void maker_dialog_g_value_from_double(GValue *value, gdouble number);
-
-/**
  * Whether a set of flags contains all the specified flags.
  *
  * If \a flagSet  contains ALL the flags specified in \a specFlags,

@@ -385,7 +385,7 @@ static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
 	g_warning(_("Invalid value: %s, Fall back to previous value: %s"), newString, prevString);
 	g_free(prevString);
 	g_free(newString);
-	maker_dialog_g_value_free(value);
+	maker_dialog_value_free(value);
 	maker_dialog_widget_set_value_gtk(ctx->mDialog->ui, ctx->spec->key, ctx->value);
 	ret=FALSE;
     }

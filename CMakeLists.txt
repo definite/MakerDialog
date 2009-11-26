@@ -107,9 +107,14 @@ ENDIF()
 ADD_SUBDIRECTORY(src bin)
 ADD_SUBDIRECTORY(test)
 
+ADD_CUSTOM_COMMAND(OUTPUT examples/Makefile
+    COMMAND cmake -E chdir examples cmake .
+    COMMENT "Build examples/Makefile"
+    )
+
 ADD_CUSTOM_TARGET(examples
-    COMMAND cmake .
     COMMAND cmake -E chdir examples make all
+    DEPENDS examples/Makefile
     COMMENT "Making examples"
     )
 
