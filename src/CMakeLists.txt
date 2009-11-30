@@ -96,7 +96,8 @@ INSTALL(TARGETS MakerDialog MakerDialogGtk MakerDialogGConf
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/static
 )
 
-INSTALL(FILES ${MAKER_DIALOG_BASE_SRC_H} MakerDialogUiGtk.h
+INSTALL(FILES ${MAKER_DIALOG_BASE_SRC_H} config.h
+    MakerDialogUiGtk.h
     MakerDialogConfigGConf.h
     DESTINATION include/${PROJECT_NAME}
     )

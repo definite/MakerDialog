@@ -93,6 +93,43 @@ gboolean maker_dialog_string_is_empty(const gchar *str){
     return FALSE;
 }
 
+static gint maker_dialog_string_char_at(const gchar *str, gchar ch){
+    gint i;
+    gchar *strPtr=str;
+    for(i=0; str[i]!='\0; i++){
+	if (str[i]==ch)
+	    return i;
+    }
+    return -1;
+}
+
+gchar **maker_dialog_string_split_set(const gchar *str,
+	const gchar *delimiters, gchar escapeChar, gint maxTokens){
+    g_return_val_if_fail (string != NULL, NULL);
+    g_return_val_if_fail (delimiters != NULL, NULL);
+    GPtrArray *ptrArray=g_ptr_array_new(NULL);
+    gint tokenCount=0;
+    gchar *strPtr=str;
+    while(strPtr && (maxToken<0 || tokenCount<maxToken)){
+	GString *strBuf=g_string_new();
+	while(maker_dialog_string_char_at(delimiters, *strPtr)<0){
+	    if (*strPtr==escapeChar)
+		g_string_append_c(strBuf,*(++strPtr));
+	    else
+		g_string_append_c(strBuf,*strPtr);
+	    strPtr++;
+	}
+	g_ptr_array_add(ptrArray,g_string_free(strBuf,FALSE));
+	tokenCount++;
+    }
+    gchar **result=g_new(gchar* , tokenCount+1);
+    gint i;
+    for(i=0;i<tokenCount;i++)
+	result[i]=(gchar *) g_ptr_array_index(ptrArray,i);
+    g_ptr_array_free(ptrArray, TRUE);
+    return result;
+}
+
 gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags){
     return ((~(flagSet & specFlags)) & specFlags)? FALSE : TRUE;
 }

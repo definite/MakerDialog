@@ -120,6 +120,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/%{name}/MakerDialogTypes.h
 %{_includedir}/%{name}/MakerDialogUi.h
 %{_includedir}/%{name}/MakerDialogUtil.h
+%{_includedir}/%{name}/config.h
 %{_libdir}/pkgconfig/MakerDialog.pc
 
 %files gtk
