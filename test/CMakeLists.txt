@@ -16,3 +16,7 @@ ADD_EXECUTABLE(check_types.exe check_types.c
     ${check_functions_SRCS})
 TARGET_LINK_LIBRARIES(check_types.exe MakerDialog)
 
+ADD_EXECUTABLE(check_util.exe check_util.c
+    ${check_functions_SRCS})
+TARGET_LINK_LIBRARIES(check_util.exe MakerDialog)
+

@@ -30,11 +30,10 @@
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include <locale.h>
-#include "../config.h"
 #include "../MakerDialog.h"
 #include "../MakerDialogUiGtk.h"
 
-#line 38 "maker-dialog-gtk.c"
+#line 37 "maker-dialog-gtk.c"
 #define GOB_VERSION_MAJOR 2
 #define GOB_VERSION_MINOR 0
 #define GOB_VERSION_PATCHLEVEL 16
@@ -74,12 +73,13 @@ makerdialog_gtk_placement_get_type (void)
 }
 
 
-#line 54 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 53 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 
 #ifndef STRING_BUFFER_SIZE_DEFAULT
 #define STRING_BUFFER_SIZE_DEFAULT 200
 #endif
 
+#include "../config.h"
 #include "MakerDialogGtk-def.c"
 
 #line 86 "maker-dialog-gtk.c"
@@ -212,19 +212,19 @@ maker_dialog_gtk_init (MakerDialogGtk * self G_GNUC_UNUSED)
 #line 213 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::init"
 	self->_priv = G_TYPE_INSTANCE_GET_PRIVATE(self,MAKER_TYPE_DIALOG_GTK,MakerDialogGtkPrivate);
-#line 54 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 53 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	self->vbox_homogeneous = FALSE;
 #line 218 "maker-dialog-gtk.c"
-#line 54 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 53 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	self->hbox_spacing = 2;
 #line 221 "maker-dialog-gtk.c"
-#line 54 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 53 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	self->vbox_spacing = 2;
 #line 224 "maker-dialog-gtk.c"
-#line 54 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 53 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	self->dialog_notebook = NULL;
 #line 227 "maker-dialog-gtk.c"
-#line 54 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 53 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	self->_priv->mDialog = NULL;
 #line 230 "maker-dialog-gtk.c"
 #line 70 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"

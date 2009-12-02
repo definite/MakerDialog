@@ -96,6 +96,71 @@ gboolean string_verify_func(const gchar *actual, const gchar *expect, const gcha
     return TRUE;
 }
 
+gchar *string_list_print(gchar **stringList){
+    GString *strBuf=g_string_new("{");
+    gint i;
+    for(i=0;stringList[i]!=NULL;i++){
+	if (i>0){
+	    g_string_append_c(strBuf,',');
+	}
+	g_string_append_printf(strBuf,"\n\t\"%s\"",stringList[i]);
+    }
+    g_string_append_printf(strBuf,"}\n");
+    return g_string_free(strBuf, FALSE);
+}
+
+gboolean string_list_verify_func(gchar **actual, gchar **expect, const gchar *prompt, const gchar *inStr){
+    const gchar *input=(inStr) ? inStr :"";
+    gchar *actualStr=NULL, *expectStr=NULL;
+    g_debug("string_list_verify_func");
+
+    if (expect==NULL && actual==NULL){
+	verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: both are NULL\n");
+	return TRUE;
+    }
+    if (expect==NULL){
+	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	actualStr=string_list_print(actual);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:[NULL]\tActual:%s\n",actualStr);
+	g_free(actualStr);
+	return FALSE;
+    }
+    if (actual==NULL){
+	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	expectStr=string_list_print(expect);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:[NULL]\n",expect);
+	g_free(expectStr);
+	return FALSE;
+    }
+
+    gint i=0;
+    for (i=0;(actual[i]!=NULL) && (expect[i]!=NULL) ;i++){
+	g_debug("string_list_verify_func i=%d",i);
+	if (strcmp(actual[i],expect[i])!=0){
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s, string#%d:\n",prompt, input,i);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:%s\n",expect[i],actual[i]);
+	    return FALSE;
+	}
+    }
+    g_debug("string_list_verify_func i=%d",i);
+    if (expect[i]!=NULL){
+	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s, string#%d:\n",prompt,input,i);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual:%d strings, but expected additional string %s\n",
+		i,expect[i]);
+	return FALSE;
+    }
+    g_debug("string_list_verify_func i=%d 2",i);
+    if (actual[i]!=NULL){
+	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s, string#%d:\n",prompt, input, i);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Only expect:%d strings, but unexpected actual string %s\n",
+		i,actual[i]);
+	return FALSE;
+    }
+    verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: on input %s: expect: and actual: matched: \n", input);
+    g_debug("string_list_verify_func i=%d -1",i);
+    return TRUE;
+}
+
 void test_output_rec_g_free(OutputRec actOutRec){
     g_free(actOutRec);
 }
@@ -104,7 +169,7 @@ int get_testId(int argc, char** argv, TestSubject *testCollection, const gchar *
     int i;
     int argIndex=1;
     if (argc<2){
-	printf("Usage: %s [-V num] <test num> \n",argv[0]);
+	printf("Usage: %s <test num> \n",argv[0]);
 	return -1;
     }
 

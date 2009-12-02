@@ -119,14 +119,17 @@ ADD_CUSTOM_TARGET(examples
 
 ADD_CUSTOM_TARGET(clean_examples
     COMMAND cmake -E chdir examples make clean
+    DEPENDS examples/Makefile
     COMMENT "Making examples clean"
     )
 
 ADD_CUSTOM_TARGET(clean_all
     COMMAND make clean
-    COMMAND cmake -E chdir examples make clean
+    DEPENDS examples/Makefile
     COMMENT "Making all clean"
     )
+
+ADD_DEPENDENCIES(clean_all clean_examples)
 
 
 ####################################################################
@@ -180,6 +183,8 @@ ADD_DEPENDENCIES(pack_src all)
 ####################################################################
 ENABLE_TESTING()
 
+ADD_TEST(check_maker_dialog_util
+    ${PROJECT_BINARY_DIR}/test/check_util.exe 0)
 ADD_TEST(check_maker_dialog_types
     ${PROJECT_BINARY_DIR}/test/check_types.exe 0)
 

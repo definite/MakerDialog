@@ -91,7 +91,7 @@ gboolean compTest_foreach(TestSubject *testSubject){
 	MkdgType_InputRec *inRec=&(recs[i].in);
 	MkdgType_OutputRec *outRec=&(recs[i].out);
 	OutputRec *actOutRec=testSubject->run(inRec, testSubject->param);
-	gchar *inStr=(testSubject->in_rec_to_string) ? testSubject->in_rec_to_string(inRec, testSubject->param) : NULL;
+	gchar *inStr=compTest_to_string(inRec, testSubject->param);
 	if (!testSubject->verify(actOutRec, outRec, testSubject->prompt, inStr)){
 	    clean=FALSE;
 	}
@@ -110,8 +110,8 @@ TestSubject TEST_COLLECTION[]={
 	COMPARISON_DATASET,
 	COMPARISON_DATASET_SIZE,
 	NULL,
-	compTest_foreach, compTest_run_func, compTest_int_verify_func, compTest_to_string},
-    {NULL,NULL, 0, NULL, NULL, NULL, NULL, NULL},
+	compTest_foreach, compTest_run_func, compTest_int_verify_func},
+    {NULL,NULL, 0, NULL, NULL, NULL, NULL},
 };
 
 int main(int argc, char** argv){

@@ -116,6 +116,52 @@ gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_
 gboolean maker_dialog_string_is_empty(const gchar *str);
 
 /**
+ * Splits string on unescaped delimiter characters.
+ *
+ * This function splits a string into tokens on unescaped delimiter characters,
+ * A token is the (possibly size-0) longest string that does not contain
+ * any of the characters in delimiters.
+ * If \a maxTokens is reached, the remainder is appended to the last token.
+ *
+ * The characters right after the escape character are appended to token
+ * unconditionally, so delimiters can be escaped this way.
+ *
+ * For example the result of maker_dialog_string_split_set("abc:;d\;ef:/ghi;", ":;", '\\', -1)
+ * is a NULL-terminated vector containing the three strings "abc", "d;ef", and "/ghi".
+ *
+ * This function is aware of UTF-8 encoding,
+ * but delimiters and escape character have to be ASCII characters.
+ * String can be UTF-8 encoded, though.
+ *
+ * Use g_strfreev() to free the returned result.
+ *
+ * @param str 		String to be split.
+ * @param delimiters	A set of characters to split the string.
+ * @param escapeChar	The escape character.
+ * @param maxTokens	The maximum number of tokens to split string into. If this is less than 1, the string is split completely.
+ * @return A newly-allocated NULL-terminated array of strings; or NULL if either \a str or \a delimiters is \c NULL.
+ * @see maker_dialog_string_combine_with_escape_char()
+ */
+gchar **maker_dialog_string_split_set
+(const gchar *str, const gchar *delimiters, gchar escapeChar, gint maxTokens);
+
+/**
+ * Combine a listed of strings into a single string with delimiters.
+ *
+ * This function combines between a listed of strings into a single string with delimiters.
+ * Strings that containing delimiters and escape character will be escaped with
+ * \a escapeChar.
+ * The first delimiter is inserted between each combined string.
+ *
+ * @param strList	List of string to be combined.
+ * @param delimiters	A set of characters to split the string.
+ * @param escapeChar	The escape character.
+ * @return A newly-allocated string, containing result; or NULL if either \a strList or \a delimiters is \c NULL.
+ */
+gchar *maker_dialog_string_combine_with_escape_char
+(const gchar **strList, const gchar *delimiters, gchar escapeChar);
+
+/**
  * Whether a set of flags contains all the specified flags.
  *
  * If \a flagSet  contains ALL the flags specified in \a specFlags,

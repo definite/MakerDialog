@@ -27,7 +27,6 @@
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include <locale.h>
-#include "../config.h"
 #include "../MakerDialog.h"
 #include "../MakerDialogUiGtk.h"
 
@@ -115,44 +114,44 @@ struct _MakerDialogGtkClass {
 GType	maker_dialog_gtk_get_type	(void) G_GNUC_CONST;
 #line 78 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 MakerDialogGtk * 	maker_dialog_gtk_new	(void);
-#line 119 "maker-dialog-gtk.h"
+#line 118 "maker-dialog-gtk.h"
 #line 83 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 MakerDialogGtk * 	maker_dialog_gtk_new_full	(MakerDialogUi * dlgUi,
 					GtkWindow * parentWindow,
 					gboolean modal);
-#line 124 "maker-dialog-gtk.h"
+#line 123 "maker-dialog-gtk.h"
 #line 469 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_destroy	(MakerDialogGtk * self);
-#line 127 "maker-dialog-gtk.h"
+#line 126 "maker-dialog-gtk.h"
 #line 474 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 MkdgValue * 	maker_dialog_gtk_get_widget_value	(MakerDialogGtk * self,
 					const gchar * key);
-#line 131 "maker-dialog-gtk.h"
+#line 130 "maker-dialog-gtk.h"
 #line 559 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_set_widget_value	(MakerDialogGtk * self,
 					const gchar * key,
 					MkdgValue * value);
-#line 136 "maker-dialog-gtk.h"
+#line 135 "maker-dialog-gtk.h"
 #line 620 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_widget_control	(MakerDialogGtk * self,
 					const gchar * key,
 					MakerDialogWidgetControl control);
-#line 141 "maker-dialog-gtk.h"
+#line 140 "maker-dialog-gtk.h"
 #line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_widget	(MakerDialogGtk * self,
 					const gchar * key);
-#line 145 "maker-dialog-gtk.h"
+#line 144 "maker-dialog-gtk.h"
 #line 643 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_widget_full	(MakerDialogGtk * self,
 					const gchar * widget_label,
 					const gchar * subLabel,
 					const gchar * widget_type,
 					gint serial);
-#line 152 "maker-dialog-gtk.h"
+#line 151 "maker-dialog-gtk.h"
 #line 651 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_widget_by_id	(MakerDialogGtk * self,
 					const gchar * id);
-#line 156 "maker-dialog-gtk.h"
+#line 155 "maker-dialog-gtk.h"
 
 #ifdef __cplusplus
 }

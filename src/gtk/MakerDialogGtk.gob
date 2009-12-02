@@ -26,7 +26,6 @@ requires 2.0.0
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include <locale.h>
-#include "../config.h"
 #include "../MakerDialog.h"
 #include "../MakerDialogUiGtk.h"
 %}
@@ -56,6 +55,7 @@ enum MAKER_DIALOG_GTK_PLACEMENT{
 #define STRING_BUFFER_SIZE_DEFAULT 200
 #endif
 
+#include "../config.h"
 #include "MakerDialogGtk-def.c"
 %}
 

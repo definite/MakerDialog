@@ -44,7 +44,6 @@ typedef gboolean (* ForeachFunc)(TestSubject *subject);
 typedef OutputRec (* RunFunc)(InputRec inputRec, Param param);
 typedef gboolean (* VerifyFunc)(OutputRec actOutRec, OutputRec expOutRec, const gchar *prompt, const gchar *inStr);
 typedef void (* FreeFunc)(OutputRec actOutRec);
-typedef gchar *(* InputRecToString)(InputRec inputRec, Param param);
 
 struct _TestSubject{
     const gchar 	*prompt;
@@ -54,7 +53,6 @@ struct _TestSubject{
     ForeachFunc 	foreach;
     RunFunc 		run;
     VerifyFunc 		verify;
-    InputRecToString    in_rec_to_string;
 } ;
 
 
@@ -72,9 +70,11 @@ struct _TestSubject{
  */
 gint verboseMsg_print(gint verboseLevel, const gchar *format, ...);
 
+gchar *string_list_print(gchar **stringList);
 gboolean int_verify_func(gint actual, gint expect, const gchar *prompt, const gchar *inStr);
 gboolean long_int_verify_func(glong actual, glong expect, const gchar *prompt, const gchar *inStr);
 gboolean string_verify_func(const gchar *actual, const gchar *expect, const gchar *prompt, const gchar *inStr);
+gboolean string_list_verify_func(gchar **actual, gchar **expect, const gchar *prompt, const gchar *inStr);
 
 void test_output_rec_g_free(OutputRec actOutRec);
 
