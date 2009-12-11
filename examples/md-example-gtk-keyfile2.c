@@ -3,14 +3,18 @@
 #include <glib/gprintf.h>
 #include <MakerDialog.h>
 #include <MakerDialogUiGtk.h>
-#include "md-example.c"
 
 int main(int argc,char *argv[]){
-    MakerDialog *mDialog=maker_dialog_init("md-example", buttonSpecs);
-    gint i=0;
-    for(i=0; propSpecs[i].key!=NULL; i++){
-	maker_dialog_add_property(mDialog,
-		maker_dialog_property_context_new_full( &propSpecs[i], NULL, NULL, applyFunc));
+    MakerDialogError  *cfgErr=NULL;
+    gchar *dir=g_path_get_dirname (argv[0]);
+    gchar *mkdgFile=g_strjoin("/",dir,"md-example.mkdg", NULL);
+    MakerDialog *mDialog=maker_dialog_load_from_key_file(mkdgFile, &cfgErr);
+    g_free(mkdgFile);
+    g_free(dir);
+    if (cfgErr){
+	maker_dialog_error_print(cfgErr);
+	g_error_free(cfgErr);
+	exit(-1);
     }
 
     /* Configure */
@@ -18,11 +22,13 @@ int main(int argc,char *argv[]){
     const gchar *editingOptions[]={"Editing" , NULL};
     const gchar *keyOptions[]={"Keyboard" , NULL};
 
-    GError *cfgErr=NULL;
     MakerDialogConfig *config=maker_dialog_config_use_key_file(mDialog);
     if (!config){
 	exit(1);
     }
+    MakerDialogPropertyContext *ctx1=maker_dialog_get_property_context(mDialog,"fgColor");
+    g_assert(ctx1);
+
     MakerDialogConfigSet *dlgCfgSet_editing=maker_dialog_config_set_new_full(editingOptions,
 	    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE | MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT,
 	    "md-example-editing.cfg", searchDirs, "md-example-editing.cfg",  2, NULL);

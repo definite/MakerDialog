@@ -71,6 +71,7 @@ static gint find_color_index_by_value(guint32 value){
 /*=== Start Type Interface functions ===*/
 typedef struct{
     MkdgType type;
+    const gchar *name;
     MkdgTypeInterface typeInterface;
 } MkdgTypeInterfaceMkdgType;
 
@@ -476,30 +477,46 @@ static gint md_color_compare(MkdgValue *value1, MkdgValue *value2, const gchar *
 
 
 const MkdgTypeInterfaceMkdgType mkdgTypeInterfaces[]={
-    { MKDG_TYPE_BOOLEAN,	{md_boolean_set,	md_boolean_from_string, md_boolean_to_string,	md_boolean_compare,	NULL}},
-    { MKDG_TYPE_INT,		{md_int_set,		md_int_from_string,	md_int_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_UINT,		{md_uint_set,		md_uint_from_string,	md_uint_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_INT32,		{md_int32_set,		md_int32_from_string,	md_int32_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_UINT32,		{md_uint32_set,		md_uint32_from_string,	md_uint32_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_INT64,		{md_int64_set,		md_int64_from_string,	md_int64_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_UINT64,		{md_uint64_set,		md_uint64_from_string,	md_uint64_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_LONG,		{md_long_set,		md_long_from_string,	md_long_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_ULONG,		{md_ulong_set,		md_ulong_from_string,	md_ulong_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_FLOAT,		{md_float_set,		md_float_from_string,	md_float_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_DOUBLE,		{md_double_set,		md_double_from_string,	md_double_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_STRING,		{md_string_set,		md_string_from_string,	md_string_to_string, 	md_string_compare,	md_string_free}},
-    { MKDG_TYPE_COLOR,		{md_color_set,		md_color_from_string,	md_color_to_string, 	md_color_compare,	NULL}},
-    { MKDG_TYPE_INVALID,	{NULL,			NULL,			NULL,			NULL,			NULL}},
+    { MKDG_TYPE_BOOLEAN,	"BOOLEAN",	{md_boolean_set,	md_boolean_from_string, md_boolean_to_string,	md_boolean_compare,	NULL}},
+    { MKDG_TYPE_INT,		"INT",		{md_int_set,		md_int_from_string,	md_int_to_string,	md_number_compare,	NULL}},
+    { MKDG_TYPE_UINT,		"UINT",		{md_uint_set,		md_uint_from_string,	md_uint_to_string, 	md_number_compare,	NULL}},
+    { MKDG_TYPE_INT32,		"INT32",	{md_int32_set,		md_int32_from_string,	md_int32_to_string,	md_number_compare,	NULL}},
+    { MKDG_TYPE_UINT32,		"UINT32",	{md_uint32_set,		md_uint32_from_string,	md_uint32_to_string, 	md_number_compare,	NULL}},
+    { MKDG_TYPE_INT64,		"INT64",	{md_int64_set,		md_int64_from_string,	md_int64_to_string,	md_number_compare,	NULL}},
+    { MKDG_TYPE_UINT64,		"UINT64",	{md_uint64_set,		md_uint64_from_string,	md_uint64_to_string, 	md_number_compare,	NULL}},
+    { MKDG_TYPE_LONG,		"LONG",		{md_long_set,		md_long_from_string,	md_long_to_string,	md_number_compare,	NULL}},
+    { MKDG_TYPE_ULONG,		"ULONG",	{md_ulong_set,		md_ulong_from_string,	md_ulong_to_string,	md_number_compare,	NULL}},
+    { MKDG_TYPE_FLOAT,		"FLOAT",	{md_float_set,		md_float_from_string,	md_float_to_string, 	md_number_compare,	NULL}},
+    { MKDG_TYPE_DOUBLE,		"DOUBLE",	{md_double_set,		md_double_from_string,	md_double_to_string, 	md_number_compare,	NULL}},
+    { MKDG_TYPE_STRING,		"STRING",	{md_string_set,		md_string_from_string,	md_string_to_string, 	md_string_compare,	md_string_free}},
+    { MKDG_TYPE_COLOR,		"COLOR",	{md_color_set,		md_color_from_string,	md_color_to_string, 	md_color_compare,	NULL}},
+    { MKDG_TYPE_NONE,		"NONE",		{NULL,			NULL,			NULL,			NULL,			NULL}},
+    { MKDG_TYPE_INVALID,	"INVALID",	{NULL,			NULL,			NULL,			NULL,			NULL}},
 };
 
 static const MkdgTypeInterface *maker_dialog_find_type_interface(MkdgType mType){
-    if (mType<0 || mType>MKDG_TYPE_COLOR){
+    if (mType<0 || mType>MKDG_TYPE_NONE){
 	return NULL;
     }
     return &mkdgTypeInterfaces[mType].typeInterface;
 }
 
 /*=== End Type Interface functions ===*/
+MkdgType maker_dialog_type_parse(const gchar *str){
+    MkdgType mType;
+    for(mType=0; mType<=MKDG_TYPE_NONE; mType++){
+	if (g_ascii_strcasecmp(str,mkdgTypeInterfaces[mType].name)==0)
+	    return mType;
+    }
+    return MKDG_TYPE_INVALID;
+}
+
+const gchar *maker_dialog_type_to_string(MkdgType mType){
+    if (mType<0 || mType>MKDG_TYPE_NONE){
+	return NULL;
+    }
+    return mkdgTypeInterfaces[mType].name;
+}
 
 static void maker_dialog_value_set_private(MkdgValue *mValue, gpointer setValue, const MkdgTypeInterface *typeInterface){
     if (maker_dialog_type_is_pointer(mValue->mType)){
@@ -541,7 +558,6 @@ MkdgValue *maker_dialog_value_new_static(MkdgType mType, gpointer setValue){
 }
 
 gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue){
-    g_debug("*** maker_dialog_value_copy()");
     if (srcValue->mType!=destValue->mType){
 	return FALSE;
     }
@@ -555,7 +571,6 @@ gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue){
 }
 
 void maker_dialog_value_set(MkdgValue *mValue, gpointer setValue){
-    g_debug("*** maker_dialog_value_set()");
     const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
     maker_dialog_value_set_private(mValue, setValue, typeInterface);
 }

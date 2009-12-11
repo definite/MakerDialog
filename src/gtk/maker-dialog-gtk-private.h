@@ -50,40 +50,40 @@ struct _MakerDialogGtkPrivate {
 	GHashTable * comboboxValuesTable;
 #line 52 "maker-dialog-gtk-private.h"
 };
-#line 190 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 270 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_outbox_and_label_new	(MakerDialogGtk * self, GtkWidget * widget, MakerDialogPropertyContext * ctx, MakerDialogGtkPlacement labelPlacement);
 #line 56 "maker-dialog-gtk-private.h"
-#line 238 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_check_button_new	(MakerDialogGtk * self, MakerDialogPropertyContext * ctx);
 #line 59 "maker-dialog-gtk-private.h"
-#line 247 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 327 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_color_button_new	(MakerDialogGtk * self, MakerDialogPropertyContext * ctx);
 #line 62 "maker-dialog-gtk-private.h"
-#line 256 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 336 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_combo_box_new	(MakerDialogGtk * self, MakerDialogPropertyContext * ctx);
 #line 65 "maker-dialog-gtk-private.h"
-#line 304 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 384 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_entry_new	(MakerDialogGtk * self, MakerDialogPropertyContext * ctx);
 #line 68 "maker-dialog-gtk-private.h"
-#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 398 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_radio_buttons_new	(MakerDialogGtk * self, MakerDialogPropertyContext * ctx);
 #line 71 "maker-dialog-gtk-private.h"
-#line 352 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 432 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_spin_button_new	(MakerDialogGtk * self, MakerDialogPropertyContext * ctx);
 #line 74 "maker-dialog-gtk-private.h"
-#line 363 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 443 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 gboolean 	maker_dialog_gtk_add_property_ui	(MakerDialogGtk * self, MakerDialogPropertyContext * ctx);
 #line 77 "maker-dialog-gtk-private.h"
-#line 440 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 520 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_align_labels	(MakerDialogGtk * self, const gchar * pageName, MakerDialogAlignment * labelAlignment);
 #line 80 "maker-dialog-gtk-private.h"
-#line 656 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 736 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_page_vbox	(MakerDialogGtk * self, const gchar * pageName);
 #line 83 "maker-dialog-gtk-private.h"
-#line 663 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 743 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_base_vbox	(MakerDialogGtk * self, MakerDialogPropertySpec * spec);
 #line 86 "maker-dialog-gtk-private.h"
-#line 671 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 751 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_widget_register	(MakerDialogGtk * self, GtkWidget * widget, const gchar * widget_label, const gchar * subLabel, const gchar * widget_type, gint serial);
 #line 89 "maker-dialog-gtk-private.h"
 

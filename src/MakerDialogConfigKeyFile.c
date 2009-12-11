@@ -88,7 +88,7 @@ static gboolean maker_dialog_config_key_file_close(MakerDialogConfigSet *configS
 static gboolean maker_dialog_config_key_file_preload_to_buffer(
 	MakerDialogConfigSet *configSet, GKeyFile *keyFile, const gchar *pageName, GError **error){
     MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_key_file_preload_to_buffer( , , %s, )", (pageName)? pageName: "");
-    GError *cfgErr=NULL, *cfgErr_prep=NULL, *cfgErr_last=NULL;
+    GError *cfgErr=NULL, *cfgErr_prep=NULL;
     gchar **keys=g_key_file_get_keys(keyFile, pageName, NULL, &cfgErr_prep);
     if ((cfgErr=convert_error_code(cfgErr_prep, NULL, "config_key_file_preload_to_buffer()"))){
 	goto FILE_LOAD_TO_BUFFER_END;
@@ -97,25 +97,36 @@ static gboolean maker_dialog_config_key_file_preload_to_buffer(
     for(i=0; keys[i]!=NULL; i++){
 	MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_key_file_preload_to_buffer( , , %s, ) loading key=%s",
 		(pageName)? pageName: "", keys[i]);
+	g_assert(configSet);
+	g_assert(configSet->mDialog);
+	g_assert(keys[i]);
+
 	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(configSet->mDialog,keys[i]);
 	if (!ctx){
+	    cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_INVALID_KEY,
+		    "config_key_file_preload_to_buffer() key=%s",keys[i]);
+
 	    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
-		cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_INVALID_KEY,
-		       	"config_key_file_preload_to_buffer()");
 		goto FILE_LOAD_TO_BUFFER_END;
 	    }else{
+		maker_dialog_error_handle(cfgErr,error);
 		continue;
 	    }
 	}
 	if ((ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE)
 		&& (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE)){
 	    /* Has value and NO_OVERRIDE is set */
+	    MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_key_file_preload_to_buffer() key=%s: has value, but NO_OVERRIDE is set.", keys[i]);
 	    continue;
 	}
+	maker_dialog_error_handle(cfgErr,error);
+
 	MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
+	cfgErr_prep=NULL;
 	gchar *strValue=g_key_file_get_string(keyFile, pageName,keys[i], &cfgErr_prep);
+	MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_key_file_preload_to_buffer() key=%s strValue=%s", keys[i], strValue );
 	if (maker_dialog_value_from_string(mValue,strValue,NULL)){
-	    if (!cfgErr_prep){
+	    if (!cfgErr){
 		ctx->flags &= ~(MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNSAVED);
 		ctx->flags |=
 		    MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED | MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE;
@@ -131,11 +142,7 @@ static gboolean maker_dialog_config_key_file_preload_to_buffer(
 	    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
 		goto FILE_LOAD_TO_BUFFER_END;
 	    }
-	    if (cfgErr_last){
-		maker_dialog_config_error_print(cfgErr_last);
-		g_error_free(cfgErr_last);
-	    }
-	    cfgErr_last=cfgErr;
+	    maker_dialog_error_handle(cfgErr,error);
 	}else{
 	    if (MAKER_DIALOG_DEBUG_RUN(2)){
 		gchar *str=maker_dialog_value_to_string(mValue, ctx->spec->toStringFormat);
@@ -147,13 +154,9 @@ static gboolean maker_dialog_config_key_file_preload_to_buffer(
     }
 FILE_LOAD_TO_BUFFER_END:
     g_strfreev(keys);
+
     if (cfgErr){
-	if (error){
-	    *error=cfgErr;
-	}else{
-	    maker_dialog_config_error_print(cfgErr);
-	    g_error_free(cfgErr);
-	}
+	maker_dialog_error_handle(cfgErr,error);
 	return FALSE;
     }
     return TRUE;
@@ -177,7 +180,7 @@ static gboolean maker_dialog_config_key_file_preload(MakerDialogConfigSet *confi
 	if (cfgErr_prep && cfgErr_prep->code==G_KEY_FILE_ERROR_PARSE){
 	    /* Possibly empty file */
 	    g_warning("On file %s", configFile->path);
-	    maker_dialog_config_error_print(cfgErr_prep);
+	    maker_dialog_error_print(cfgErr_prep);
 	    g_error_free(cfgErr_prep);
 	    goto FILE_LOAD_END;
 	}
@@ -206,7 +209,7 @@ FILE_LOAD_END:
 	if (error){
 	    *error=cfgErr;
 	}else{
-	    maker_dialog_config_error_print(cfgErr);
+	    maker_dialog_error_print(cfgErr);
 	    g_error_free(cfgErr);
 	}
 	return FALSE;

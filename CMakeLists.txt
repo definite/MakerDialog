@@ -183,8 +183,12 @@ ADD_DEPENDENCIES(pack_src all)
 ####################################################################
 ENABLE_TESTING()
 
-ADD_TEST(check_maker_dialog_util
+ADD_TEST("check_maker_dialog_util:string_split_set"
     ${PROJECT_BINARY_DIR}/test/check_util.exe 0)
-ADD_TEST(check_maker_dialog_types
+ADD_TEST("check_maker_dialog_util:string_list_combine"
+    ${PROJECT_BINARY_DIR}/test/check_util.exe 1)
+ADD_TEST(check_maker_dialog_types:cmp
     ${PROJECT_BINARY_DIR}/test/check_types.exe 0)
+ADD_TEST(check_maker_dialog_types:fromStr
+    ${PROJECT_BINARY_DIR}/test/check_types.exe 1)
 

@@ -1,0 +1,70 @@
+[_MAIN_]
+title=md-example
+buttonResponseIds=CLOSE
+
+[fgColor]
+valueType=COLOR
+pageName=Editing
+groupName=Color
+label=Foreground Color
+translationContext=ibus-chewing
+tooltip=Foreground Color.
+
+[autoShiftCur]
+valueType=BOOLEAN
+pageName=Editing
+groupName=Text
+label=Auto move cursor
+translationContext=ibus-chewing
+tooltip=Automatically move cursor to next character.
+
+[addPhraseDirection]
+valueType=BOOLEAN
+pageName=Editing
+groupName=Text
+label=Add phrases in the front
+translationContext=ibus-chewing
+tooltip=Add phrases in the front.
+
+[easySymbolInput]
+valueType=BOOLEAN
+defaultValue=TRUE
+pageName=Editing
+groupName=Text
+label=Easy symbol input
+translationContext=ibus-chewing
+tooltip=Easy symbol input.
+
+
+[KBType]
+valueType=STRING
+flags=FIXED_SET | PREFER_RADIO_BUTTONS
+defaultValue=default
+validValues=default;hsu;ibm;gin_yieh;eten;eten26;dvorak;dvorak_hsu;dachen_26;hanyu
+pageName=Keyboard
+label=Keyboard type
+translationContext=ibus-chewing
+tooltip=Select keyboard layout of Zhuyin symbols.
+rules=NE,hsu,hsuSelKeyType,INSENSITIVE,0;NE,dvorak_hsu,hsuSelKeyType,INSENSITIVE,0;EQ,hsu,hsuSelKeyType,SENSITIVE,0;EQ,dvorak_hsu,hsuSelKeyType,SENSITIVE,0
+
+[selKeys]
+valueType=STRING
+flags=
+defaultValue=1234567890
+validValues=1234567890;asdfghjkl\\;;asdfzxcv89;asdfjkl789;aoeuhtn789;1234qweras
+pageName=Keyboard
+label=Selection keys
+translationContext=ibus-chewing
+tooltip=Keys used to select candidate. For example "asdfghjkl;", press 'a' to select the 1st candidate, 's' for 2nd, and so on.
+
+[hsuSelKeyType]
+valueType=INT
+defaultValue=1
+min=1.0
+max=2.0
+step=1.0
+pageName=Keyboard
+label=Hsu's selection key
+translationContext=ibus-chewing
+tooltip=Hsu's keyboard selection keys, 1 for asdfjkl789, 2 for asdfzxcv89.
+

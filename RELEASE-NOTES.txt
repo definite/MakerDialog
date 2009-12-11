@@ -1,6 +1,14 @@
-PRJ_VER=0.1.1
-SUMMARY=Initial Release
+PRJ_VER=0.2.0
+SUMMARY=Load property spec from keyfile.
 SO_VER_MAJOR=0
-SO_VER_MINOR=1
+SO_VER_MINOR=2
 # Changes
-- Initial Release.
+- Property spec and MakerDialog spec can now be load from a key file.
+  Example can be found in examples/md-example-gtk-keyfile2.c and
+  examples/md-example.mkdg.
+- Add many button specs.
+- New string list processing functions.
+- MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION is removed.
+- maker_dialog_config_error_handle() is renamed to maker_dialog_error_handle()
+- maker_dialog_config_error_print() is renamed to maker_dialog_error_print()
+

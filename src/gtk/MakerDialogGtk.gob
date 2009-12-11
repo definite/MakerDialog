@@ -101,6 +101,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		if (self->_priv->mDialog->buttonSpecs[i].buttonText){
 		    buttonText=(gchar *) self->_priv->mDialog->buttonSpecs[i].buttonText;
 		}else{
+
 		    switch(self->_priv->mDialog->buttonSpecs[i].responseId){
 			case MAKER_DIALOG_RESPONSE_REJECT:
 			case MAKER_DIALOG_RESPONSE_ACCEPT:
@@ -124,8 +125,83 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 			case MAKER_DIALOG_RESPONSE_APPLY:
 			    buttonText=GTK_STOCK_APPLY;
 			    break;
+			case MAKER_DIALOG_RESPONSE_FILE:
+			    buttonText=GTK_STOCK_FILE;
+			    break;
+			case MAKER_DIALOG_RESPONSE_NEW:
+			    buttonText=GTK_STOCK_NEW;
+			    break;
+			case MAKER_DIALOG_RESPONSE_OPEN:
+			    buttonText=GTK_STOCK_OPEN;
+			    break;
+			case MAKER_DIALOG_RESPONSE_SAVE:
+			    buttonText=GTK_STOCK_SAVE;
+			    break;
+			case MAKER_DIALOG_RESPONSE_SAVE_AS:
+			    buttonText=GTK_STOCK_SAVE_AS;
+			    break;
+			case MAKER_DIALOG_RESPONSE_PRINT:
+			    buttonText=GTK_STOCK_PRINT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_QUIT:
+			    buttonText=GTK_STOCK_QUIT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_EDIT:
+			    buttonText=GTK_STOCK_EDIT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_UNDO:
+			    buttonText=GTK_STOCK_UNDO;
+			    break;
+			case MAKER_DIALOG_RESPONSE_REDO:
+			    buttonText=GTK_STOCK_REDO;
+			    break;
+			case MAKER_DIALOG_RESPONSE_REFRESH:
+			    buttonText=GTK_STOCK_REFRESH;
+			    break;
+			case MAKER_DIALOG_RESPONSE_CUT:
+			    buttonText=GTK_STOCK_CUT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_COPY:
+			    buttonText=GTK_STOCK_COPY;
+			    break;
+			case MAKER_DIALOG_RESPONSE_PASTE:
+			    buttonText=GTK_STOCK_PASTE;
+			    break;
+			case MAKER_DIALOG_RESPONSE_SELECT_ALL:
+			    buttonText=GTK_STOCK_SELECT_ALL;
+			    break;
+			case MAKER_DIALOG_RESPONSE_FIND:
+			    buttonText=GTK_STOCK_FIND;
+			    break;
+			case MAKER_DIALOG_RESPONSE_FIND_AND_REPLACE:
+			    buttonText=GTK_STOCK_FIND_AND_REPLACE;
+			    break;
 			case MAKER_DIALOG_RESPONSE_HELP:
 			    buttonText=GTK_STOCK_HELP;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_TOP:
+			    buttonText=GTK_STOCK_GOTO_TOP;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_BOTTOM:
+			    buttonText=GTK_STOCK_GOTO_BOTTOM;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_FIRST:
+			    buttonText=GTK_STOCK_GOTO_FIRST;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_LAST:
+			    buttonText=GTK_STOCK_GOTO_LAST;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_UP:
+			    buttonText=GTK_STOCK_GO_UP;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_DOWN:
+			    buttonText=GTK_STOCK_GO_DOWN;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_BACK:
+			    buttonText=GTK_STOCK_GO_BACK;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_FORWARD:
+			    buttonText=GTK_STOCK_GO_FORWARD;
 			    break;
 			default:
 			    break;
@@ -177,8 +253,12 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	    self_align_labels(self, NULL, &self->_priv->mDialog->labelAlignment);
 	}
 
+//        if (self->_priv->mDialog->maxSizeInPixel->width>0 && self->_priv->mDialog->maxSizeInPixel->height>0){
+//            gtk_widget_set_size_request (GTK_WIDGET(self), self->_priv->mDialog->maxSizeInPixel->width,self->_priv->mDialog->maxSizeInPixel->height);
+//        }
 	/* Perform control rules */
 	maker_dialog_foreach_property(self->_priv->mDialog, maker_dialog_gtk_each_property_apply_control, self);
+
 
 	return self;
     }
@@ -322,7 +402,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 	GtkWidget *radioHead=NULL;
 	gsize i;
 	for(i=0;ctx->spec->validValues[i]!=NULL;i++){
-	    const gchar *strPtr=(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION) ? _(ctx->spec->validValues[i]) : ctx->spec->validValues[i];
+	    const gchar *strPtr=maker_dialog_gtk_get_translation_string(ctx->spec->validValues[i], ctx->spec);
 	    if (i==0){
 		radio=radioHead=gtk_radio_button_new_with_label(NULL, strPtr);
 		self_widget_register(self, radio, ctx->spec->key, NULL, NULL, -1);

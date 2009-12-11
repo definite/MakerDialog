@@ -37,61 +37,89 @@ gint verboseMsg_print(gint verboseLevel, const gchar *format, ...){
     return ret;
 }
 
-gboolean int_verify_func(gint actual, gint expect, const gchar *prompt, const gchar *inStr){
+gboolean int_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr){
     const gchar *input=(inStr) ? inStr :"";
-    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%d, expected=%d\n",prompt, input, actual, expect);
-    if (actual<expect){
-	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %d is lesser than expected %d\n", actual, expect);
-	return FALSE;
-    }else if (actual>expect){
-	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %d is greater than expected %d\n", actual, expect);
-	return FALSE;
+    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%d, expected=%d\n",prompt, input, actual.v_int, expect.v_int);
+    switch(num_compare_func(gint, actual.v_int, expect.v_int)){
+	case -1:
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %d is lesser than expected %d\n", actual.v_int, expect.v_int);
+	    return FALSE;
+	case 1:
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %d is greater than expected %d\n", actual.v_int, expect.v_int);
+	    return FALSE;
+	default:
+	    break;
     }
-    verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: expect and actual are equal to %ld\n", expect);
+    verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: expect and actual are equal to %d\n", expect.v_int);
     return TRUE;
 }
 
-gboolean long_int_verify_func(glong actual, glong expect, const gchar *prompt, const gchar *inStr){
+gboolean long_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr){
     const gchar *input=(inStr) ? inStr :"";
-    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%ld, expected=%ld\n",prompt, input, actual, expect);
-    if (actual<expect){
-	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is lesser than expected %ld\n", actual, expect);
-	return FALSE;
-    }else if (actual>expect){
-	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is greater than expected %ld\n", actual, expect);
-	return FALSE;
+    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%ld, expected=%ld\n",prompt, input, actual.v_long, expect.v_long);
+    switch(num_compare_func(glong, actual.v_long, expect.v_long)){
+	case -1:
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is lesser than expected %ld\n", actual.v_long, expect.v_long);
+	    return FALSE;
+	case 1:
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %ld is greater than expected %ld\n", actual.v_long, expect.v_long);
+	    return FALSE;
+	default:
+	    break;
     }
-    verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: expect and actual are equal to %ld\n", expect);
+    verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: expect and actual are equal to %ld\n", expect.v_long);
     return TRUE;
 }
 
-gboolean string_verify_func(const gchar *actual, const gchar *expect, const gchar *prompt, const gchar *inStr){
+gboolean double_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr){
     const gchar *input=(inStr) ? inStr :"";
-    if (expect==NULL && actual==NULL){
+    verboseMsg_print(VERBOSE_MSG_INFO3,"[Info] %s: on input %s\n\tcomparing: actual=%g, expected=%g\n",prompt, input, actual.v_double, expect.v_double);
+    switch(num_compare_func(gdouble, actual.v_double, expect.v_double)){
+	case -1:
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %g is lesser than expected %g\n", actual.v_double, expect.v_double);
+	    return FALSE;
+	case 1:
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual %g is greater than expected %g\n", actual.v_double, expect.v_double);
+	    return FALSE;
+	default:
+	    break;
+    }
+    verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: expect and actual are equal to %g\n", expect.v_double);
+    return TRUE;
+}
+
+gboolean string_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr){
+    const gchar *input=(inStr) ? inStr :"";
+    const gchar *expectDat=expect.v_string;
+    const gchar *actualDat=actual.v_string;
+
+    if (expectDat==NULL && actualDat==NULL){
 	verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: both are NULL\n");
 	return TRUE;
     }
-    if (expect==NULL){
+    if (expectDat==NULL){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:[NULL]\tActual:%s\n",actual);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:[NULL]\tActual:%s\n",actualDat);
 	return FALSE;
     }
-    if (actual==NULL){
+    if (actualDat==NULL){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:[NULL]\n",expect);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:[NULL]\n",expectDat);
 	return FALSE;
     }
 
-    gint ret=strcmp(expect,actual);
+    gint ret=strcmp(expectDat,actualDat);
     if (ret){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt,input);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:%s\n",expect,actual);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:%s\n",expectDat,actualDat);
     }else{
-	verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: on input %s: expect:(%s) and actual:(%s) matched: \n", input, expect,actual);
+	verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: on input %s: expect:(%s) and actual:(%s) matched: \n", input, expectDat,actualDat);
     }
     return TRUE;
 }
@@ -109,60 +137,59 @@ gchar *string_list_print(gchar **stringList){
     return g_string_free(strBuf, FALSE);
 }
 
-gboolean string_list_verify_func(gchar **actual, gchar **expect, const gchar *prompt, const gchar *inStr){
+gboolean string_list_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr){
     const gchar *input=(inStr) ? inStr :"";
     gchar *actualStr=NULL, *expectStr=NULL;
     g_debug("string_list_verify_func");
+    gchar **expectDat=(gchar **) expect.v_pointer;
+    gchar **actualDat=(gchar **) actual.v_pointer;
 
-    if (expect==NULL && actual==NULL){
+
+    if (expectDat==NULL && actualDat==NULL){
 	verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: both are NULL\n");
 	return TRUE;
     }
-    if (expect==NULL){
+    if (expectDat==NULL){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	actualStr=string_list_print(actual);
+	actualStr=string_list_print(actualDat);
 	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:[NULL]\tActual:%s\n",actualStr);
 	g_free(actualStr);
 	return FALSE;
     }
-    if (actual==NULL){
+    if (actualDat==NULL){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s\n",prompt, input);
-	expectStr=string_list_print(expect);
-	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:[NULL]\n",expect);
+	expectStr=string_list_print(expectDat);
+	verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:[NULL]\n",expectStr);
 	g_free(expectStr);
 	return FALSE;
     }
 
     gint i=0;
-    for (i=0;(actual[i]!=NULL) && (expect[i]!=NULL) ;i++){
+    for (i=0;(actualDat[i]!=NULL) && (expectDat[i]!=NULL) ;i++){
 	g_debug("string_list_verify_func i=%d",i);
-	if (strcmp(actual[i],expect[i])!=0){
+	if (strcmp(actualDat[i],expectDat[i])!=0){
 	    verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s, string#%d:\n",prompt, input,i);
-	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:%s\n",expect[i],actual[i]);
+	    verboseMsg_print(VERBOSE_MSG_ERROR,"    Expect:%s\tActual:%s\n",expectDat[i],actualDat[i]);
 	    return FALSE;
 	}
     }
     g_debug("string_list_verify_func i=%d",i);
-    if (expect[i]!=NULL){
+    if (expectDat[i]!=NULL){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s, string#%d:\n",prompt,input,i);
 	verboseMsg_print(VERBOSE_MSG_ERROR,"    Actual:%d strings, but expected additional string %s\n",
-		i,expect[i]);
+		i,expectDat[i]);
 	return FALSE;
     }
     g_debug("string_list_verify_func i=%d 2",i);
-    if (actual[i]!=NULL){
+    if (actualDat[i]!=NULL){
 	verboseMsg_print(VERBOSE_MSG_ERROR,"[Error]: %s: on input %s, string#%d:\n",prompt, input, i);
 	verboseMsg_print(VERBOSE_MSG_ERROR,"    Only expect:%d strings, but unexpected actual string %s\n",
-		i,actual[i]);
+		i,actualDat[i]);
 	return FALSE;
     }
     verboseMsg_print(VERBOSE_MSG_INFO2,"[Ok]: on input %s: expect: and actual: matched: \n", input);
     g_debug("string_list_verify_func i=%d -1",i);
     return TRUE;
-}
-
-void test_output_rec_g_free(OutputRec actOutRec){
-    g_free(actOutRec);
 }
 
 int get_testId(int argc, char** argv, TestSubject *testCollection, const gchar *verboseEnv){

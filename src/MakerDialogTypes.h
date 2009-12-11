@@ -82,20 +82,7 @@ typedef guint32 MkdgValueFlags;
 typedef struct{
     MkdgType 		mType;		//!< MakerDialog type.
     MkdgValueFlags	flags;		//!< Flags MakerDialog value.
-    union {
-	gboolean    v_boolean;	//!< For boolean value.
-	gint        v_int;	//!< For integer value.
-	guint       v_uint;	//!< For unsigned integer value.
-	gint32      v_int32;	//!< For 32-bit integer value.
-	guint32     v_uint32;	//!< For unsigned 32-bit integer value.
-	gint64      v_int64;	//!< For 64-bit integer value.
-	guint64     v_uint64;	//!< For 64-bit unsigned integer value.
-	glong       v_long;	//!< For long integer value.
-	gulong      v_ulong;	//!< For unsigned long integer value.
-	gfloat      v_float;	//!< For floating-point number.
-	gdouble     v_double;	//!< For double-precision floating-point number.
-	gpointer    v_pointer;	//!< For pointers.
-    } data[2];			//!< Value holder.
+    MkdgValueHolder     data[2];	//!< Value holder.
 } MkdgValue;
 
 /**
@@ -169,6 +156,27 @@ typedef struct{
 
 } MkdgTypeInterface;
 
+/**
+ * Parse a MakerDialog type from a string.
+ *
+ * This function parses MakerDialog types defined in #MkdgType, without the "MKDG_TYPE_" prefix,
+ * such as "INT", "BOOLEAN", "COLOR".
+ *
+ * All others string will return \c MKDG_TYPE_INVALID.
+ *
+ * @param str		String to be parsed.
+ * @return Corresponding MakerDialog type.
+ */
+MkdgType maker_dialog_type_parse(const gchar *str);
+
+/**
+ * Output a MakerDialog type as a string.
+ *
+ * Output a MakerDialog type as a string.
+ * @param mType		A MakerDialog type.
+ * @return A static string that represents the MakerDialog type.
+ */
+const gchar *maker_dialog_type_to_string(MkdgType mType);
 
 /**
  * New a MakerDialog value.

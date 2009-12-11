@@ -120,35 +120,35 @@ MakerDialogGtk * 	maker_dialog_gtk_new_full	(MakerDialogUi * dlgUi,
 					GtkWindow * parentWindow,
 					gboolean modal);
 #line 123 "maker-dialog-gtk.h"
-#line 469 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 549 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_destroy	(MakerDialogGtk * self);
 #line 126 "maker-dialog-gtk.h"
-#line 474 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 554 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 MkdgValue * 	maker_dialog_gtk_get_widget_value	(MakerDialogGtk * self,
 					const gchar * key);
 #line 130 "maker-dialog-gtk.h"
-#line 559 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_set_widget_value	(MakerDialogGtk * self,
 					const gchar * key,
 					MkdgValue * value);
 #line 135 "maker-dialog-gtk.h"
-#line 620 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 700 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 	maker_dialog_gtk_widget_control	(MakerDialogGtk * self,
 					const gchar * key,
 					MakerDialogWidgetControl control);
 #line 140 "maker-dialog-gtk.h"
-#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 719 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_widget	(MakerDialogGtk * self,
 					const gchar * key);
 #line 144 "maker-dialog-gtk.h"
-#line 643 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 723 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_widget_full	(MakerDialogGtk * self,
 					const gchar * widget_label,
 					const gchar * subLabel,
 					const gchar * widget_type,
 					gint serial);
 #line 151 "maker-dialog-gtk.h"
-#line 651 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 731 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 	maker_dialog_gtk_get_widget_by_id	(MakerDialogGtk * self,
 					const gchar * id);
 #line 155 "maker-dialog-gtk.h"

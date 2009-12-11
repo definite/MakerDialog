@@ -65,7 +65,65 @@ gboolean maker_dialog_atob(const gchar *string){
     return TRUE;
 }
 
-gint maker_dialog_find_string(const gchar *str, const gchar **strlist, gint max_find){
+void maker_dialog_error_print(MakerDialogError *error){
+    if (MAKER_DIALOG_DEBUG_RUN(0)){
+	g_warning("[WW] domain:%s [%d] %s", g_quark_to_string(error->domain), error->code, error->message);
+    }
+}
+
+void maker_dialog_error_print_with_prefix(const gchar *prefix,MakerDialogError *error){
+    if (MAKER_DIALOG_DEBUG_RUN(0)){
+	g_warning("[WW] %s%sdomain:%s [%d] %s",
+		(prefix)? prefix : "",
+		(prefix)? " " : "",
+		g_quark_to_string(error->domain), error->code, error->message);
+    }
+}
+
+gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **errOut){
+    if (errIn){
+	if (errOut){
+	    if (*errOut){
+		maker_dialog_error_print(*errOut);
+		g_error_free(*errOut);
+	    }
+	    *errOut=errIn;
+	}else{
+	    maker_dialog_error_print(errIn);
+	    g_error_free(errIn);
+	    errIn=NULL;
+	}
+	return TRUE;
+    }
+    return FALSE;
+}
+
+MakerDialogIdDataPair *maker_dialog_id_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive){
+    gint i=0,ret;
+    for(i=0; pairedData[i].strId!=NULL;i++){
+	if (caseSensitive){
+	    ret=strcmp(str, pairedData[i].strId);
+	}else{
+	    ret=g_ascii_strcasecmp(str, pairedData[i].strId);
+	}
+	if (ret==0)
+	    return &pairedData[i];
+    }
+    return &pairedData[i];
+}
+
+guint32 maker_dialog_flag_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive){
+    gchar **flagList=maker_dialog_string_split_set(str, " \t|;", '\\', FALSE, -1);
+    guint32 flags=0;
+    gint i;
+    for(i=0; flagList[i]!=NULL;i++){
+	MakerDialogIdDataPair *dataPair=maker_dialog_id_parse(pairedData, flagList[i], caseSensitive);
+	flags|=dataPair->data.v_uint32;
+    }
+    return flags;
+}
+
+gint maker_dialog_find_string(const gchar *str, gchar **strlist, gint max_find){
     gint index=-1,i;
     if (!str){
 	return -2;
@@ -102,90 +160,80 @@ static gint maker_dialog_string_char_at(const gchar *str, gchar ch){
     return -1;
 }
 
-gchar **maker_dialog_string_split_set(const gchar *str,
-	const gchar *delimiters, gchar escapeChar, gint maxTokens){
+gchar **maker_dialog_string_split_set
+(const gchar *str, const gchar *delimiters, gchar escapeChar, gboolean emptyToken, gint maxTokens){
     g_return_val_if_fail (str != NULL, NULL);
     g_return_val_if_fail (delimiters != NULL, NULL);
     GPtrArray *ptrArray=g_ptr_array_new();
     gint tokenCount=0;
     gchar *chPtr=(gchar *)str;
-    while(*chPtr!='\0' && (maxTokens<0 || tokenCount<maxTokens-1)){
-	g_debug("*** chPtr=%s tokenCount=%d",chPtr, tokenCount );
-	GString *strBuf=g_string_new("");
-	while(maker_dialog_string_char_at(delimiters, *chPtr)<0){
-	    if (*chPtr==escapeChar){
+    GString *strBuf=g_string_new("");
+    while(*chPtr!='\0'){
+	if (*chPtr==escapeChar){
+	    chPtr++;
+	}else if (maker_dialog_string_char_at(delimiters, *chPtr)>=0){
+	    if (maxTokens<0 || tokenCount<maxTokens-1){
+		/* Can have more tokens */
+		if (emptyToken || strBuf->len){
+		    /* A valid token */
+		    g_ptr_array_add(ptrArray,g_string_free(strBuf,FALSE));
+		    tokenCount++;
+		    strBuf=g_string_new("");
+		}
 		chPtr++;
-	    }
-	    gunichar wch=g_utf8_get_char(chPtr);
-	    if (wch){
-		g_string_append_unichar(strBuf,wch);
-		chPtr=g_utf8_next_char(chPtr);
-	    }else{
-		g_warning("maker_dialog_string_split_set: incorrect format. str=%s",str);
-		break;
+		continue;
 	    }
 	}
-	if (strBuf->len){
-	    g_ptr_array_add(ptrArray,g_string_free(strBuf,FALSE));
-	    tokenCount++;
+	gunichar wch=g_utf8_get_char(chPtr);
+	if (wch){
+	    g_string_append_unichar(strBuf,wch);
+	    chPtr=g_utf8_next_char(chPtr);
 	}else{
-	    g_string_free(strBuf,TRUE);
-	}
-	chPtr++;
-    }
-    if (*chPtr!='\0'){
-	GString *strBuf=g_string_new("");
-	while(maker_dialog_string_char_at(delimiters, *chPtr)<0){
-	    if (*chPtr==escapeChar){
-		chPtr++;
-	    }
-	    gunichar wch=g_utf8_get_char(chPtr);
-	    if (wch){
-		g_string_append_unichar(strBuf,wch);
-		chPtr=g_utf8_next_char(chPtr);
-	    }else{
-		g_warning("maker_dialog_string_split_set: incorrect format. str=%s",str);
-		break;
-	    }
-	}
-	if (strBuf->len){
-	    g_ptr_array_add(ptrArray,g_string_free(strBuf,FALSE));
-	    tokenCount++;
-	}else{
-	    g_string_free(strBuf,TRUE);
+	    g_warning("maker_dialog_string_split_set(): Invalid format. str=%s",str);
 	}
     }
-    g_debug("*** tokenCount=%d", tokenCount );
-    gchar **result=g_new(gchar* , tokenCount+1);
-    gint i;
-    for(i=0;i<tokenCount;i++)
-	result[i]=(gchar *) g_ptr_array_index(ptrArray,i);
-    result[i]=NULL;
-    g_ptr_array_free(ptrArray, TRUE);
-    return result;
+
+    /* Pick up the rest of the string */
+    g_assert(strBuf);
+    if (emptyToken || strBuf->len){
+	/* A valid token */
+	g_ptr_array_add(ptrArray,g_string_free(strBuf,FALSE));
+	tokenCount++;
+    }else{
+	g_string_free(strBuf,TRUE);
+    }
+    g_ptr_array_add(ptrArray, NULL);
+    return (gchar **) g_ptr_array_free(ptrArray, FALSE);
 }
 
-gchar *maker_dialog_string_combine_with_escape_char
-(const gchar **strList, const gchar *delimiters, gchar escapeChar){
+gchar *maker_dialog_string_list_combine
+(const gchar **strList, const gchar *delimiters, gchar escapeChar, gboolean emptyToken){
     g_return_val_if_fail (strList != NULL, NULL);
     g_return_val_if_fail (delimiters != NULL, NULL);
     GString *strBuf=g_string_new(NULL);
     gint i;
     gchar *chPtr;
+    gboolean isPrevEmpty=TRUE;
     for(i=0;strList[i]!=NULL; i++){
-	if (i>0){
+	if (!isPrevEmpty){
 	    g_string_append_c(strBuf, delimiters[0]);
 	}
 	chPtr=(gchar *) strList[i];
-	while(*chPtr!='\0'){
-	    if (maker_dialog_string_char_at(delimiters, *chPtr)>=0){
-		g_string_append_c(strBuf,escapeChar);
-	    }else if (*chPtr==escapeChar){
-		g_string_append_c(strBuf,escapeChar);
+	if (*chPtr!='\0'){
+	    isPrevEmpty=FALSE;
+	    while(*chPtr!='\0'){
+		if (maker_dialog_string_char_at(delimiters, *chPtr)>=0){
+		    g_string_append_c(strBuf,escapeChar);
+		}else if (*chPtr==escapeChar){
+		    g_string_append_c(strBuf,escapeChar);
+		}
+		gunichar wch=g_utf8_get_char(chPtr);
+		g_string_append_unichar(strBuf,wch);
+		chPtr=g_utf8_next_char(chPtr);
 	    }
-	    gunichar wch=g_utf8_get_char(chPtr);
-	    g_string_append_unichar(strBuf,wch);
-	    chPtr=g_utf8_next_char(chPtr);
+	}else{
+	    /* Empty string */
+	    isPrevEmpty=TRUE;
 	}
     }
     return g_string_free(strBuf,FALSE);

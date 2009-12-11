@@ -38,6 +38,11 @@ ADD_EXECUTABLE(md-example-gtk-keyfile.exe
 )
 TARGET_LINK_LIBRARIES(md-example-gtk-keyfile.exe ${COMMON_LIBS})
 
+ADD_EXECUTABLE(md-example-gtk-keyfile2.exe
+    md-example-gtk-keyfile2.c
+    )
+TARGET_LINK_LIBRARIES(md-example-gtk-keyfile2.exe ${COMMON_LIBS})
+
 ADD_EXECUTABLE(md-example-gtk-gconf.exe
     md-example-gtk-gconf.c
 )

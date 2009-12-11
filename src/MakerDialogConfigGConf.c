@@ -76,7 +76,7 @@ static gboolean maker_dialog_config_gconf_preload_to_buffer
     GError *cfgErr=NULL;
     GSList *sListHead=gconf_client_all_entries(client, pagePath, &cfgErr);
     gboolean clean=TRUE;
-    if (maker_dialog_config_error_handle(cfgErr, error)){
+    if (maker_dialog_error_handle(cfgErr, error)){
 	clean=FALSE;
 	goto GCONF_LOAD_BUF_END;
     }
@@ -91,7 +91,7 @@ static gboolean maker_dialog_config_gconf_preload_to_buffer
 	    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
 		goto GCONF_LOAD_BUF_END;
 	    }
-	    maker_dialog_config_error_handle(cfgErr, error);
+	    maker_dialog_error_handle(cfgErr, error);
 	    g_free(key);
 	    continue;
 	}
@@ -130,7 +130,7 @@ static gboolean maker_dialog_config_gconf_preload_to_buffer
 	maker_dialog_config_buffer_insert(configSet->configBuf, ctx->spec->key, mValue);
     }
 GCONF_LOAD_BUF_END:
-    if (maker_dialog_config_error_handle(cfgErr, error)){
+    if (maker_dialog_error_handle(cfgErr, error)){
 	clean=FALSE;
     }
     if (sListHead){
@@ -165,7 +165,7 @@ static gboolean maker_dialog_config_gconf_preload
 		ret=maker_dialog_config_gconf_preload_to_buffer(configSet, configFile, pagePath, &cfgErr);
 		if (!ret){
 		    clean=FALSE;
-		    maker_dialog_config_error_handle(cfgErr, error);
+		    maker_dialog_error_handle(cfgErr, error);
 		    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
 			break;
 		    }
@@ -177,7 +177,7 @@ static gboolean maker_dialog_config_gconf_preload
 	g_slist_free(sListHead);
     }
     if (cfgErr){
-	maker_dialog_config_error_handle(cfgErr, error);
+	maker_dialog_error_handle(cfgErr, error);
 	return FALSE;
     }
     return clean;
@@ -262,14 +262,14 @@ static gboolean maker_dialog_config_gconf_save(MakerDialogConfigSet *configSet, 
     }
     if (sData.cfgErr){
 	clean=FALSE;
-	maker_dialog_config_error_handle(sData.cfgErr, error);
+	maker_dialog_error_handle(sData.cfgErr, error);
 	if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR)
 	    goto GCONF_SAVE_END;
 	sData.cfgErr=NULL;
     }
 
     if (!gconf_client_commit_change_set(sData.client, sData.cChangeSet, TRUE, &sData.cfgErr)){
-	maker_dialog_config_error_handle(sData.cfgErr, error);
+	maker_dialog_error_handle(sData.cfgErr, error);
 	clean=FALSE;
 	MAKER_DIALOG_DEBUG_MSG(0, "[I0] config_gconf_save() change not submitted.");
     }else{
@@ -463,7 +463,7 @@ gboolean maker_dialog_config_gconf_write_schemas_file
     GError *cfgErr=NULL;
     if (outF==NULL){
 	cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE, "config_gconf_write_schemas_file");
-	maker_dialog_config_error_handle(cfgErr, error);
+	maker_dialog_error_handle(cfgErr, error);
 	return FALSE;
     }
     SchemasFileData sData;
@@ -482,7 +482,7 @@ gboolean maker_dialog_config_gconf_write_schemas_file
     xml_tags_write(&sData,"gconfschemafile",XML_TAG_TYPE_END_ONLY,NULL,NULL);
     if (fclose(outF)){
 	cfgErr=maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE, "config_gconf_write_schemas_file fclose()");
-	maker_dialog_config_error_handle(cfgErr, error);
+	maker_dialog_error_handle(cfgErr, error);
 	return FALSE;
     }
     if (sData.localeArray){

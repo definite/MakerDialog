@@ -17,8 +17,8 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <stdlib.h>
 #include "MakerDialog.h"
-
 
 MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitInterface *toolkitInterface){
     g_assert(mDialog);
@@ -90,5 +90,53 @@ gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key){
 	return dlgUi->toolkitInterface->get_widget(dlgUi, key);
     }
     return NULL;
+}
+
+static MakerDialogIdDataPair mkdgResponseIdData[]={
+    {"REJECT",			{MAKER_DIALOG_RESPONSE_REJECT}},
+    {"ACCEPT",			{MAKER_DIALOG_RESPONSE_ACCEPT}},
+    {"DELETE_EVENT",		{MAKER_DIALOG_RESPONSE_DELETE_EVENT}},
+    {"OK",			{MAKER_DIALOG_RESPONSE_OK}},
+    {"CANCEL",			{MAKER_DIALOG_RESPONSE_CANCEL}},
+    {"CLOSE",			{MAKER_DIALOG_RESPONSE_CLOSE}},
+    {"YES",			{MAKER_DIALOG_RESPONSE_YES}},
+    {"NO",			{MAKER_DIALOG_RESPONSE_NO}},
+    {"APPLY",			{MAKER_DIALOG_RESPONSE_APPLY}},
+    {"FILE",			{MAKER_DIALOG_RESPONSE_FILE}},
+    {"NEW",			{MAKER_DIALOG_RESPONSE_NEW}},
+    {"OPEN",			{MAKER_DIALOG_RESPONSE_OPEN}},
+    {"SAVE",			{MAKER_DIALOG_RESPONSE_SAVE}},
+    {"SAVE_AS",			{MAKER_DIALOG_RESPONSE_SAVE_AS}},
+    {"PRINT",			{MAKER_DIALOG_RESPONSE_PRINT}},
+    {"QUIT",			{MAKER_DIALOG_RESPONSE_QUIT}},
+    {"EDIT",			{MAKER_DIALOG_RESPONSE_EDIT}},
+    {"UNDO",			{MAKER_DIALOG_RESPONSE_UNDO}},
+    {"REDO",			{MAKER_DIALOG_RESPONSE_REDO}},
+    {"REFRESH",			{MAKER_DIALOG_RESPONSE_REFRESH}},
+    {"CUT",			{MAKER_DIALOG_RESPONSE_CUT}},
+    {"COPY",			{MAKER_DIALOG_RESPONSE_COPY}},
+    {"PASTE",			{MAKER_DIALOG_RESPONSE_PASTE}},
+    {"SELECT_ALL",		{MAKER_DIALOG_RESPONSE_SELECT_ALL}},
+    {"FIND",			{MAKER_DIALOG_RESPONSE_FIND}},
+    {"FIND_AND_REPLACE",	{MAKER_DIALOG_RESPONSE_FIND_AND_REPLACE}},
+    {"HELP",			{MAKER_DIALOG_RESPONSE_HELP}},
+    {"GOTO_TOP",		{MAKER_DIALOG_RESPONSE_GOTO_TOP}},
+    {"GOTO_BOTTOM",		{MAKER_DIALOG_RESPONSE_GOTO_BOTTOM}},
+    {"GOTO_FIRST",		{MAKER_DIALOG_RESPONSE_GOTO_FIRST}},
+    {"GOTO_LAST",		{MAKER_DIALOG_RESPONSE_GOTO_LAST}},
+    {"GO_UP",			{MAKER_DIALOG_RESPONSE_GO_UP}},
+    {"GO_DOWN",			{MAKER_DIALOG_RESPONSE_GO_DOWN}},
+    {"GO_BACK",			{MAKER_DIALOG_RESPONSE_GO_BACK}},
+    {"GO_FORWARD",		{MAKER_DIALOG_RESPONSE_GO_FORWARD}},
+    {"NIL",			{MAKER_DIALOG_RESPONSE_NIL}},
+    {NULL,			{MAKER_DIALOG_RESPONSE_NIL}},
+};
+
+MakerDialogResponse maker_dialog_button_parse_response_id(const gchar *idStr){
+    gint id;
+    if ((id=atoi(idStr))>0){
+	return id;
+    }
+    return maker_dialog_id_parse(mkdgResponseIdData, idStr, FALSE)->data.v_int32;
 }
 

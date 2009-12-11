@@ -3,7 +3,7 @@ MakerDialogButtonSpec buttonSpecs[]={
     {MAKER_DIALOG_RESPONSE_NIL, NULL}
 };
 
-const gchar *kbType_ids[]={
+gchar *kbType_ids[]={
     N_("default"),
     N_("hsu"),
     N_("ibm"),
@@ -25,7 +25,7 @@ MakerDialogControlRule kbRules[]={
     {MAKER_DIALOG_RELATION_EQUAL, NULL, NULL, 0, 0 }
 };
 
-const gchar *selKeys_array[]={
+gchar *selKeys_array[]={
     "1234567890",
     "asdfghjkl;",
     "asdfzxcv89",
@@ -82,7 +82,7 @@ MakerDialogPropertySpec propSpecs[]={
     },
 
     {"KBType", MKDG_TYPE_STRING,
-	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION | MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS,
+	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS,
 //	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION ,
 	"default", kbType_ids, NULL, NULL, NULL,
 	0.0, 25.0, 1.0, 0,

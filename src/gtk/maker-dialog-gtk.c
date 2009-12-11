@@ -282,6 +282,7 @@ maker_dialog_gtk_new_full (MakerDialogUi * dlgUi, GtkWindow * parentWindow, gboo
 		if (self->_priv->mDialog->buttonSpecs[i].buttonText){
 		    buttonText=(gchar *) self->_priv->mDialog->buttonSpecs[i].buttonText;
 		}else{
+
 		    switch(self->_priv->mDialog->buttonSpecs[i].responseId){
 			case MAKER_DIALOG_RESPONSE_REJECT:
 			case MAKER_DIALOG_RESPONSE_ACCEPT:
@@ -305,8 +306,83 @@ maker_dialog_gtk_new_full (MakerDialogUi * dlgUi, GtkWindow * parentWindow, gboo
 			case MAKER_DIALOG_RESPONSE_APPLY:
 			    buttonText=GTK_STOCK_APPLY;
 			    break;
+			case MAKER_DIALOG_RESPONSE_FILE:
+			    buttonText=GTK_STOCK_FILE;
+			    break;
+			case MAKER_DIALOG_RESPONSE_NEW:
+			    buttonText=GTK_STOCK_NEW;
+			    break;
+			case MAKER_DIALOG_RESPONSE_OPEN:
+			    buttonText=GTK_STOCK_OPEN;
+			    break;
+			case MAKER_DIALOG_RESPONSE_SAVE:
+			    buttonText=GTK_STOCK_SAVE;
+			    break;
+			case MAKER_DIALOG_RESPONSE_SAVE_AS:
+			    buttonText=GTK_STOCK_SAVE_AS;
+			    break;
+			case MAKER_DIALOG_RESPONSE_PRINT:
+			    buttonText=GTK_STOCK_PRINT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_QUIT:
+			    buttonText=GTK_STOCK_QUIT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_EDIT:
+			    buttonText=GTK_STOCK_EDIT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_UNDO:
+			    buttonText=GTK_STOCK_UNDO;
+			    break;
+			case MAKER_DIALOG_RESPONSE_REDO:
+			    buttonText=GTK_STOCK_REDO;
+			    break;
+			case MAKER_DIALOG_RESPONSE_REFRESH:
+			    buttonText=GTK_STOCK_REFRESH;
+			    break;
+			case MAKER_DIALOG_RESPONSE_CUT:
+			    buttonText=GTK_STOCK_CUT;
+			    break;
+			case MAKER_DIALOG_RESPONSE_COPY:
+			    buttonText=GTK_STOCK_COPY;
+			    break;
+			case MAKER_DIALOG_RESPONSE_PASTE:
+			    buttonText=GTK_STOCK_PASTE;
+			    break;
+			case MAKER_DIALOG_RESPONSE_SELECT_ALL:
+			    buttonText=GTK_STOCK_SELECT_ALL;
+			    break;
+			case MAKER_DIALOG_RESPONSE_FIND:
+			    buttonText=GTK_STOCK_FIND;
+			    break;
+			case MAKER_DIALOG_RESPONSE_FIND_AND_REPLACE:
+			    buttonText=GTK_STOCK_FIND_AND_REPLACE;
+			    break;
 			case MAKER_DIALOG_RESPONSE_HELP:
 			    buttonText=GTK_STOCK_HELP;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_TOP:
+			    buttonText=GTK_STOCK_GOTO_TOP;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_BOTTOM:
+			    buttonText=GTK_STOCK_GOTO_BOTTOM;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_FIRST:
+			    buttonText=GTK_STOCK_GOTO_FIRST;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GOTO_LAST:
+			    buttonText=GTK_STOCK_GOTO_LAST;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_UP:
+			    buttonText=GTK_STOCK_GO_UP;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_DOWN:
+			    buttonText=GTK_STOCK_GO_DOWN;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_BACK:
+			    buttonText=GTK_STOCK_GO_BACK;
+			    break;
+			case MAKER_DIALOG_RESPONSE_GO_FORWARD:
+			    buttonText=GTK_STOCK_GO_FORWARD;
 			    break;
 			default:
 			    break;
@@ -358,27 +434,31 @@ maker_dialog_gtk_new_full (MakerDialogUi * dlgUi, GtkWindow * parentWindow, gboo
 	    self_align_labels(self, NULL, &self->_priv->mDialog->labelAlignment);
 	}
 
+//        if (self->_priv->mDialog->maxSizeInPixel->width>0 && self->_priv->mDialog->maxSizeInPixel->height>0){
+//            gtk_widget_set_size_request (GTK_WIDGET(self), self->_priv->mDialog->maxSizeInPixel->width,self->_priv->mDialog->maxSizeInPixel->height);
+//        }
 	/* Perform control rules */
 	maker_dialog_foreach_property(self->_priv->mDialog, maker_dialog_gtk_each_property_apply_control, self);
 
+
 	return self;
     }}
-#line 367 "maker-dialog-gtk.c"
+#line 447 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 190 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 270 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_outbox_and_label_new (MakerDialogGtk * self, GtkWidget * widget, MakerDialogPropertyContext * ctx, MakerDialogGtkPlacement labelPlacement)
 {
-#line 374 "maker-dialog-gtk.c"
+#line 454 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::outbox_and_label_new"
-#line 190 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 270 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 190 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 270 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 380 "maker-dialog-gtk.c"
+#line 460 "maker-dialog-gtk.c"
 {
-#line 190 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 270 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	GtkWidget *box=NULL;
 	switch(labelPlacement){
@@ -426,22 +506,22 @@ maker_dialog_gtk_outbox_and_label_new (MakerDialogGtk * self, GtkWidget * widget
 	}
 	return box;
     }}
-#line 430 "maker-dialog-gtk.c"
+#line 510 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 238 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_check_button_new (MakerDialogGtk * self, MakerDialogPropertyContext * ctx)
 {
-#line 437 "maker-dialog-gtk.c"
+#line 517 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::check_button_new"
-#line 238 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 238 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 443 "maker-dialog-gtk.c"
+#line 523 "maker-dialog-gtk.c"
 {
-#line 238 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	GtkWidget *widget = gtk_check_button_new();
 	self_widget_register(self, widget, ctx->spec->key, NULL, NULL,-1);
@@ -450,22 +530,22 @@ maker_dialog_gtk_check_button_new (MakerDialogGtk * self, MakerDialogPropertyCon
 	g_signal_connect(widget, "toggled", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }}
-#line 454 "maker-dialog-gtk.c"
+#line 534 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 247 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 327 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_color_button_new (MakerDialogGtk * self, MakerDialogPropertyContext * ctx)
 {
-#line 461 "maker-dialog-gtk.c"
+#line 541 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::color_button_new"
-#line 247 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 327 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 247 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 327 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 467 "maker-dialog-gtk.c"
+#line 547 "maker-dialog-gtk.c"
 {
-#line 247 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 327 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	GdkColor color={0};
 	MkdgValue_get_GdkColor(ctx->value, &color);
@@ -474,22 +554,22 @@ maker_dialog_gtk_color_button_new (MakerDialogGtk * self, MakerDialogPropertyCon
 	g_signal_connect(widget, "color-set", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }}
-#line 478 "maker-dialog-gtk.c"
+#line 558 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 256 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 336 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_combo_box_new (MakerDialogGtk * self, MakerDialogPropertyContext * ctx)
 {
-#line 485 "maker-dialog-gtk.c"
+#line 565 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::combo_box_new"
-#line 256 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 336 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 256 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 336 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 491 "maker-dialog-gtk.c"
+#line 571 "maker-dialog-gtk.c"
 {
-#line 256 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 336 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	GtkWidget *widget=NULL;
 	GtkListStore *listStore=gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
@@ -537,22 +617,22 @@ maker_dialog_gtk_combo_box_new (MakerDialogGtk * self, MakerDialogPropertyContex
 
 	return widget;
     }}
-#line 541 "maker-dialog-gtk.c"
+#line 621 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 304 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 384 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_entry_new (MakerDialogGtk * self, MakerDialogPropertyContext * ctx)
 {
-#line 548 "maker-dialog-gtk.c"
+#line 628 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::entry_new"
-#line 304 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 384 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 304 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 384 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 554 "maker-dialog-gtk.c"
+#line 634 "maker-dialog-gtk.c"
 {
-#line 304 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 384 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	GtkWidget *widget=gtk_entry_new();
 	self_widget_register(self, widget, ctx->spec->key, NULL, NULL,-1);
@@ -566,22 +646,22 @@ maker_dialog_gtk_entry_new (MakerDialogGtk * self, MakerDialogPropertyContext * 
 	g_signal_connect(widget, "activate", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }}
-#line 570 "maker-dialog-gtk.c"
+#line 650 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 398 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_radio_buttons_new (MakerDialogGtk * self, MakerDialogPropertyContext * ctx)
 {
-#line 577 "maker-dialog-gtk.c"
+#line 657 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::radio_buttons_new"
-#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 398 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 398 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 583 "maker-dialog-gtk.c"
+#line 663 "maker-dialog-gtk.c"
 {
-#line 318 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 398 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	GtkWidget *box=gtk_vbox_new(FALSE,self->vbox_spacing);
 	self_widget_register(self, box, ctx->spec->key, NULL, "box",-1);
@@ -589,7 +669,7 @@ maker_dialog_gtk_radio_buttons_new (MakerDialogGtk * self, MakerDialogPropertyCo
 	GtkWidget *radioHead=NULL;
 	gsize i;
 	for(i=0;ctx->spec->validValues[i]!=NULL;i++){
-	    const gchar *strPtr=(ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION) ? _(ctx->spec->validValues[i]) : ctx->spec->validValues[i];
+	    const gchar *strPtr=maker_dialog_gtk_get_translation_string(ctx->spec->validValues[i], ctx->spec);
 	    if (i==0){
 		radio=radioHead=gtk_radio_button_new_with_label(NULL, strPtr);
 		self_widget_register(self, radio, ctx->spec->key, NULL, NULL, -1);
@@ -615,22 +695,22 @@ maker_dialog_gtk_radio_buttons_new (MakerDialogGtk * self, MakerDialogPropertyCo
 #endif
 	return widget;
     }}
-#line 619 "maker-dialog-gtk.c"
+#line 699 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 352 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 432 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_spin_button_new (MakerDialogGtk * self, MakerDialogPropertyContext * ctx)
 {
-#line 626 "maker-dialog-gtk.c"
+#line 706 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::spin_button_new"
-#line 352 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 432 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 352 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 432 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 632 "maker-dialog-gtk.c"
+#line 712 "maker-dialog-gtk.c"
 {
-#line 352 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 432 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	GtkAdjustment *gAdjust= GTK_ADJUSTMENT(gtk_adjustment_new (
 		maker_dialog_value_to_double(ctx->value),
@@ -641,22 +721,22 @@ maker_dialog_gtk_spin_button_new (MakerDialogGtk * self, MakerDialogPropertyCont
 	g_signal_connect(widget, "value-changed", G_CALLBACK(widget_event_wrap),ctx);
 	return widget;
     }}
-#line 645 "maker-dialog-gtk.c"
+#line 725 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 363 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 443 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 gboolean 
 maker_dialog_gtk_add_property_ui (MakerDialogGtk * self, MakerDialogPropertyContext * ctx)
 {
-#line 652 "maker-dialog-gtk.c"
+#line 732 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::add_property_ui"
-#line 363 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 443 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (gboolean )0);
-#line 363 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 443 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (gboolean )0);
-#line 658 "maker-dialog-gtk.c"
+#line 738 "maker-dialog-gtk.c"
 {
-#line 363 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 443 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	MAKER_DIALOG_DEBUG_MSG(3,"[I3] Gtk:add_property_ui(%s,-) hasValue=%s",ctx->spec->key,
 	       	(ctx->flags & MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE) ? "TRUE": "FALSE");
@@ -717,7 +797,7 @@ maker_dialog_gtk_add_property_ui (MakerDialogGtk * self, MakerDialogPropertyCont
 	}
 	return TRUE;
     }}
-#line 721 "maker-dialog-gtk.c"
+#line 801 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
 /**
@@ -735,19 +815,19 @@ maker_dialog_gtk_add_property_ui (MakerDialogGtk * self, MakerDialogPropertyCont
  *
  * Moreover, the horizontal and vertical alignment can set by @xalign and @yalign, respectively.
  **/
-#line 440 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 520 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 
 maker_dialog_gtk_align_labels (MakerDialogGtk * self, const gchar * pageName, MakerDialogAlignment * labelAlignment)
 {
-#line 743 "maker-dialog-gtk.c"
+#line 823 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::align_labels"
-#line 440 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 520 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (self != NULL);
-#line 440 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 520 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (MAKER_IS_DIALOG_GTK (self));
-#line 749 "maker-dialog-gtk.c"
+#line 829 "maker-dialog-gtk.c"
 {
-#line 440 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 520 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	gint currentMaxWidth=0;
 	GNode *pageNode=maker_dialog_find_page_node(self->_priv->mDialog, (pageName)? pageName: MAKER_DIALOG_PAGE_UNNAMED);
@@ -776,42 +856,42 @@ maker_dialog_gtk_align_labels (MakerDialogGtk * self, const gchar * pageName, Ma
 	}
 	gtk_widget_show_all(GTK_WIDGET(self));
     }}
-#line 780 "maker-dialog-gtk.c"
+#line 860 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 469 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 549 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 
 maker_dialog_gtk_destroy (MakerDialogGtk * self)
 {
-#line 787 "maker-dialog-gtk.c"
+#line 867 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::destroy"
-#line 469 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 549 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (self != NULL);
-#line 469 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 549 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (MAKER_IS_DIALOG_GTK (self));
-#line 793 "maker-dialog-gtk.c"
+#line 873 "maker-dialog-gtk.c"
 {
-#line 469 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 549 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	//gtk_widget_destroy (GTK_WIDGET(self));
 	g_object_unref (G_OBJECT(self));
     }}
-#line 800 "maker-dialog-gtk.c"
+#line 880 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 474 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 554 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 MkdgValue * 
 maker_dialog_gtk_get_widget_value (MakerDialogGtk * self, const gchar * key)
 {
-#line 807 "maker-dialog-gtk.c"
+#line 887 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::get_widget_value"
-#line 474 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 554 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (MkdgValue * )0);
-#line 474 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 554 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (MkdgValue * )0);
-#line 813 "maker-dialog-gtk.c"
+#line 893 "maker-dialog-gtk.c"
 {
-#line 474 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 554 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	MAKER_DIALOG_DEBUG_MSG(3,"[I3] Gtk:get_widget_value(%s)",key);
 	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(self->_priv->mDialog,key);
@@ -885,7 +965,7 @@ maker_dialog_gtk_get_widget_value (MakerDialogGtk * self, const gchar * key)
 	}
 	return value;
     }}
-#line 889 "maker-dialog-gtk.c"
+#line 969 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
 /**
@@ -899,19 +979,19 @@ maker_dialog_gtk_get_widget_value (MakerDialogGtk * self, const gchar * key)
  * Use apply_widget_value() to do it.
  * @see_also: apply_widget_value()
  **/
-#line 559 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 
 maker_dialog_gtk_set_widget_value (MakerDialogGtk * self, const gchar * key, MkdgValue * value)
 {
-#line 907 "maker-dialog-gtk.c"
+#line 987 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::set_widget_value"
-#line 559 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (self != NULL);
-#line 559 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (MAKER_IS_DIALOG_GTK (self));
-#line 913 "maker-dialog-gtk.c"
+#line 993 "maker-dialog-gtk.c"
 {
-#line 559 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	int index;
 	MAKER_DIALOG_DEBUG_MSG(4,"[I4] Gtk:set_widget_value()");
@@ -972,22 +1052,22 @@ maker_dialog_gtk_set_widget_value (MakerDialogGtk * self, const gchar * key, Mkd
 	    }
 	}
     }}
-#line 976 "maker-dialog-gtk.c"
+#line 1056 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 620 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 700 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 
 maker_dialog_gtk_widget_control (MakerDialogGtk * self, const gchar * key, MakerDialogWidgetControl control)
 {
-#line 983 "maker-dialog-gtk.c"
+#line 1063 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::widget_control"
-#line 620 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 700 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (self != NULL);
-#line 620 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 700 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (MAKER_IS_DIALOG_GTK (self));
-#line 989 "maker-dialog-gtk.c"
+#line 1069 "maker-dialog-gtk.c"
 {
-#line 620 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 700 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	MAKER_DIALOG_DEBUG_MSG(6,"[I6] Gtk:widget_control( , %s, %d)",key, control);
 	GtkWidget *widget=self_get_widget(self, key);
@@ -1006,105 +1086,105 @@ maker_dialog_gtk_widget_control (MakerDialogGtk * self, const gchar * key, Maker
 	    gtk_widget_set_sensitive(labelWidget, FALSE);
 	}
     }}
-#line 1010 "maker-dialog-gtk.c"
+#line 1090 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 719 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_get_widget (MakerDialogGtk * self, const gchar * key)
 {
-#line 1017 "maker-dialog-gtk.c"
+#line 1097 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::get_widget"
-#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 719 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 719 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 1023 "maker-dialog-gtk.c"
+#line 1103 "maker-dialog-gtk.c"
 {
-#line 639 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 719 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	return self_get_widget_full(self,key, NULL, NULL, -1);
     }}
-#line 1029 "maker-dialog-gtk.c"
+#line 1109 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 643 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 723 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_get_widget_full (MakerDialogGtk * self, const gchar * widget_label, const gchar * subLabel, const gchar * widget_type, gint serial)
 {
-#line 1036 "maker-dialog-gtk.c"
+#line 1116 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::get_widget_full"
-#line 643 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 723 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 643 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 723 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 1042 "maker-dialog-gtk.c"
+#line 1122 "maker-dialog-gtk.c"
 {
-#line 644 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 724 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	gchar *id=widget_gen_id(widget_label, subLabel, widget_type, serial);
 	GtkWidget *widget=self_get_widget_by_id(self, id);
 	g_free(id);
 	return widget;
     }}
-#line 1051 "maker-dialog-gtk.c"
+#line 1131 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 651 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 731 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_get_widget_by_id (MakerDialogGtk * self, const gchar * id)
 {
-#line 1058 "maker-dialog-gtk.c"
+#line 1138 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::get_widget_by_id"
-#line 651 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 731 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 651 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 731 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 1064 "maker-dialog-gtk.c"
+#line 1144 "maker-dialog-gtk.c"
 {
-#line 651 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 731 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	MAKER_DIALOG_DEBUG_MSG(6,"[I6] Gtk:get_widget_by_id(%s)",id);
 	return (GtkWidget *) g_hash_table_lookup (self->_priv->widgetTable, id);
     }}
-#line 1071 "maker-dialog-gtk.c"
+#line 1151 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 656 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 736 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_get_page_vbox (MakerDialogGtk * self, const gchar * pageName)
 {
-#line 1078 "maker-dialog-gtk.c"
+#line 1158 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::get_page_vbox"
-#line 656 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 736 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 656 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 736 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 1084 "maker-dialog-gtk.c"
+#line 1164 "maker-dialog-gtk.c"
 {
-#line 656 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 736 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	if (!maker_dialog_page_name_is_empty(pageName)){
 	    return self_get_widget_full(self, pageName, NULL, "box", -1);
 	}
 	return self_get_widget_full(self, MAKER_DIALOG_PAGE_UNNAMED, NULL, "box", -1);
     }}
-#line 1093 "maker-dialog-gtk.c"
+#line 1173 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 663 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 743 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 GtkWidget * 
 maker_dialog_gtk_get_base_vbox (MakerDialogGtk * self, MakerDialogPropertySpec * spec)
 {
-#line 1100 "maker-dialog-gtk.c"
+#line 1180 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::get_base_vbox"
-#line 663 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 743 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (self != NULL, (GtkWidget * )0);
-#line 663 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 743 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_val_if_fail (MAKER_IS_DIALOG_GTK (self), (GtkWidget * )0);
-#line 1106 "maker-dialog-gtk.c"
+#line 1186 "maker-dialog-gtk.c"
 {
-#line 663 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 743 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	if (!maker_dialog_group_name_is_empty(spec->groupName)){
 	    return self_get_widget_full(self,
@@ -1112,22 +1192,22 @@ maker_dialog_gtk_get_base_vbox (MakerDialogGtk * self, MakerDialogPropertySpec *
 	}
 	return self_get_page_vbox(self, spec->pageName);
     }}
-#line 1116 "maker-dialog-gtk.c"
+#line 1196 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__
 
-#line 671 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 751 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 void 
 maker_dialog_gtk_widget_register (MakerDialogGtk * self, GtkWidget * widget, const gchar * widget_label, const gchar * subLabel, const gchar * widget_type, gint serial)
 {
-#line 1123 "maker-dialog-gtk.c"
+#line 1203 "maker-dialog-gtk.c"
 #define __GOB_FUNCTION__ "Maker:Dialog:Gtk::widget_register"
-#line 671 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 751 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (self != NULL);
-#line 671 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 751 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	g_return_if_fail (MAKER_IS_DIALOG_GTK (self));
-#line 1129 "maker-dialog-gtk.c"
+#line 1209 "maker-dialog-gtk.c"
 {
-#line 672 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
+#line 752 "/home/dchen/MakerDialog/src/gtk/MakerDialogGtk.gob"
 	
 	gchar *id=widget_gen_id(widget_label, subLabel, widget_type, serial);
 	g_hash_table_insert(self->_priv->widgetTable, id, widget);
@@ -1135,5 +1215,5 @@ maker_dialog_gtk_widget_register (MakerDialogGtk * self, GtkWidget * widget, con
 	MAKER_DIALOG_DEBUG_MSG(6,"[I6] Gtk:widget_register(-,%s,%s) widget registered as %s",
 		widget_label,(widget_type)? (widget_type) : "", id);
     }}
-#line 1139 "maker-dialog-gtk.c"
+#line 1219 "maker-dialog-gtk.c"
 #undef __GOB_FUNCTION__

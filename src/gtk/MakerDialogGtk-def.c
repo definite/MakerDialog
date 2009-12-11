@@ -264,13 +264,9 @@ static gchar *widget_gen_id(const gchar *widget_label, const gchar *subLabel, co
 }
 
 static const gchar *maker_dialog_gtk_get_translation_string(const gchar *str, MakerDialogPropertySpec *spec){
-    if (spec-> flags & MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION){
-	if (spec-> translationContext)
-	    return g_dpgettext2(NULL,spec->translationContext,str);
-	else
-	    return _(str);
-    }
-    return str;
+    if (spec-> translationContext)
+	return g_dpgettext2(NULL,spec->translationContext,str);
+    return _(str);
 }
 
 static void g_string_chunk_free_wrap(gpointer ptr){

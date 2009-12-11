@@ -70,9 +70,8 @@ typedef enum {
      * It implies that the strings in spec structure will be freed during maker_dialog_propery_spec_free().
      */
     MAKER_DIALOG_PROPERTY_FLAG_FROM_FILE    		=0x2,
-    MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION		=0x10, //!< The values of a property is associated.
-    MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET 		=0x20, //!< The property choose only among predefined valid values.
-    MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS 	=0x40, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
+    MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET 		=0x10, //!< The property choose only among predefined valid values.
+    MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS 	=0x20, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
 } MAKER_DIALOG_PROPERTY_FLAG;
 
 /**
@@ -86,6 +85,7 @@ typedef guint MakerDialogPropertyFlags;
  * The relation is used to test property value and test value.
  */
 typedef enum {
+    MAKER_DIALOG_RELATION_NIL=0,			//!< No relation, it is used as a terminator.
     MAKER_DIALOG_RELATION_EQUAL,		//!< If property value and test value are equal.
     MAKER_DIALOG_RELATION_NOT_EQUAL,		//!< If property value and test value are not equal.
     MAKER_DIALOG_RELATION_LESS,			//!< If property value is less than test value.
@@ -97,7 +97,7 @@ typedef enum {
 /**
  * Data structure for storing relations.
  */
-typedef guint MakerDialogRelation;
+typedef gint MakerDialogRelation;
 
 /**
  * Flags of widget control.
@@ -138,7 +138,7 @@ typedef struct _MakerDialogPropertySpec{
     MkdgType valueType;			//!< Data type of the property value.
     MakerDialogPropertyFlags flags; 	//!< Flags for a configuration property.
     const gchar *defaultValue;		//!< Default value represent in string. Can be \c NULL.
-    const gchar **validValues;		//!< Valid values represent in strings. Can be \c NULL.
+    gchar **validValues;		//!< Valid values represent in strings. Can be \c NULL.
     /**
      * Option for parsing \a defaultValue and \a validValues.
      * For example "8" can be passed as base for integer property. \c NULL for using default (intuitive) parse.
@@ -157,7 +157,7 @@ typedef struct _MakerDialogPropertySpec{
     const gchar *label;			//!< Label of this property.
     const gchar *translationContext;	//!< Translation message context as for dgettext(). Can be \c NULL.
     const gchar *tooltip;		//!< Tooltip to be shown when mouse hover over the property. Can be \c NULL.
-    const gchar **imagePaths;		//!< Path to associated images file, the last should be NULL-terminated. Can be \c NULL.
+    gchar **imagePaths;		//!< Path to associated images file, the last should be NULL-terminated. Can be \c NULL.
 
     MakerDialogControlRule *rules;	//!< Rules that involved with other
 
@@ -166,7 +166,7 @@ typedef struct _MakerDialogPropertySpec{
 
 /**
  * A MakerDialogPropertyContext is a property context which associates property specification,
- * a value, and a referencing object.
+ * a value, user data, verification and apply functions.
  */
 typedef struct _MakerDialogPropertyContext MakerDialogPropertyContext;
 
@@ -293,12 +293,12 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, MkdgTy
  */
 MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
 	MkdgType valueType,
-	const gchar *defaultValue, const gchar **validValues,
+	const gchar *defaultValue, gchar **validValues,
 	const gchar *parseOption, const char *toStringFormat, const gchar *compareOption,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
 	MakerDialogPropertyFlags propertyFlags,
 	const gchar *pageName, const gchar *groupName, const gchar *label, const gchar *translationContext,
-	const gchar *tooltip, const gchar **imagePaths, MakerDialogControlRule *rules, gpointer userData);
+	const gchar *tooltip, gchar **imagePaths, MakerDialogControlRule *rules, gpointer userData);
 
 /**
  * Free a MakerDialogPropertySpec.
@@ -317,11 +317,11 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec);
  *
  *
  * @param spec Property specification.
- * @param obj A referencing object for set callback function. Can be NULL.
+ * @param userData	For storing custom data structure.
  * @return A newly allocated MakerDialogPropertyContext.
  * @see maker_dialog_property_context_new_full()
  */
-MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer obj);
+MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer userData);
 
 /**
  * New a MakerDialogPropertyContext with callback functions.
@@ -567,6 +567,7 @@ void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
  * @param userData 	User data to pass to the callback function.
  */
 void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData);
+
 /*=== End Function Definition  ===*/
 
 #endif /* MAKER_DIALOG_PROPERTY_H_ */

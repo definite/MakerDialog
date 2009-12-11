@@ -560,42 +560,7 @@ GQuark maker_dialog_config_error_quark (void);
  * @param ...		Argument for formatStr.
  * @return A newly allocated MakerDialog config error instance.
  */
-GError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *formatStr, ...);
-
-/**
- * Print a MakerDialog configuration error message.
- *
- * Print a MakerDialog configuration error message in following format:
- * @code
- * [WW] domain:\<domain\> [\<code\>] \<message\>
- * @endcode
- *
- * To suppress the error message, set environment variable \c MAKER_DIALOG_VERBOSE to a negative number.
- *
- * @param error 	Error to be printed.
- */
-void maker_dialog_config_error_print(GError *error);
-
-/**
- * Handle the error.
- *
- * This function provide a convenient function to handle error by keeping the latest error if error output is not \c NULL,
- * while prints and purges the old error.
- *
- * That is, if \a errOut is \c NULL, the error in \a errIn will be printed and freed.
- *  If \a errOut is not \c NULL, the error in \a errIn will be kept as \a errOut,
- *  while the old error in \a errOut will be printed and freed.
- *
- *  Note that this function does nothing but returns FALSE if \a errIn is \c
- *  NULL.
- *
- * @param errIn		Error input.
- * @param errOut	Error output stored here;
- * or \c NULL to print and purge error.
- * @return TRUE if error input is not NULL (has error); FALSE otherwise.
- */
-gboolean maker_dialog_config_error_handle(GError *errIn, GError **errOut);
-
+MakerDialogError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *formatStr, ...);
 
 #endif /* MAKER_DIALOG_CONFIG_H_ */
 

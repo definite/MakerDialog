@@ -36,12 +36,12 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, MkdgTy
 
 MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
 	MkdgType valueType,
-	const gchar *defaultValue, const gchar **validValues,
+	const gchar *defaultValue, gchar **validValues,
 	const gchar *parseOption, const char *toStringFormat, const gchar *compareOption,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
 	MakerDialogPropertyFlags propertyFlags,
 	const gchar *pageName, const gchar *groupName, const gchar *label, const gchar *translationContext,
-	const gchar *tooltip, const gchar **imagePaths, MakerDialogControlRule *rules, gpointer userData){
+	const gchar *tooltip, gchar **imagePaths, MakerDialogControlRule *rules, gpointer userData){
     MakerDialogPropertySpec *spec=g_new(MakerDialogPropertySpec, 1);
     if (spec){
 	spec->key=key;
@@ -71,13 +71,17 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
     return spec;
 }
 
+void maker_dialog_control_rule_free(MakerDialogControlRule *rule){
+    g_free((gchar *) rule->testValue);
+    g_free((gchar *) rule->key);
+}
+
 static void maker_dialog_control_rules_free(MakerDialogControlRule *rules){
     if (!rules)
 	return;
     while(rules->key!=NULL){
-	g_free((gchar *) rules->testValue);
-	g_free((gchar *) rules->key);
-	g_free(rules);
+	MakerDialogControlRule *rulesTmp=rules;
+	maker_dialog_control_rule_free(rulesTmp);
 	rules++;
     }
     g_free(rules);
@@ -103,8 +107,8 @@ void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec){
 }
 
 MakerDialogPropertyContext *maker_dialog_property_context_new(
-	MakerDialogPropertySpec *spec,gpointer obj){
-    return maker_dialog_property_context_new_full(spec, obj, NULL, NULL);
+	MakerDialogPropertySpec *spec,gpointer userData){
+    return maker_dialog_property_context_new_full(spec, userData, NULL, NULL);
 }
 
 MakerDialogPropertyContext *maker_dialog_property_context_new_full(
@@ -143,7 +147,7 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
 	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET){
 		gint index=-1;
 		/* Make sure default value is in valid values */
-		index=maker_dialog_find_string(spec->defaultValue,spec->validValues,-1);
+		index=maker_dialog_find_string(spec->defaultValue, spec->validValues,-1);
 		if (index<0){
 		    /* Force to set on 1-st validValue */
 		    index=0;

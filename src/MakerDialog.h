@@ -50,6 +50,11 @@ typedef struct _MakerDialog MakerDialog;
 #include "MakerDialogConfigKeyFile.h"
 
 /**
+ * The section name which is use in MakerDialog spec file.
+ */
+#define MAKER_DIALOG_SPEC_SECTION_MAIN "_MAIN_"
+
+/**
  * Inter-process communication module.
  * To be implement in the future.
  * @todo Implement Inter-process communication instance.
@@ -57,7 +62,21 @@ typedef struct _MakerDialog MakerDialog;
 typedef gpointer MakerDialogIpc;
 
 /**
+ * Enumeration of flags for MakerDialog itself.
+ *
+ * Enumeration of flags for MakerDialog itself.
+ * @since 0.2
+ */
+typedef enum{
+    /// @cond
+    MAKER_DIALOG_FLAG_FREE_ALL=0x1,		// Free all content.
+    /// @endcond
+    MAKER_DIALOG_FLAG_CAN_GUI=0x10,		// The environment has GUI capability. This flags is automatically set.
+} MAKER_DIALOG_FLAG;
+
+/**
  * Data structure of a MakerDialog.
+ *
  *
  */
 struct _MakerDialog{
@@ -68,13 +87,14 @@ struct _MakerDialog{
     MakerDialogDimension maxSizeInChar;		//!< The maximum size in characters. Default is (-1, -1).
     MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0.5);
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
+    guint32 flags;				//!< Flags of makerDialog
     /// @cond
     GNode *pageRoot;				//!< Store pages and keys under it. Depth 1 is root, point to NULL; Depth 2 stores pages; Depth 3 stores keys.
     MakerDialogUi *ui;				//!< UI instance.
     MakerDialogConfig *config;			//!< Configure instance.
-    MakerDialogIpc *ipc;			//!< Inter-process communication instance.
-    gpointer	userData;			//!< Custom user data.
+    MakerDialogIpc ipc;				//!< Inter-process communication instance.
     /// @endcond
+    gpointer	userData;			//!< Custom user data.
 };
 
 /*=== Start Function Definition  ===*/
@@ -92,11 +112,23 @@ struct _MakerDialog{
  *
  * @param title Title of the dialog. This string will be duplicated in MakerDialog.
  * @param buttonSpecs Button specification. Can be \c NULL.
- * @return A newly allocate MakerDialog.
+ * @return A newly allocated MakerDialog instance.
  *
  * @see maker_dialog_construct().
  */
 MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *buttonSpecs);
+
+/**
+ * Load MakerDialog setting from a glib key file.
+ *
+ * This function loads MakerDialog setting and specs of properties
+ * from a glib key file, whose format is similar to .desktop file.
+ *
+ * @param filename 	The file to load.
+ * @param error		Returned error is stored here; or \c NULL to ignore error.
+ * @return A newly allocated MakerDialog instance; or \c NULL if failed.
+ */
+MakerDialog *maker_dialog_load_from_key_file(const gchar *filename, MakerDialogError **error);
 
 /**
  * Add a property context to the maker dialog.

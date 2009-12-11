@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
+#include "MakerDialog.h"
 
 #define STRING_BUFFER_SIZE_DEFAULT 2000
 #define VERBOSE_MSG_NONE        -1 //!< No debug message output.
@@ -35,20 +36,19 @@
 #define VERBOSE_MSG_INFO6       8  //!< Output the information message level 6 and above.
 
 typedef gpointer InputRec;
-typedef gpointer Param;
-typedef gpointer OutputRec;
+typedef MkdgValueHolder Param;
+typedef MkdgValueHolder OutputRec;
 
 typedef struct _TestSubject TestSubject;
 
 typedef gboolean (* ForeachFunc)(TestSubject *subject);
+typedef gchar * (* InputRecToStringFunc)(InputRec inputRec, Param param);
 typedef OutputRec (* RunFunc)(InputRec inputRec, Param param);
 typedef gboolean (* VerifyFunc)(OutputRec actOutRec, OutputRec expOutRec, const gchar *prompt, const gchar *inStr);
-typedef void (* FreeFunc)(OutputRec actOutRec);
 
 struct _TestSubject{
     const gchar 	*prompt;
-    gpointer 		dataSet;
-    guint 		dataSetSize;
+    gpointer		dataSet;
     Param    		param;
     ForeachFunc 	foreach;
     RunFunc 		run;
@@ -71,12 +71,21 @@ struct _TestSubject{
 gint verboseMsg_print(gint verboseLevel, const gchar *format, ...);
 
 gchar *string_list_print(gchar **stringList);
-gboolean int_verify_func(gint actual, gint expect, const gchar *prompt, const gchar *inStr);
-gboolean long_int_verify_func(glong actual, glong expect, const gchar *prompt, const gchar *inStr);
-gboolean string_verify_func(const gchar *actual, const gchar *expect, const gchar *prompt, const gchar *inStr);
-gboolean string_list_verify_func(gchar **actual, gchar **expect, const gchar *prompt, const gchar *inStr);
 
-void test_output_rec_g_free(OutputRec actOutRec);
+/* Verify funcs */
+#define num_compare_func(TYPE,X,Y) ((TYPE) X == (TYPE) Y) ? 0 : ((TYPE) X < (TYPE) Y) ? -1 : 1
+
+#define output_rec_set_int(outRec, value) OutputRec outRec; outRec.v_int=value
+#define output_rec_set_long(outRec, value) OutputRec outRec; outRec.v_long=value
+#define output_rec_set_string(outRec, value) OutputRec outRec; outRec.v_string=value
+#define output_rec_set_pointer(outRec, value) OutputRec outRec; outRec.v_pointer=value
+
+gboolean int_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr);
+gboolean long_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr);
+gboolean double_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr);
+gboolean string_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr);
+gboolean string_list_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr);
+
 
 int get_testId(int argc, char** argv, TestSubject *testCollection, const gchar *verboseEnv);
 

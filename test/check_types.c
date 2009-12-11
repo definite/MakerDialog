@@ -26,58 +26,40 @@
 #include "MakerDialog.h"
 #include "check_functions.h"
 
-#define RESET_COUNTER 1
-
+/*=== Start of comp test ===*/
 typedef struct {
     MkdgType mType;
     const gchar *value1Str;
     const gchar *value2Str;
     const gchar *parseOpt;
     const gchar *cmpOpt;
-} MkdgType_InputRec;
-
-typedef gint MkdgType_OutputRec;
+} MkdgComp_InputRec;
 
 typedef struct{
-    MkdgType_OutputRec out;
-    MkdgType_InputRec in;
-} MkdgType_TestRec;
+    OutputRec out;
+    MkdgComp_InputRec in;
+} MkdgComp_TestRec;
 
-
-#define COMPARISON_DATASET_SIZE 4
-
-MkdgType_TestRec COMPARISON_DATASET[COMPARISON_DATASET_SIZE]={
-    {-1, {MKDG_TYPE_STRING, "default", "hsu", NULL, NULL}},
-    {0, {MKDG_TYPE_STRING, "dvorak", "dvorak", NULL, NULL}},
-    {-1, {MKDG_TYPE_STRING, "dvorak", "dvorak_hsu", NULL, NULL}},
-    {-1, {MKDG_TYPE_INT, "32", "103", NULL, NULL}},
+MkdgComp_TestRec COMPARISON_DATASET[]={
+    {{-1}, {MKDG_TYPE_STRING, "default", "hsu", NULL, NULL}},
+    {{0}, {MKDG_TYPE_STRING, "dvorak", "dvorak", NULL, NULL}},
+    {{-1}, {MKDG_TYPE_STRING, "dvorak", "dvorak_hsu", NULL, NULL}},
+    {{-1}, {MKDG_TYPE_INT, "32", "103", NULL, NULL}},
+    {{-1}, {MKDG_TYPE_INVALID, NULL, NULL, NULL, NULL}},
 };
 
-/*==========================================================
- * Start of testing functions.
- */
-
-
-gpointer compTest_run_func(InputRec inputRec, Param param){
-    MkdgType_InputRec *inRec=(MkdgType_InputRec *) inputRec;
+OutputRec compTest_run_func(InputRec inputRec, Param param){
+    MkdgComp_InputRec *inRec=(MkdgComp_InputRec *) inputRec;
     MkdgValue *mValue1=maker_dialog_value_new(inRec->mType, NULL);
     maker_dialog_value_from_string(mValue1, inRec->value1Str, inRec->parseOpt);
     MkdgValue *mValue2=maker_dialog_value_new(inRec->mType, NULL);
     maker_dialog_value_from_string(mValue2, inRec->value2Str, inRec->parseOpt);
-    gint ret=maker_dialog_value_compare(mValue1, mValue2, inRec->cmpOpt);
-    MkdgType_OutputRec *retPtr=g_new(MkdgType_OutputRec, 1);
-    *retPtr=ret;
-    return retPtr;
-}
-
-gboolean compTest_int_verify_func(OutputRec actual, OutputRec expect, const gchar *prompt, const gchar *inStr){
-    MkdgType_OutputRec *actOutRec=(MkdgType_OutputRec *) actual;
-    MkdgType_OutputRec *expOutRec=(MkdgType_OutputRec *) expect;
-    return int_verify_func(*actOutRec,*expOutRec, prompt, inStr);
+    output_rec_set_int(result,maker_dialog_value_compare(mValue1, mValue2, inRec->cmpOpt));
+    return result;
 }
 
 gchar *compTest_to_string(InputRec inputRec, Param param){
-    MkdgType_InputRec *inRec=(MkdgType_InputRec *) inputRec;
+    MkdgComp_InputRec *inRec=(MkdgComp_InputRec *) inputRec;
     GString *strBuf=g_string_new(NULL);
     g_string_printf(strBuf,"mType=%d,value1=%s\tvalue2=%s", inRec->mType, inRec->value1Str, inRec->value2Str);
     return g_string_free(strBuf, FALSE);
@@ -85,33 +67,114 @@ gchar *compTest_to_string(InputRec inputRec, Param param){
 
 gboolean compTest_foreach(TestSubject *testSubject){
     gboolean clean=TRUE;
-    guint i;
-    MkdgType_TestRec *recs=(MkdgType_TestRec *) testSubject->dataSet;
-    for(i=0;i< testSubject->dataSetSize ;i++){
-	MkdgType_InputRec *inRec=&(recs[i].in);
-	MkdgType_OutputRec *outRec=&(recs[i].out);
-	OutputRec *actOutRec=testSubject->run(inRec, testSubject->param);
+    MkdgComp_TestRec *rec=(MkdgComp_TestRec *) testSubject->dataSet;
+    for(;rec->in.mType!=MKDG_TYPE_INVALID;rec++){
+	MkdgComp_InputRec *inRec=&(rec->in);
+	OutputRec expOutRec=rec->out;
+	OutputRec actOutRec=testSubject->run(inRec, testSubject->param);
 	gchar *inStr=compTest_to_string(inRec, testSubject->param);
-	if (!testSubject->verify(actOutRec, outRec, testSubject->prompt, inStr)){
+	if (!testSubject->verify(actOutRec, expOutRec, testSubject->prompt, inStr)){
 	    clean=FALSE;
 	}
 	g_free(inStr);
-	g_free(actOutRec);
 	if (!clean)
 	    return FALSE;
     }
     printf("All sub-test completed.\n");
     return TRUE;
 }
-/*=== End of test callback functions. */
+/*=== End of comp test ===*/
+
+/*=== Start of from string test ===*/
+typedef struct {
+    MkdgType mType;
+    const gchar *valueStr;
+    const gchar *parseOpt;
+} MkdgFromStr_InputRec;
+
+typedef struct{
+    OutputRec out;
+    MkdgFromStr_InputRec in;
+} MkdgFromStr_TestRec;
+
+
+MkdgFromStr_TestRec FROM_STR_DATASET[]={
+    {{.v_int=2},	{MKDG_TYPE_INT,		"2", NULL}},
+    {{.v_int=0},	{MKDG_TYPE_INT,		"0", NULL}},
+    {{.v_double=1.0}, 	{MKDG_TYPE_DOUBLE, 	"1.0", NULL}},
+    {{.v_double=2.0}, 	{MKDG_TYPE_DOUBLE, 	"2.0", NULL}},
+    {{.v_double=0.0}, 	{MKDG_TYPE_DOUBLE, 	"0.0", NULL}},
+    {{.v_double=-1.0}, 	{MKDG_TYPE_DOUBLE, 	"-1.0", NULL}},
+    {{0}, 	{MKDG_TYPE_INVALID, 	"0", NULL}},
+};
+
+OutputRec fromStrTest_run_func(InputRec inputRec, Param param){
+    MkdgFromStr_InputRec *inRec=(MkdgFromStr_InputRec *) inputRec;
+    MkdgValue *mValue=maker_dialog_value_new(inRec->mType, NULL);
+    maker_dialog_value_from_string(mValue, inRec->valueStr, inRec->parseOpt);
+    OutputRec result=mValue->data[0];
+    return result;
+}
+
+gchar *fromStrTest_to_string(InputRec inputRec, Param param){
+    MkdgFromStr_InputRec *inRec=(MkdgFromStr_InputRec *) inputRec;
+    GString *strBuf=g_string_new(NULL);
+    switch(inRec->mType){
+	case MKDG_TYPE_INT:
+	    g_string_printf(strBuf,"mType=INT, value=%s", inRec->valueStr);
+	    break;
+	case MKDG_TYPE_LONG:
+	    g_string_printf(strBuf,"mType=LONG, value=%s", inRec->valueStr);
+	    break;
+	case MKDG_TYPE_DOUBLE:
+	    g_string_printf(strBuf,"mType=DOUBLE, value=%s", inRec->valueStr);
+	    break;
+	default:
+	    break;
+    }
+    return g_string_free(strBuf, FALSE);
+}
+
+gboolean fromStrTest_foreach(TestSubject *testSubject){
+    gboolean clean=TRUE;
+    MkdgFromStr_TestRec *rec=(MkdgFromStr_TestRec *) testSubject->dataSet;
+    for(;rec->in.mType!=MKDG_TYPE_INVALID;rec++){
+	MkdgFromStr_InputRec *inRec=&(rec->in);
+	OutputRec expOutRec=rec->out;
+	OutputRec actOutRec=testSubject->run(inRec, testSubject->param);
+	gchar *inStr=fromStrTest_to_string(inRec, testSubject->param);
+	switch(rec->in.mType){
+	    case MKDG_TYPE_INT:
+		clean=int_verify_func(actOutRec, expOutRec, testSubject->prompt, inStr);
+		break;
+	    case MKDG_TYPE_LONG:
+		clean=long_verify_func(actOutRec, expOutRec, testSubject->prompt, inStr);
+		break;
+	    case MKDG_TYPE_DOUBLE:
+		clean=double_verify_func(actOutRec, expOutRec, testSubject->prompt, inStr);
+		break;
+	    default:
+		break;
+	}
+	g_free(inStr);
+	if (!clean)
+	    return FALSE;
+    }
+    printf("All sub-test completed.\n");
+    return TRUE;
+}
+/*=== End of from string test ===*/
 
 TestSubject TEST_COLLECTION[]={
     {"Comparison functions",
 	COMPARISON_DATASET,
-	COMPARISON_DATASET_SIZE,
-	NULL,
-	compTest_foreach, compTest_run_func, compTest_int_verify_func},
-    {NULL,NULL, 0, NULL, NULL, NULL, NULL},
+	{0},
+	compTest_foreach, compTest_run_func, int_verify_func},
+    {"From string",
+	FROM_STR_DATASET,
+	{0},
+	fromStrTest_foreach, fromStrTest_run_func, int_verify_func},
+    {NULL,NULL, {0}, NULL, NULL, NULL},
 };
 
 int main(int argc, char** argv){
