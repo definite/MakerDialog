@@ -58,7 +58,10 @@ typedef enum {
     MKDG_TYPE_FLOAT,		//!< Floating point number type.
     MKDG_TYPE_DOUBLE,		//!< Double precision floating point number type.
     MKDG_TYPE_STRING,		//!< String type.
+    MKDG_TYPE_STRING_LIST,	//!< List of strings.
     MKDG_TYPE_COLOR,		//!< Color type.
+    MKDG_TYPE_FILE,		//!< File type.
+    MKDG_TYPE_KEY_COMBINATION,	//!< Type for key combination. Such as "Ctrl-A"
     MKDG_TYPE_NONE,		//!< "None" type.
 } MkdgType;
 
@@ -580,9 +583,9 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
 #define maker_dialog_value_set_ulong(mValue, setValue)	mValue->data[0].v_ulong = setValue
 
 /**
- * Get a floating-point value from a makerdialog value.
+ * Get a floating-point value from a MakerDialog value.
  *
- * Get a floating-point value from a makerdialog value.
+ * Get a floating-point value from a MakerDialog value.
  * @param mValue A MakerDailog value.
  * @return the floating-point value.
  */
@@ -598,9 +601,9 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
 #define maker_dialog_value_set_float(mValue, setValue)	mValue->data[0].v_float = setValue
 
 /**
- * Get a double precision floating-point value from a makerdialog value.
+ * Get a double precision floating-point value from a MakerDialog value.
  *
- * Get a double precision floating-point value from a makerdialog value.
+ * Get a double precision floating-point value from a MakerDialog value.
  * @param mValue A MakerDailog value.
  * @return the double precision floating-point value.
  */
@@ -616,13 +619,13 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
 #define maker_dialog_value_set_double(mValue, setValue)	mValue->data[0].v_double = setValue
 
 /**
- * Get a string value from a makerdialog value.
+ * Get a string value from a MakerDialog value.
  *
- * Get a string value from a makerdialog value.
+ * Get a string value from a MakerDialog value.
  * @param mValue A MakerDailog value.
  * @return the string value.
  */
-#define maker_dialog_value_get_string(mValue) 		(gchar *) mValue->data[0].v_pointer
+#define maker_dialog_value_get_string(mValue) 		mValue->data[0].v_string
 
 /**
  * Set a string value to a MakerDialog value.
@@ -631,12 +634,30 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_string(mValue, setValue)	mValue->data[0].v_pointer = (gpointer) setValue
+#define maker_dialog_value_set_string(mValue, setValue)	mValue->data[0].v_string = setValue
 
 /**
- * Get a color value from a makerdialog value.
+ * Get a string list value from a MakerDialog value.
  *
- * Get a color value from a makerdialog value.
+ * Get a string list value from a MakerDialog value.
+ * @param mValue A MakerDailog value.
+ * @return the string list value.
+ */
+#define maker_dialog_value_get_string_list(mValue) 	mValue->data[0].v_string_list
+
+/**
+ * Set a string list value to a MakerDialog value.
+ *
+ * Set a string list value to a MakerDialog value.
+ * @param mValue A MakerDailog value.
+ * @param setValue The value to be set.
+ */
+#define maker_dialog_value_set_string_list(mValue, setValue)	mValue->data[0].v_string_list = setValue
+
+/**
+ * Get a color value from a MakerDialog value.
+ *
+ * Get a color value from a MakerDialog value.
  * @param mValue A MakerDailog value.
  * @return the color value.
  */

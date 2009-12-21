@@ -29,22 +29,37 @@ typedef struct _{
 } MkdgColorInfo;
 
 MkdgColorInfo mkdgColorList[]={
-    {"aqua",		0x00FFFF},
-    {"black",		0x000000},
-    {"blue",		0x0000FF},
-    {"fuchsia",		0xFF00FF},
-    {"grey",		0x808080},
-    {"green",		0x008000},
-    {"lime",		0x00FF00},
-    {"maroon",		0x800000},
-    {"navy",		0x000080},
-    {"olive",		0x808000},
-    {"purple",		0x800080},
-    {"red",		0xFF0000},
-    {"sliver",		0xC0C0C0},
-    {"teal",		0x008080},
-    {"white",		0xFFFFFF},
-    {"yellow",		0xFFFF00},
+    {"Aqua",		0x00FFFF},
+    {"Aquamarine",	0x7FFFD4},
+    {"Azure"		0xF0FFFF},
+    {"Black",		0x000000},
+    {"Blue",		0x0000FF},
+    {"Brown",		0xA52A2A},
+    {"Chocolate",	0x7B3F00},
+    {"Crimson",		0xDC143C},
+    {"Coral",		0xFF7F50},
+    {"Cyan",		0x00FFFF},
+    {"Fuchsia",		0xFF00FF},
+    {"Gold",		0xFFD700},
+    {"Gray",		0x808080},
+    {"Green",		0x008000},
+    {"Ivory",		0xFFFFF0},
+    {"Lime",		0x00FF00},
+    {"Magenta",		0xFF00FF},
+    {"Maroon",		0x800000},
+    {"Navy",		0x000080},
+    {"Olive",		0x808000},
+    {"Orange",		0xFFA500},
+    {"Orchid",		0xDA70D6},
+    {"Pink",		0xFFC0CB},
+    {"Purple",		0x800080},
+    {"Red",		0xFF0000},
+    {"Sliver",		0xC0C0C0},
+    {"Teal",		0x008080},
+    {"Violet",		0xEE82EE},
+    {"Wheat",		0xF5DE83},
+    {"White",		0xFFFFFF},
+    {"Yellow",		0xFFFF00},
     {NULL,		0}
 };
 
@@ -421,10 +436,76 @@ static gint md_string_compare(MkdgValue *value1, MkdgValue *value2, const gchar 
 
 static void md_string_free(MkdgValue *value){
     if (value->flags  & MKDG_VALUE_FLAG_NEED_FREE){
-	g_free(value->data[0].v_pointer);
+	g_free(value->data[0].v_string);
     }
 }
 
+static MkdgValue *md_string_list_from_string(MkdgValue *value, const gchar *str, const gchar *parseOption){
+    if (!str){
+	maker_dialog_value_set_string_list(value, NULL);
+	return value;
+    }
+    gchar *delimiters=(maker_dialog_string_is_empty(parseOption))? ";": parseOption;
+    gchar **sList=maker_dialog_string_split_set(str,delimiters, '\\', TRUE, -1);
+    maker_dialog_value_set_string_list(value, sList);
+    return value;
+}
+
+static gchar *md_string_list_to_string(MkdgValue *value, const gchar *toStringFormat){
+    return maker_dialog_string_list_combine(maker_dialog_value_get_string_list(value), ";",'\\', TRUE);
+}
+
+static gint md_string_list_compare(MkdgValue *value1, MkdgValue *value2, const gchar *compareOption){
+    if (value2->mType!=MKDG_TYPE_STRING){
+	return -3;
+    }
+    gint ret;
+    guint flags=0;
+    if (compareOption){
+	gchar **options=g_strsplit_set(compareOption,";",-1);
+	gint i;
+	for(i=0; options[i]!=NULL; i++){
+	    if (strcmp(options[i], STRING_COMPARE_CASE_INSENSITIVE_OPTSTR)==0){
+		flags |= STRING_COMPARE_CASE_INSENSITIVE_FLAG;
+	    }
+	}
+	g_strfreev(options);
+    }
+    gchar **strList1=maker_dialog_value_get_string_list(value1);
+    gchar **strList2=maker_dialog_value_get_string_list(value2);
+    gint i;
+    if (strList1==NULL){
+	if (strList2==NULL)
+	    return 0;
+	return -1;
+    }
+    if (strList2==NULL){
+	return 1;
+    }
+
+    for(i=0;i<strList2[i]!=NULL;i++){
+	if (strList1[i]==NULL)
+	    return -1;
+	if (flags & STRING_COMPARE_CASE_INSENSITIVE_FLAG){
+	    ret=g_ascii_strcasecmp(str1, str2);
+	}else{
+	    ret=strcmp(str1, str2);
+	}
+	if (ret>0)
+	    return 1;
+	else if (ret<0)
+	    return -1;
+    }
+    if (strList1[i]!=NULL)
+	return 1;
+    return 0;
+}
+
+static void md_string_free(MkdgValue *value){
+    if (value->flags  & MKDG_VALUE_FLAG_NEED_FREE){
+	g_strfreev(value->data[0].v_string_list);
+    }
+}
 static void md_color_set(MkdgValue *value, gpointer setValue){
     maker_dialog_value_set_color(value, (setValue) ? *(guint32 *) setValue: 0);
 }
@@ -475,23 +556,52 @@ static gint md_color_compare(MkdgValue *value1, MkdgValue *value2, const gchar *
     return (v1==v2) ? 0 : (v1>v2)? 1: -1;
 }
 
-
 const MkdgTypeInterfaceMkdgType mkdgTypeInterfaces[]={
-    { MKDG_TYPE_BOOLEAN,	"BOOLEAN",	{md_boolean_set,	md_boolean_from_string, md_boolean_to_string,	md_boolean_compare,	NULL}},
-    { MKDG_TYPE_INT,		"INT",		{md_int_set,		md_int_from_string,	md_int_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_UINT,		"UINT",		{md_uint_set,		md_uint_from_string,	md_uint_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_INT32,		"INT32",	{md_int32_set,		md_int32_from_string,	md_int32_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_UINT32,		"UINT32",	{md_uint32_set,		md_uint32_from_string,	md_uint32_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_INT64,		"INT64",	{md_int64_set,		md_int64_from_string,	md_int64_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_UINT64,		"UINT64",	{md_uint64_set,		md_uint64_from_string,	md_uint64_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_LONG,		"LONG",		{md_long_set,		md_long_from_string,	md_long_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_ULONG,		"ULONG",	{md_ulong_set,		md_ulong_from_string,	md_ulong_to_string,	md_number_compare,	NULL}},
-    { MKDG_TYPE_FLOAT,		"FLOAT",	{md_float_set,		md_float_from_string,	md_float_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_DOUBLE,		"DOUBLE",	{md_double_set,		md_double_from_string,	md_double_to_string, 	md_number_compare,	NULL}},
-    { MKDG_TYPE_STRING,		"STRING",	{md_string_set,		md_string_from_string,	md_string_to_string, 	md_string_compare,	md_string_free}},
-    { MKDG_TYPE_COLOR,		"COLOR",	{md_color_set,		md_color_from_string,	md_color_to_string, 	md_color_compare,	NULL}},
-    { MKDG_TYPE_NONE,		"NONE",		{NULL,			NULL,			NULL,			NULL,			NULL}},
-    { MKDG_TYPE_INVALID,	"INVALID",	{NULL,			NULL,			NULL,			NULL,			NULL}},
+    { MKDG_TYPE_BOOLEAN,	"BOOLEAN",
+	{md_boolean_set,	md_boolean_from_string, 	md_boolean_to_string,
+	    md_boolean_compare,	NULL}},
+    { MKDG_TYPE_INT,		"INT",
+	{md_int_set,		md_int_from_string,		md_int_to_string,
+	    md_number_compare,	NULL}},
+    { MKDG_TYPE_UINT,		"UINT",
+	{md_uint_set,		md_uint_from_string,		md_uint_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_INT32,		"INT32",
+	{md_int32_set,		md_int32_from_string,		md_int32_to_string,
+	    md_number_compare,	NULL}},
+    { MKDG_TYPE_UINT32,		"UINT32",
+	{md_uint32_set,		md_uint32_from_string,		md_uint32_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_INT64,		"INT64",
+	{md_int64_set,		md_int64_from_string,		md_int64_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_UINT64,		"UINT64",
+	{md_uint64_set,		md_uint64_from_string,		md_uint64_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_LONG,		"LONG",
+	{md_long_set,		md_long_from_string,		md_long_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_ULONG,		"ULONG",
+	{md_ulong_set,		md_ulong_from_string,		md_ulong_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_FLOAT,		"FLOAT",
+	{md_float_set,		md_float_from_string,		md_float_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_DOUBLE,		"DOUBLE",
+	{md_double_set,		md_double_from_string,		md_double_to_string,
+    	    md_number_compare,	NULL}},
+    { MKDG_TYPE_STRING,		"STRING",
+	{md_string_set,		md_string_from_string,		md_string_to_string,
+    	    md_string_compare,	md_string_free}},
+    { MKDG_TYPE_STRING_LIST,	"STRING_LIST",
+	{md_string_list_set,	md_string_list_from_string,	md_string_list_to_string,
+	    md_string_list_compare,	md_string_list_free}},
+    { MKDG_TYPE_COLOR,		"COLOR",
+	{md_color_set,		md_color_from_string,		md_color_to_string,
+    	    md_color_compare,	NULL}},
+    { MKDG_TYPE_NONE,		"NONE",
+	{NULL,			NULL,			NULL,
+	    NULL,			NULL}},
 };
 
 static const MkdgTypeInterface *maker_dialog_find_type_interface(MkdgType mType){

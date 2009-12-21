@@ -60,7 +60,8 @@ typedef union {
     gdouble     v_double;	//!< For double-precision floating-point number.
     gchar 	v_char;		//!< For character value.
     gunichar	v_wchar;	//!< For UCS4 wide character.
-    const gchar	*v_string;	//!< For strings.
+    gchar	*v_string;	//!< For strings.
+    gchar	**v_string_list;	//!< For list of strings.
     gpointer    v_pointer;	//!< For generic pointers.
 } MkdgValueHolder;
 
