@@ -19,15 +19,14 @@
  */
 /**
  * @file MakerDialogUi.h
- * User interface module for MakerDialog.
+ * UI interface for MakerDialog.
  *
- * This module defines the UI relative data structure, functions,
- * and an interface for bridging between MakerDialog and UI toolkit
+ * This interface bridges between  MakerDialog and UI toolkits
  * such as Gtk or Qt.
  *
- * In MakerDialog, a property is a configuration option which associate with a
- * value. According to property specification, MakerDialog generates
- * corresponding UI component to manipulate the property value.
+ * Through the UI interface,
+ * MakerDialog generates corresponding UI components
+ * to manipulate the property values.
  */
 /**
  * Separator used in Widget ID.

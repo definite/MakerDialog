@@ -47,60 +47,13 @@ GQuark maker_dialog_config_error_quark(){
     return g_quark_from_static_string("MakerDialogConfig");
 }
 
-static MakerDialogConfigFile *maker_dialog_config_file_new(const gchar *path){
-    MakerDialogConfigFile *configFile=g_new(MakerDialogConfigFile,1);
-    configFile->path=g_strdup(path);
-    configFile->filePointer=NULL;
-    return configFile;
-}
-
-static void maker_dialog_config_file_free(MakerDialogConfigFile *configFile){
-    g_free((gchar *)configFile->path);
-    if (configFile->filePointer)
-        g_free(configFile->filePointer);
-    g_free(configFile);
-}
-
-MakerDialogConfigSet *maker_dialog_config_set_new(MakerDialogConfigFlag flags){
-    return maker_dialog_config_set_new_full(NULL,
-	    flags, NULL, NULL,
-	    NULL, -1, NULL);
-}
-
-MakerDialogConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
-	MakerDialogConfigFlag flags, const gchar *filePattern, const gchar **searchDirs,
-	    const gchar *defaultFilename, gint maxFileCount, gpointer userData){
-    MakerDialogConfigSet *configSet=g_new(MakerDialogConfigSet,1);
-    configSet->pageNames=pageNames;
-    configSet->flags=flags;
-    configSet->filePattern=filePattern;
-    configSet->searchDirs=searchDirs;
-    configSet->defaultFilename=defaultFilename;
-    configSet->maxFileCount=maxFileCount;
-    configSet->writeIndex=-1;
-    configSet->currentIndex=-1;
-    configSet->fileArray=g_ptr_array_new();
-    configSet->userData=userData;
-    return configSet;
-}
-
-static void maker_dialog_config_set_free_config_file(gpointer data, gpointer userData){
-    maker_dialog_config_file_free((MakerDialogConfigFile *) data);
-}
-
-void maker_dialog_config_set_free(MakerDialogConfigSet *configSet){
-    g_ptr_array_foreach(configSet->fileArray,maker_dialog_config_set_free_config_file, NULL);
-    g_ptr_array_free(configSet->fileArray,TRUE);
-    g_free(configSet);
-}
-
 MakerDialogConfig *maker_dialog_config_new(
 	MakerDialog *mDialog, gboolean fileBased, MakerDialogConfigInterface *configInterface){
     MakerDialogConfig *config=g_new(MakerDialogConfig,1);
     config->fileBased=fileBased;
     config->mDialog=mDialog;
     config->pageSetTable=g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
-    config->setArray=g_ptr_array_new();
+    config->setArray=g_ptr_array_sized_new(5);
     config->configInterface=configInterface;
     mDialog->config=config;
     return config;
@@ -118,90 +71,11 @@ void maker_dialog_config_free(MakerDialogConfig *config){
     g_free(config);
 }
 
-static MakerDialogError *maker_dialog_config_set_init(MakerDialogConfigSet *configSet){
-    GPatternSpec* pSpec=g_pattern_spec_new (configSet->filePattern);
-    GDir *currDir=NULL;
-    MakerDialogError *error=NULL;
-    gchar *currName=NULL;
-    gchar *currPath=NULL;
-    gint counter=0;
-    gint i;
-    const gchar *currentDirs[]={".", NULL};
-    const gchar **searchDirs=(configSet->searchDirs)? configSet->searchDirs: currentDirs;
-    for(i=0;searchDirs[i]!=NULL;i++){
-	MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_set_init(), searchDir=%s", searchDirs[i]);
-	currDir=g_dir_open(searchDirs[i], 0, &error);
-	if (error){
-	    maker_dialog_error_print(error);
-	    g_error_free(error);
-	    error=NULL;
-	    continue;
-	}
-	if (!currDir)
-	    continue;
-	while((currName=(gchar *) g_dir_read_name(currDir))!=NULL){
-	    if (g_pattern_match(pSpec,strlen(currName),currName,NULL)){
-		currPath=g_build_filename(searchDirs[i], currName, NULL);
-		MAKER_DIALOG_DEBUG_MSG(6, "[I6] config_set_init(), currPath=%s",  currPath);
-		if (g_access(currPath, R_OK)==0){
-		    if (g_access(currPath, W_OK)==0){
-			if (!(configSet->flags & MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE)){
-			    configSet->writeIndex=counter;
-			}else if (configSet->writeIndex < 0){
-			    configSet->writeIndex=counter;
-			}
-		    }
-		    MAKER_DIALOG_DEBUG_MSG(6, "[I6] config_set_init(), writeIndex=%d", configSet->writeIndex );
-		    MakerDialogConfigFile *configFile=maker_dialog_config_file_new(currPath);
-		    g_ptr_array_add(configSet->fileArray, configFile);
-		    counter++;
-		    g_free(currPath);
-		    if (configSet->maxFileCount>=0 && configSet->maxFileCount<=counter )
-			break;
-		}
-	    }
-	}
-	g_dir_close(currDir);
-	if (configSet->maxFileCount>=0 && configSet->maxFileCount<=counter )
-	    break;
-    }
-    g_pattern_spec_free(pSpec);
-
-    /* Whether to add writable file */
-    if (configSet->writeIndex<0
-	    && !(configSet->flags & MAKER_DIALOG_CONFIG_FLAG_READONLY)
-	    && (configSet->maxFileCount<0 || configSet->maxFileCount>counter)){
-	for(i=0;searchDirs[i]!=NULL;i++){
-	    if (g_access(searchDirs[i],F_OK)!=0){
-		/* Try building dir */
-		if (g_mkdir_with_parents(searchDirs[i], 0755)!=0){
-		    continue;
-		}
-	    }else if (g_access(searchDirs[i], W_OK)!=0){
-		continue;
-	    }
-	    /* Ready to write */
-	    MakerDialogConfigFile *configFile=maker_dialog_config_file_new(
-		    g_build_filename(searchDirs[i], configSet->defaultFilename, NULL));
-	    g_ptr_array_add(configSet->fileArray, configFile);
-	    configSet->writeIndex=counter;
-	    counter++;
-	}
-    }
-    if (counter==0){
-	return maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_READ,"config_set_init()");
-    }
-    if (configSet->writeIndex<0 && !(configSet->flags & MAKER_DIALOG_CONFIG_FLAG_READONLY)){
-	return maker_dialog_config_error_new(MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE,"config_set_init()");
-    }
-    return error;
-}
-
 void maker_dialog_config_add_config_set(MakerDialogConfig *config, MakerDialogConfigSet *configSet,MakerDialogError **error){
     g_assert(configSet);
     MakerDialogError *cfgErr=NULL;
     if (config->fileBased){
-	cfgErr=maker_dialog_config_set_init(configSet);
+	maker_dialog_config_set_prepare_files(configSet, &cfgErr);
 	maker_dialog_error_handle(cfgErr, error);
     }else{
 	configSet->flags |= MAKER_DIALOG_CONFIG_FLAG_NOT_FILE_BASE;
@@ -219,43 +93,6 @@ void maker_dialog_config_add_config_set(MakerDialogConfig *config, MakerDialogCo
 	}
     }
     configSet->mDialog=config->mDialog;
-}
-
-gboolean maker_dialog_config_set_foreach_page(MakerDialogConfigSet *configSet,
-	MakerDialogConfigSetEachPageFunc func,  gpointer userData, MakerDialogError **error){
-    gboolean clean=TRUE;
-    MakerDialogError *cfgErr=NULL;
-    const gchar *page=NULL;
-    gboolean ret;
-    if (configSet->pageNames){
-	gsize i;
-	for(i=0;(page=configSet->pageNames[i])!=NULL;i++){
-	    cfgErr=NULL;
-	    ret=func(configSet,page, userData, &cfgErr);
-	    if (!ret){
-		clean=FALSE;
-		maker_dialog_error_handle(cfgErr, error);
-		if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
-		    return FALSE;
-		}
-	    }
-	}
-    }else{
-	GNode *pageNode=NULL;
-	for(pageNode=g_node_first_child(configSet->mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
-	    page=(gchar *) pageNode->data;
-	    cfgErr=NULL;
-	    ret=func(configSet,page, userData, &cfgErr);
-	    if (!ret){
-		clean=FALSE;
-		maker_dialog_error_handle(cfgErr, error);
-		if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
-		    return clean;
-		}
-	    }
-	}
-    }
-    return clean;
 }
 
 /*=== Start config file/set foreach callback and functions ===*/
@@ -475,22 +312,6 @@ gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *p
 	configSet=g_ptr_array_index(config->setArray,0);
     }
     return maker_dialog_config_set_save(configSet, -1, (gpointer) pageName, error);
-}
-
-
-MakerDialogConfigBuffer *maker_dialog_config_buffer_new(){
-    MakerDialogConfigBuffer *configBuf=g_new(MakerDialogConfigBuffer, 1);
-    configBuf->keyValueTable=g_hash_table_new_full(g_str_hash, g_str_equal, g_free, maker_dialog_value_free);
-    return configBuf;
-}
-
-void maker_dialog_config_buffer_insert(MakerDialogConfigBuffer *configBuf, const gchar *key, MkdgValue *value){
-    g_hash_table_insert(configBuf->keyValueTable, g_strdup(key), value);
-}
-
-void maker_dialog_config_buffer_free(MakerDialogConfigBuffer *configBuf){
-    g_hash_table_destroy(configBuf->keyValueTable);
-    g_free(configBuf);
 }
 
 MakerDialogError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *formatStr, ...){

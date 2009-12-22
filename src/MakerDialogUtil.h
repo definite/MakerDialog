@@ -171,9 +171,8 @@ void maker_dialog_error_print(MakerDialogError *error);
  */
 void maker_dialog_error_print_with_prefix(const gchar *prefix, MakerDialogError *error);
 
-
 /**
- * Handle the error.
+ * Handle the error by keeping the latest error and print out the old error.
  *
  * This function provide a convenient function to handle error by keeping the
  * latest error if error output is not \c NULL,
@@ -183,7 +182,8 @@ void maker_dialog_error_print_with_prefix(const gchar *prefix, MakerDialogError 
  *  If \a errOut is not \c NULL, the error in \a errIn will be kept as \a errOut,
  *  while the old error in \a errOut will be printed and freed.
  *
- *  Note that this function does nothing but returns FALSE if \a errIn is \c  NULL.
+ *  Note that this function does nothing but returns FALSE if \a errIn is \c  NULL,
+ *  and \a errIn will be clear to \c NULL before returning.
  *
  * @param errIn		Error input.
  * @param errOut	Error output stored here;

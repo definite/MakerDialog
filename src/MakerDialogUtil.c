@@ -91,8 +91,8 @@ gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **e
 	}else{
 	    maker_dialog_error_print(errIn);
 	    g_error_free(errIn);
-	    errIn=NULL;
 	}
+	errIn=NULL;
 	return TRUE;
     }
     return FALSE;
