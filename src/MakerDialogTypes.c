@@ -31,7 +31,7 @@ typedef struct _{
 MkdgColorInfo mkdgColorList[]={
     {"Aqua",		0x00FFFF},
     {"Aquamarine",	0x7FFFD4},
-    {"Azure"		0xF0FFFF},
+    {"Azure",		0xF0FFFF},
     {"Black",		0x000000},
     {"Blue",		0x0000FF},
     {"Brown",		0xA52A2A},
@@ -381,14 +381,14 @@ static gchar *md_double_to_string(MkdgValue *value, const gchar *toStringFormat)
 
 static void md_string_set(MkdgValue *value, gpointer setValue){
     if (value->flags & MKDG_VALUE_FLAG_NEED_FREE ){
-	value->data[0].v_pointer= g_strdup( (setValue) ? (gchar *) setValue : "");
+	value->data[0].v_string= g_strdup( (setValue) ? (gchar *) setValue : "");
     }else{
-	value->data[0].v_pointer= (setValue) ? setValue : "";
+	value->data[0].v_string= (setValue) ? setValue : "";
     }
 }
 
 static MkdgValue *md_string_from_string(MkdgValue *value, const gchar *str, const gchar *parseOption){
-    const gchar *strValue= g_strdup((G_UNLIKELY(maker_dialog_string_is_empty(str))) ? "" : str);
+    gchar *strValue= g_strdup((G_UNLIKELY(maker_dialog_string_is_empty(str))) ? "" : str);
     maker_dialog_value_set_string(value, strValue);
     return value;
 }
@@ -440,12 +440,22 @@ static void md_string_free(MkdgValue *value){
     }
 }
 
+static gchar *emptyStrList[]={"", NULL};
+
+static void md_string_list_set(MkdgValue *value, gpointer setValue){
+    if (value->flags & MKDG_VALUE_FLAG_NEED_FREE ){
+	value->data[0].v_string_list= g_strdupv( (setValue) ? (gchar **) setValue : emptyStrList);
+    }else{
+	value->data[0].v_string_list= (setValue) ? (gchar **) setValue : emptyStrList;
+    }
+}
+
 static MkdgValue *md_string_list_from_string(MkdgValue *value, const gchar *str, const gchar *parseOption){
     if (!str){
 	maker_dialog_value_set_string_list(value, NULL);
 	return value;
     }
-    gchar *delimiters=(maker_dialog_string_is_empty(parseOption))? ";": parseOption;
+    const gchar *delimiters=(maker_dialog_string_is_empty(parseOption))? ";": parseOption;
     gchar **sList=maker_dialog_string_split_set(str,delimiters, '\\', TRUE, -1);
     maker_dialog_value_set_string_list(value, sList);
     return value;
@@ -483,13 +493,13 @@ static gint md_string_list_compare(MkdgValue *value1, MkdgValue *value2, const g
 	return 1;
     }
 
-    for(i=0;i<strList2[i]!=NULL;i++){
+    for(i=0;strList2[i]!=NULL;i++){
 	if (strList1[i]==NULL)
 	    return -1;
 	if (flags & STRING_COMPARE_CASE_INSENSITIVE_FLAG){
-	    ret=g_ascii_strcasecmp(str1, str2);
+	    ret=g_ascii_strcasecmp(strList1[i], strList2[i]);
 	}else{
-	    ret=strcmp(str1, str2);
+	    ret=strcmp(strList1[i], strList2[i]);
 	}
 	if (ret>0)
 	    return 1;
@@ -501,7 +511,7 @@ static gint md_string_list_compare(MkdgValue *value1, MkdgValue *value2, const g
     return 0;
 }
 
-static void md_string_free(MkdgValue *value){
+static void md_string_list_free(MkdgValue *value){
     if (value->flags  & MKDG_VALUE_FLAG_NEED_FREE){
 	g_strfreev(value->data[0].v_string_list);
     }

@@ -99,7 +99,6 @@ typedef void (* MakerDialogEachGroupNodeFunc)(MakerDialog *mDialog, GNode *pageN
  */
 typedef void (* MakerDialogEachPageFunc)(MakerDialog *mDialog, const gchar *pageName, gpointer userData);
 
-
 /**
  * Whether the page name is empty.
  *
@@ -121,7 +120,6 @@ gboolean maker_dialog_page_name_is_empty(const gchar *pageName);
  * @return TRUE if group name is empty; FALSE otherwise.
  */
 gboolean maker_dialog_group_name_is_empty(const gchar *groupName);
-
 
 /**
  * Find the page node by page name.
@@ -159,7 +157,6 @@ GNode *maker_dialog_find_group_node(MakerDialog *mDialog, const gchar *pageName,
 void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageName, MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,
 	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
 
-
 /**
  * Call callback for each property in certain pages.
  *
@@ -175,6 +172,21 @@ void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageN
  */
 void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pageNames,
 	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
+
+
+/**
+ * Call callback for each property in a group.
+ *
+ * Calls the given function for each property in a group.
+ *
+ * @param mDialog 		A MakerDialog.
+ * @param pageName 		The page to be working on.
+ * @param groupFunc 		The callback to be run for each group.
+ * @param groupUserData 	User data to pass to \a groupFunc.
+ * @param propFunc 		The callback to be run for each property.
+ * @param propUserData 		User data to pass to \a propFunc.
+ */
+void maker_dialog_group_foreach_property(MakerDialog* mDialog, const gchar *pageName, const gchar *groupName, MakerDialogEachPropertyFunc  func, gpointer userData);
 
 /**
  * Call callback for each page.
@@ -203,5 +215,83 @@ void maker_dialog_foreach_page(MakerDialog *mDialog, MakerDialogEachPageFunc fun
  */
 void maker_dialog_foreach_page_foreach_property(MakerDialog *mDialog,
 	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData);
+
+/**
+ * Data type of MakerDialog node iteration for a page.
+ *
+ * Data type of MakerDialog node iteration for a page.
+ */
+typedef GNode *MakerDialogNodeIter;
+
+/**
+ * Initialize a MakerDialog page iteration handle .
+ *
+ * This function initializes a MakerDialog page iteration.
+ * It returns a GNode pointer to the first page as iteration handle,
+ * or \c NULL if no page is defined.
+ *
+ * @param mDialog 		A MakerDialog.
+ * @return The Iteration handle; or \c NULL if no page.
+ */
+MakerDialogNodeIter maker_dialog_page_iter_init(MakerDialog* mDialog);
+
+/**
+ * Whether the iteration has more elements.
+ *
+ * This function returns whether the page iteration has more elements
+ * that store pages.
+ *
+ * @param iter 			A MakerDialog node iteration handle.
+ * @return \c TRUE if \a iter has more elements; \c FALSE otherwise.
+ */
+gboolean maker_dialog_page_iter_has_next(MakerDialogNodeIter iter);
+
+/**
+ * Return the next element in the iteration.
+ *
+ * This function returns the next element,
+ * namely the GNode that contain page,
+ * in the iteration.
+ *
+ * @param iter 			A MakerDialog node iteration handle.
+ * @return The next element; or \c NULL if not such element.
+ */
+GNode *maker_dialog_page_iter_next(MakerDialogNodeIter *iter);
+
+/**
+ * Initialize a MakerDialog property iteration handle for a page.
+ *
+ * This function initializes a MakerDialog property iteration for a page.
+ * It returns a GNode pointer to the first property as iteration handle,
+ * or \c NULL if no such page.
+ *
+ * @param mDialog 		A MakerDialog.
+ * @param pageName 		The page to be working on.
+ * @return The Iteration handle; or \c NULL if no such page.
+ */
+MakerDialogNodeIter maker_dialog_page_property_iter_init(MakerDialog* mDialog, const gchar *pageName);
+
+/**
+ * Whether the iteration has more elements.
+ *
+ * This function returns whether the iteration has more elements
+ * that store properties.
+ *
+ * @param iter 			A MakerDialog node iteration handle.
+ * @return \c TRUE if \a iter has more elements; \c FALSE otherwise.
+ */
+gboolean maker_dialog_page_property_iter_has_next(MakerDialogNodeIter iter);
+
+/**
+ * Return the next element in the iteration.
+ *
+ * This function returns the next element,
+ * namely the GNode that contain property,
+ * in the iteration.
+ *
+ * @param iter 			A MakerDialog node iteration handle.
+ * @return The next element; or \c NULL if not such element.
+ */
+MakerDialogPropertyContext *maker_dialog_page_property_iter_next(MakerDialogNodeIter *iter);
 
 #endif /* MAKER_DIALOG_PAGE_H_ */

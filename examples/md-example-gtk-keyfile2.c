@@ -30,11 +30,14 @@ int main(int argc,char *argv[]){
     g_assert(ctx1);
 
     MakerDialogConfigSet *dlgCfgSet_editing=maker_dialog_config_set_new_full(editingOptions,
+	    "md-example-editing.cfg", searchDirs, "md-example-editing.cfg", 2,
 	    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE | MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT,
-	    "md-example-editing.cfg", searchDirs, "md-example-editing.cfg",  2, NULL);
+	    &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE, NULL);
     MakerDialogConfigSet *dlgCfgSet_key=maker_dialog_config_set_new_full(keyOptions,
+	    "md-example-key.cfg", searchDirs, "md-example-key.cfg", 2,
 	    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE | MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT,
-	    "md-example-key.cfg", searchDirs, "md-example-key.cfg",  2, NULL);
+	    &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE, NULL);
+
     maker_dialog_config_add_config_set(config, dlgCfgSet_editing, &cfgErr);
     maker_dialog_config_add_config_set(config, dlgCfgSet_key, &cfgErr);
     maker_dialog_config_open_all(config, &cfgErr);

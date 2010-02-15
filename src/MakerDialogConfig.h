@@ -30,197 +30,7 @@
  */
 #ifndef MAKER_DIALOG_CONFIG_H_
 #define MAKER_DIALOG_CONFIG_H_
-#include "MakerDialogConfigSet.h"
-
-/**
- * Enumeration of configuration flags.
- *
- * Enumeration of configuration flags, which tunes the behavior of configuration interface and configure file.
- */
-typedef enum{
-    /**
-     * The configuration back-end is not file based.
-     *
-     * This flag is automatically set and intended for internal use.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_NOT_FILE_BASE=	0x1,
-
-    /**
-     * Open the config file as read-only.
-     * This flag may be automatically set, if the file permission is
-     * read-only.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_READONLY=		0x2,
-
-    /**
-     * Latter read value will not override the former.
-     *
-     * By default, if different values are associate with same key in
-     * difference locations in file, the latter values will replace the
-     * former.
-     *
-     * This flag stops this behavior.
-     * Note that this flags changes the behavior of open and save functions.
-     * Use this flags with care.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE=	0x4,
-
-    /**
-     * Do not apply the loaded value.
-     *
-     * By default, after the new value is loaded,
-     * the applyFunc() defined in property context will be called accordingly.
-     *
-     * This flag stops this behavior.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_NO_APPLY=		0x8,
-
-    /**
-     * Stop on error.
-     *
-     * When encounter errors, the default behavior is trying to continue the loading.
-     *
-     * Set this flags to stop on error.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR=	0x10,
-
-    /**
-     * Hide the default values in configure file.
-     * This flag may be ignored if the configuration back-end does not support
-     * it.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT=	0x20,
-
-    /**
-     * Hide duplicated values in configure file.
-     * This flag may be ignored if the configuration back-end does not support
-     * it.
-     */
-    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE=	0x40,
-
-} MakerDialogConfigFlag;
-
-/**
- * Configuration error code enumeration.
- *
- * This enumeration lists all error codes for configuration file operation.
- */
-typedef enum{
-    MAKER_DIALOG_CONFIG_ERROR_PERMISSION_DENY,	//!< Permission denied; the file permissions do not allow the attempted operation.
-    MAKER_DIALOG_CONFIG_ERROR_CANT_READ,	//!< File cannot be read.
-    MAKER_DIALOG_CONFIG_ERROR_CANT_WRITE, 	//!< File cannot written.
-    MAKER_DIALOG_CONFIG_ERROR_NOT_FOUND, 	//!< File not found.
-    MAKER_DIALOG_CONFIG_ERROR_NO_CONFIG_SET, 	//!< No configuration set is added.
-    MAKER_DIALOG_CONFIG_ERROR_INVALID_FORMAT, 	//!< File format is invalid.
-    MAKER_DIALOG_CONFIG_ERROR_INVALID_PAGE, 	//!< Page is invalid (no such page).
-    MAKER_DIALOG_CONFIG_ERROR_INVALID_KEY, 	//!< Key is invalid (no such key).
-    MAKER_DIALOG_CONFIG_ERROR_INVALID_VALUE, 	//!< Value is invalid.
-    MAKER_DIALOG_CONFIG_ERROR_OTHER, 		//!< Other error.
-} MakerDialogConfigErrorCode;
-
-/**
- * Error domain for configuration file processing.
- *
- * Errors in this domain will be from the ::MakerDialogConfigErrorCode enumeration.
- * See MakerDialogError for information on error domains.
- */
-#define MAKER_DIALOG_CONFIG_ERROR maker_dialog_config_error_quark()
-
-/**
- * Configuration file interface for MakerDialog.
- *
- * Note that normally you don't have to directly use the fields here.
- * The fields will be filled by calling corresponding configuration interface.
- *
- * These fields are listed here for convenience for
- * developer of configuration interfaces.
- */
-typedef struct{
-
-    /**
-     * Callback function to create a new configuration set.
-     *
-     * Called by maker_dialog_config_open_all().
-     * @param configSet		A configuration set.
-     * @param configFile	The configuration file to be manipulated;
-     *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Error return location, or \c NULL.
-     * @return File object if success, \c NULL if error occurs.
-     */
-    gpointer (* config_create)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, MakerDialogError **error);
-
-    /**
-     * Callback function to open a configuration set.
-     * Called by maker_dialog_config_open_all().
-     * @param configSet		A configuration set.
-     * @param configFile	The configuration file to be manipulated;
-     *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Error return location, or \c NULL.
-     * @return File object if success, \c NULL if error occurs.
-     */
-    gpointer (* config_open)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, MakerDialogError **error);
-
-    /**
-     * Callback function to close a configuration set.
-     * Called by maker_dialog_config_close_all().
-     * @param configSet		A configuration set.
-     * @param configFile	The configuration file to be manipulated;
-     *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Error return location, or \c NULL.
-     * @return File object if success, \c NULL if error occurs.
-     */
-    gboolean (* config_close)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, MakerDialogError **error);
-
-    /**
-     * Callback function to pre-load property from configuration set.
-     *
-     * Pre-load function loads configuration files in to a configuration
-     * buffer, namely ::MakerDialogConfigBuffer.
-     *
-     * The configuration back-end does not need to implement the load function,
-     * instead, preload should be implemented.
-     * This is because preload function benefits not only load function, but also save function,
-     * as it enables the set differentiate operations for non-duplicate save.
-     *
-     * The full loading operation will be completed by maker_dialog_config_load_all()
-     * or maker_dialog_config_load_page().
-     *
-     * Called by maker_dialog_config_load_all(), maker_dialog_config_load_page(),
-     * maker_dialog_config_save_all(),  maker_dialog_config_save_page().
-     * @param configSet		A configuration set.
-     * @param configFile	The configuration file to be manipulated;
-     *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Error return location, or \c NULL.
-     * @return File object if success, \c NULL if error occurs.
-     */
-    gboolean (* config_preload)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, MakerDialogError **error);
-
-    /**
-     * Callback function to load setting from a configuration set.
-     *
-     * Called by maker_dialog_config_save_all(),  maker_dialog_config_save_page().
-     * @param configSet		A configuration set.
-     * @param configFile	The configuration file to be manipulated;
-     *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Error return location, or \c NULL.
-     * @return File object if success, \c NULL if error occurs.
-     */
-    gboolean (* config_save)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, MakerDialogError **error);
-
-    /**
-     * Callback function to list all pages in a configuration set.
-     *
-     * Called by maker
-     * @param configSet		A configuration set.
-     * @param configFile	The configuration file to be manipulated;
-     *  or \c NULL if the configuration back-end is not file based.
-     * @param error		Error return location, or \c NULL.
-     * @return File object if success, \c NULL if error occurs.
-     */
-    gchar * (* config_get_pages)(MakerDialogConfigSet *configSet, MakerDialogConfigFile *configFile, const gchar *pageName, MakerDialogError **error);
-
-
-} MakerDialogConfigInterface;
+#include "MakerDialogConfigDef.h"
 
 /**
  * Configuration of MakerDialog.
@@ -232,15 +42,30 @@ typedef struct{
  * developer of config interfaces.
  */
 typedef struct{
-    MakerDialog *mDialog;			//!< Referring MakerDialog.
-    MakerDialogConfigInterface *configInterface;	//!< A configuration interface which connects to configuration back-end.
+    MakerDialog				*mDialog;		//!< Referring MakerDialog.
+    MakerDialogConfigFlags	 	flags; 			//!< Global configuration flags. It maybe override by set specifc flags.
+    MakerDialogConfigFileInterface	*configInterface;	//!< Global configure file interface.  It maybe override by set specifc interfaces.
     /// @cond
     GHashTable *pageSetTable;		//!< Hash table whose key is a page name, value is a MakerDialogConfigSet.
     GPtrArray  *setArray;		//!< Pointer array that hold the config sets.
-    gboolean fileBased;			//!< The config back-end is file based.
     /// @endcond
-
 } MakerDialogConfig;
+
+
+/**
+ * New a MakerDialogConfig.
+ *
+ * This function allocates an empty MakerDialogConfig instances.
+ * It is equivalent of  maker_dialog_config_new_full(mDialog, 0, NULL);
+ *
+ * @param mDialog 	A MakerDialog instance.
+ * @param flags 	Configuration flags.
+ * @param configInterface A MakerDialog configuration interface.
+ * @return A newly allocated MakerDialogConfig.
+ * @see maker_dialog_config_new_full().
+ * @since Modified in 0.3.
+ */
+ MakerDialogConfig *maker_dialog_config_new(MakerDialog *mDialog);
 
 /**
  * New a MakerDialogConfig.
@@ -258,12 +83,15 @@ typedef struct{
  * function directly.
  *
  * @param mDialog 	A MakerDialog instance.
- * @param fileBased	The config back-end is file based.
+ * @param flags 	Configuration flags.
  * @param configInterface A MakerDialog configuration interface.
  * @return A newly allocated MakerDialogConfig.
+ * @see maker_dialog_config_new().
+ * @since 0.3
  */
-MakerDialogConfig *maker_dialog_config_new(
-	MakerDialog *mDialog, gboolean fileBased, MakerDialogConfigInterface *configInterface);
+MakerDialogConfig *maker_dialog_config_new_full(
+	MakerDialog *mDialog,
+	MakerDialogConfigFlags flags, MakerDialogConfigFileInterface *configInterface);
 
 /**
  * Free a MakerDialogConfig.
@@ -378,17 +206,6 @@ gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *p
  * @returns GQuark for MakerDialog configuration domain.
  */
 GQuark maker_dialog_config_error_quark (void);
-
-/**
- * New a MakerDialog configuration error.
- *
- * New a MakerDialog configuration error.
- * @param code 		Error code.
- * @param formatStr	printf() format string.
- * @param ...		Argument for formatStr.
- * @return A newly allocated MakerDialog config error instance.
- */
-MakerDialogError *maker_dialog_config_error_new(MakerDialogConfigErrorCode code, const gchar *formatStr, ...);
 
 #endif /* MAKER_DIALOG_CONFIG_H_ */
 

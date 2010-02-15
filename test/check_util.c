@@ -2,7 +2,7 @@
  * Copyright © 2008  Red Hat, Inc. All rights reserved.
  * Copyright © 2008  Ding-Yi Chen <dchen at redhat dot com>
  *
- * This file is part of the libUnihan Project.
+ * This file is part of the MakerDialog Project.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,38 +32,38 @@ typedef struct{
     gboolean		emptyToken;
     gint 		maxTokens;
     const gchar 	*str;
-    const gchar 	**strList;
+    gchar 		**strList;
 } String_TestRec;
 
-const gchar *STRLIST_01a[]={
+gchar *STRLIST_01a[]={
     "abc","d;ef","/ghi", NULL,
 };
 
-const gchar *STRLIST_01b[]={
+gchar *STRLIST_01b[]={
     "abc","", "d;ef","/ghi", "", NULL,
 };
 
-const gchar *STRLIST_02a[]={
+gchar *STRLIST_02a[]={
     "abc",";d;ef:/ghi;", NULL,
 };
 
-const gchar *STRLIST_02b[]={
+gchar *STRLIST_02b[]={
     "abc",";d;ef:/ghi;", NULL,
 };
 
-const gchar *STRLIST_03a[]={
+gchar *STRLIST_03a[]={
     "test", "ab", "這是\\測試成功-", "\\+", "good", NULL
 };
 
-const gchar *STRLIST_03b[]={
+gchar *STRLIST_03b[]={
     "", "test", "ab", "", "這是\\測試成功-", "\\+", "good", NULL
 };
 
-const gchar *STRLIST_04a[]={
+gchar *STRLIST_04a[]={
     "test", "ab-:這是\\測試成功--\\+:good", NULL
 };
 
-const gchar *STRLIST_04b[]={
+gchar *STRLIST_04b[]={
     "", "test:ab-:這是\\測試成功--\\+:good", NULL
 };
 
@@ -132,7 +132,7 @@ gboolean stringListTest_foreach(TestSubject *testSubject){
     String_TestRec *rec=(String_TestRec *) testSubject->dataSet;
     for(;rec->strList!=NULL; rec++){
 	OutputRec actOutRec=testSubject->run(rec, testSubject->param);
-	output_rec_set_string(expOutRec,rec->str);
+	output_rec_set_string(expOutRec,(gchar *) rec->str);
 	gchar *inStr=g_strdup_printf("params(\"%s\", \"%s\", '%c', %s)",
 		rec->str,rec->delimiters,rec->escapeChar,(rec->emptyToken)? "TRUE": "FALSE");
 	if (!testSubject->verify(actOutRec, expOutRec , testSubject->prompt, inStr)){

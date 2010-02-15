@@ -68,17 +68,6 @@ GNode *maker_dialog_find_group_node(MakerDialog *mDialog, const gchar *pageName,
     return NULL;
 }
 
-void maker_dialog_group_foreach_property(MakerDialog* mDialog, const gchar *pageName, const gchar *groupName, MakerDialogEachPropertyFunc  func, gpointer userData){
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] group_foreach_property( , %s, %s, , )", (pageName)? pageName : "", (groupName)? groupName: "");
-    GNode *groupNode=maker_dialog_find_group_node(mDialog, pageName, groupName);
-    g_assert(groupNode);
-    GNode *keyNode=NULL;
-    for(keyNode=g_node_first_child(groupNode);keyNode!=NULL; keyNode=g_node_next_sibling(keyNode)){
-	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(mDialog, (gchar *) keyNode->data);
-	func(mDialog, ctx, userData);
-    }
-}
-
 void maker_dialog_page_foreach_property(MakerDialog* mDialog, const gchar *pageName,
 	MakerDialogEachGroupNodeFunc groupFunc, gpointer groupUserData,	MakerDialogEachPropertyFunc propFunc, gpointer propUserData){
     GNode *pageNode=maker_dialog_find_page_node(mDialog, pageName);
@@ -106,6 +95,17 @@ void maker_dialog_pages_foreach_property(MakerDialog* mDialog, const gchar **pag
     }
 }
 
+void maker_dialog_group_foreach_property(MakerDialog* mDialog, const gchar *pageName, const gchar *groupName, MakerDialogEachPropertyFunc  func, gpointer userData){
+    MAKER_DIALOG_DEBUG_MSG(5, "[I5] group_foreach_property( , %s, %s, , )", (pageName)? pageName : "", (groupName)? groupName: "");
+    GNode *groupNode=maker_dialog_find_group_node(mDialog, pageName, groupName);
+    g_assert(groupNode);
+    GNode *keyNode=NULL;
+    for(keyNode=g_node_first_child(groupNode);keyNode!=NULL; keyNode=g_node_next_sibling(keyNode)){
+	MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) keyNode->data;
+	func(mDialog, ctx, userData);
+    }
+}
+
 void maker_dialog_foreach_page(MakerDialog *mDialog, MakerDialogEachPageFunc func, gpointer userData){
     GNode *pageNode=NULL;
     for(pageNode=g_node_first_child(mDialog->pageRoot);pageNode!=NULL; pageNode=g_node_next_sibling(pageNode)){
@@ -118,4 +118,52 @@ void maker_dialog_foreach_page_foreach_property(MakerDialog *mDialog,
     maker_dialog_pages_foreach_property(mDialog, NULL, groupFunc, groupUserData, propFunc, propUserData);
 }
 
+MakerDialogNodeIter maker_dialog_page_iter_init(MakerDialog* mDialog){
+    g_assert(mDialog->pageRoot);
+    return g_node_first_child(mDialog->pageRoot);
+}
+
+gboolean maker_dialog_page_iter_has_next(MakerDialogNodeIter iter){
+    return (iter!=NULL) ? TRUE: FALSE;
+}
+
+GNode *maker_dialog_page_iter_next(MakerDialogNodeIter *iter){
+    if (maker_dialog_page_iter_has_next(*iter)){
+	GNode *currNode=*iter;
+	*iter=g_node_next_sibling(*iter);
+	return currNode;
+    }
+    return NULL;
+}
+
+MakerDialogNodeIter maker_dialog_page_property_iter_init(MakerDialog* mDialog, const gchar *pageName){
+    GNode *pageNode=maker_dialog_find_page_node(mDialog, pageName);
+    g_assert(pageNode);
+    GNode *groupNode=g_node_first_child(pageNode);
+    if (!groupNode)
+	return NULL;
+    return g_node_first_child(groupNode);
+}
+
+gboolean maker_dialog_page_property_iter_has_next(MakerDialogNodeIter iter){
+    return (iter!=NULL)? TRUE: FALSE;
+}
+
+MakerDialogPropertyContext *maker_dialog_page_property_iter_next(MakerDialogNodeIter *iter){
+    if (maker_dialog_page_property_iter_has_next(*iter)){
+	MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) (*iter)->data;
+	MakerDialogNodeIter nextIter=g_node_next_sibling(*iter);
+	if (nextIter==NULL){
+	    GNode *nextGroupNode=g_node_next_sibling((*iter)->parent);
+	    if (nextGroupNode){
+		nextIter=g_node_first_child(nextGroupNode);
+	    }else{
+		nextIter=NULL;
+	    }
+	}
+	*iter=nextIter;
+	return ctx;
+    }
+    return NULL;
+}
 

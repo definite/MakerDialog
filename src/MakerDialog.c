@@ -391,7 +391,7 @@ void maker_dialog_add_property(MakerDialog *mDialog, MakerDialogPropertyContext 
     MAKER_DIALOG_DEBUG_MSG(2, "[I2] add_property( , %s)",ctx->spec->key);
     maker_dialog_property_table_insert(mDialog->propertyTable, ctx);
     GNode *propGroupNode=maker_dialog_prepare_group_node(mDialog, ctx->spec->pageName, ctx->spec->groupName);
-    GNode *propKeyNode=g_node_new((gpointer) ctx->spec->key);
+    GNode *propKeyNode=g_node_new((gpointer) ctx);
     g_node_append(propGroupNode,propKeyNode);
 //    maker_dialog_property_get_default(ctx->spec);
     ctx->mDialog=mDialog;
