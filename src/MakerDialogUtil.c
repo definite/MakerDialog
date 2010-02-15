@@ -47,9 +47,6 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
     }
 }
 
-/*=== Start Type Interface functions ===*/
-
-
 gboolean maker_dialog_atob(const gchar *string){
     if (maker_dialog_string_is_empty(string))
 	return FALSE;
@@ -65,25 +62,69 @@ gboolean maker_dialog_atob(const gchar *string){
     return TRUE;
 }
 
-void maker_dialog_error_print(MakerDialogError *error){
-    if (MAKER_DIALOG_DEBUG_RUN(0)){
-	g_warning("[WW] domain:%s [%d] %s", g_quark_to_string(error->domain), error->code, error->message);
-    }
+GQuark maker_dialog_error_quark(){
+    return g_quark_from_static_string("MakerDialog");
 }
 
-void maker_dialog_error_print_with_prefix(const gchar *prefix,MakerDialogError *error){
+MakerDialogError *maker_dialog_error_new(MakerDialogErrorCode code, const gchar *formatStr, ...){
+    va_list ap;
+    va_start(ap, formatStr);
+    gchar *errMsg=(formatStr) ? g_strdup_vprintf(formatStr, ap): NULL;
+    MakerDialogError *error=g_error_new_literal(MAKER_DIALOG_ERROR, code, (errMsg)? errMsg : "");
+    g_free(errMsg);
+    return error;
+}
+
+const gchar *maker_dialog_get_error_message(MakerDialogErrorCode code){
+    switch(code){
+	case MAKER_DIALOG_OK:
+	    return "Ok";
+	case MAKER_DIALOG_ERROR_CONFIG_ALREADY_EXIST:
+	    return "Config: Already exists";
+	case MAKER_DIALOG_ERROR_CONFIG_CANT_READ:
+	    return "Config: Cannot be read";
+	case MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE:
+	    return "Config: Cannot be written";
+	case MAKER_DIALOG_ERROR_CONFIG_INVALID_FORMAT:
+	    return "Config: Invalid format";
+	case MAKER_DIALOG_ERROR_CONFIG_INVALID_KEY:
+	    return "Config: Invalid key";
+	case MAKER_DIALOG_ERROR_CONFIG_INVALID_PAGE:
+	    return "Config: Invalid page";
+	case MAKER_DIALOG_ERROR_CONFIG_INVALID_VALUE:
+	    return "Config: Invalid value";
+	case MAKER_DIALOG_ERROR_CONFIG_NO_CONFIG_SET:
+	    return "Config: No config set";
+	case MAKER_DIALOG_ERROR_CONFIG_NO_FILE:
+	    return "Config: No config file";
+	case MAKER_DIALOG_ERROR_CONFIG_NOT_FOUND:
+	    return "Config: Not found";
+	case MAKER_DIALOG_ERROR_CONFIG_NOT_READY:
+	    return "Config: Not ready";
+	case MAKER_DIALOG_ERROR_CONFIG_PERMISSION_DENY:
+	    return "Config: Permission deny";
+	case MAKER_DIALOG_ERROR_CONFIG_OTHER:
+	    return "Config: Other";
+	default:
+	    break;
+    }
+    return NULL;
+}
+
+void maker_dialog_error_print(MakerDialogError *error){
     if (MAKER_DIALOG_DEBUG_RUN(0)){
-	g_warning("[WW] %s%sdomain:%s [%d] %s",
-		(prefix)? prefix : "",
-		(prefix)? " " : "",
-		g_quark_to_string(error->domain), error->code, error->message);
+	const gchar *errMsg=(error->domain==MAKER_DIALOG_ERROR) ? maker_dialog_get_error_message(error->code) : "";
+	g_warning("[WW] domain:%s [%d] %s, %s", g_quark_to_string(error->domain),
+		error->code, errMsg, error->message);
     }
 }
 
 gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **errOut){
-    if (errIn){
-	if (errOut){
-	    if (*errOut){
+//    MAKER_DIALOG_DEBUG_MSG(4,"[I4] error_handle() errIn=%s errOut:%s", (errIn)? errIn->message : "NULL", (errOut) ? ((*errOut)? (*errOut)->message: "EMPTY") : "NULL");
+    if (errIn!=NULL){
+	if (errOut!=NULL){
+	    if (*errOut!=NULL){
+		/* Free the old error */
 		maker_dialog_error_print(*errOut);
 		g_error_free(*errOut);
 	    }
@@ -92,7 +133,6 @@ gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **e
 	    maker_dialog_error_print(errIn);
 	    g_error_free(errIn);
 	}
-	errIn=NULL;
 	return TRUE;
     }
     return FALSE;
@@ -207,7 +247,7 @@ gchar **maker_dialog_string_split_set
 }
 
 gchar *maker_dialog_string_list_combine
-(const gchar **strList, const gchar *delimiters, gchar escapeChar, gboolean emptyToken){
+(gchar **strList, const gchar *delimiters, gchar escapeChar, gboolean emptyToken){
     g_return_val_if_fail (strList != NULL, NULL);
     g_return_val_if_fail (delimiters != NULL, NULL);
     GString *strBuf=g_string_new(NULL);
@@ -245,23 +285,18 @@ gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags){
 
 /*=== Start General file functions ===*/
 gboolean maker_dialog_file_isWritable(const gchar *filename){
-    gchar parentDirBuf[PATH_MAX];
-    gchar *parentDir;
-    gboolean result=TRUE;
-
     if (g_access(filename,W_OK)!=0){
 	if (g_access(filename,F_OK)==0){
 	    // Read only.
 	    return FALSE;
 	}
 	// Can't write the file , test whether the parent director can write
-	g_strlcpy(parentDirBuf,filename,PATH_MAX);
-	parentDir=dirname(parentDirBuf);
+	gchar *parentDir=g_path_get_dirname(filename);
 	if (g_access(parentDir,W_OK)!=0){
-	    result=FALSE;
+	    return FALSE;
 	}
     }
-    return result;
+    return TRUE;
 }
 
 gchar* maker_dialog_truepath(const gchar *path, gchar *resolved_path){

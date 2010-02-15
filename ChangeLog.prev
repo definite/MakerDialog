@@ -1,5 +1,19 @@
+* Mon Feb 08 2010 - Ding-Yi Chen <dchen at redhat.com> - 0.2.0
+- Property spec and MakerDialog spec can now be load from a key file.
+Example can be found in examples/md-example-gtk-keyfile2.c and
+examples/md-example.mkdg.
+- Add many button specs.
+- New string list processing functions.
+- MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION is removed.
+- maker_dialog_config_error_handle() is renamed to maker_dialog_error_handle()
+- maker_dialog_config_error_print() is renamed to maker_dialog_error_print()
+
+Removed:
+- MakerDialogConfig's struct  member: fileBased. Because this info should
+  be provided by ConfigFileInterface's config_file_init() function.
+- MAKER_DIALOG_CONFIG_FLAG_NOT_FILE_BASE
+- MakerDialogConfigSet's struct  member: currentIndex.
+
 * Mon Nov 30 2009 - Ding-Yi Chen <dchen at redhat.com> - 0.1.1
 - Initial Release.
-
-
 

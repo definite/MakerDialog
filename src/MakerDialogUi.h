@@ -96,7 +96,7 @@ typedef enum{
     MAKER_DIALOG_RESPONSE_GO_DOWN=-34,		//!< Returned when a "Down" button is pressed.
     MAKER_DIALOG_RESPONSE_GO_BACK=-35,		//!< Returned when a "Back" button is pressed.
     MAKER_DIALOG_RESPONSE_GO_FORWARD=-36,	//!< Returned when a "Forward" button is pressed.
-} MakerDialogResponsePredefined;
+} MAKER_DIALOG_RESPONSE;
 
 /**
  * Response id for UI widgets.
@@ -120,13 +120,12 @@ typedef struct _MakerDialogButtonSpec{
 typedef struct _MakerDialogUi MakerDialogUi;
 
 /**
- * Data structure of MakerDialog toolkit interface.
+ * MakerDialog UI callback functions to be implemented.
  *
- * Note that normally you don't have to directly use the members here.
- * The values of members will be filled by calling corresponding toolkit interface.
- *
- * These members are listed here for convenience for
- * developer of toolkit interfaces.
+ * These callback functions connect to UI tookit
+ * to perform corresponding tasks.
+ * These callback functions are called automatically, so no need
+ * to call them directly.
  */
 typedef struct {
     /**

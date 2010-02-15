@@ -39,6 +39,7 @@
 #define DIRECTORY_SEPARATOR '/'
 #endif
 
+
 /**
  * Generic value holder.
  *
@@ -47,24 +48,23 @@
  * Note that you still need to allocate memory for string and pointer data types.
  */
 typedef union {
-    gboolean    v_boolean;	//!< For boolean value.
-    gint        v_int;		//!< For integer value.
-    guint       v_uint;		//!< For unsigned integer value.
-    gint32      v_int32;	//!< For 32-bit integer value.
-    guint32     v_uint32;	//!< For unsigned 32-bit integer value.
-    gint64      v_int64;	//!< For 64-bit integer value.
-    guint64     v_uint64;	//!< For 64-bit unsigned integer value.
-    glong       v_long;		//!< For long integer value.
-    gulong      v_ulong;	//!< For unsigned long integer value.
-    gfloat      v_float;	//!< For floating-point number.
-    gdouble     v_double;	//!< For double-precision floating-point number.
-    gchar 	v_char;		//!< For character value.
-    gunichar	v_wchar;	//!< For UCS4 wide character.
-    gchar	*v_string;	//!< For strings.
+    gboolean    v_boolean;		//!< For boolean value.
+    gint        v_int;			//!< For integer value.
+    guint       v_uint;			//!< For unsigned integer value.
+    gint32      v_int32;		//!< For 32-bit integer value.
+    guint32     v_uint32;		//!< For unsigned 32-bit integer value.
+    gint64      v_int64;		//!< For 64-bit integer value.
+    guint64     v_uint64;		//!< For 64-bit unsigned integer value.
+    glong       v_long;			//!< For long integer value.
+    gulong      v_ulong;		//!< For unsigned long integer value.
+    gfloat      v_float;		//!< For floating-point number.
+    gdouble     v_double;		//!< For double-precision floating-point number.
+    gchar 	v_char;			//!< For character value.
+    gunichar	v_unichar;		//!< For UCS4 wide character.
+    gchar	*v_string;		//!< For strings.
     gchar	**v_string_list;	//!< For list of strings.
-    gpointer    v_pointer;	//!< For generic pointers.
+    gpointer    v_pointer;		//!< For generic pointers.
 } MkdgValueHolder;
-
 
 /**
  * Paired data, consist a string id and corresponding data.
@@ -141,11 +141,74 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...);
 gboolean maker_dialog_atob(const gchar *str);
 
 /**
+ * Enumeration of error code enumeration.
+ *
+ * This enumeration lists all error codes for configuration file operation.
+ */
+typedef enum{
+    MAKER_DIALOG_OK=0, 				//!< No error.
+    MAKER_DIALOG_ERROR_CONFIG_ALREADY_EXIST=1, 	//!< File already exists.
+    MAKER_DIALOG_ERROR_CONFIG_CANT_READ,	//!< File cannot be read.
+    MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, 	//!< File cannot be written.
+    MAKER_DIALOG_ERROR_CONFIG_INVALID_FORMAT, 	//!< File format is invalid.
+    MAKER_DIALOG_ERROR_CONFIG_INVALID_KEY, 	//!< Key is invalid (no such key).
+    MAKER_DIALOG_ERROR_CONFIG_INVALID_PAGE, 	//!< Page is invalid (no such page).
+    MAKER_DIALOG_ERROR_CONFIG_INVALID_VALUE, 	//!< Value is invalid.
+    MAKER_DIALOG_ERROR_CONFIG_NO_CONFIG_SET, 	//!< No configuration set is added.
+    MAKER_DIALOG_ERROR_CONFIG_NO_FILE, 		//!< File does not exists.
+    MAKER_DIALOG_ERROR_CONFIG_NOT_FOUND, 	//!< File not found.
+    MAKER_DIALOG_ERROR_CONFIG_NOT_READY, 	//!< Configuration back-end is not ready.
+    MAKER_DIALOG_ERROR_CONFIG_PERMISSION_DENY,	//!< Permission denied; the file permissions do not allow the attempted operation.
+    MAKER_DIALOG_ERROR_CONFIG_OTHER, 		//!< Other error.
+} MakerDialogErrorCode;
+
+/**
+ * Error domain for MakerDialog.
+ *
+ * Errors in this domain will be from the ::MakerDialogErrorCode enumeration.
+ * See GError for information on error domains.
+ */
+#define MAKER_DIALOG_ERROR maker_dialog_error_quark()
+
+/**
+ * GQuark of MakerDialog domain for error reporting.
+ *
+ * GQuark of MakerDialog domain for error reporting.
+ * @returns GQuark of MakerDialog domain for error reporting.
+ */
+GQuark maker_dialog_error_quark (void);
+
+/**
+ * New a MakerDialog error.
+ *
+ * New a MakerDialog error.
+ * @param code 		Error code.
+ * @param formatStr	printf() format string.
+ * @param ...		Argument for formatStr.
+ * @return A newly allocated MakerDialog error instance.
+ * @since 0.3
+ */
+MakerDialogError *maker_dialog_error_new(MakerDialogErrorCode code, const gchar *formatStr, ...);
+
+/**
+ * Return corresponding error message, given error code.
+ *
+ * This function return corresponding error message, given error code.
+ * The returned string is constant, no need to free it.
+ *
+ * @param code 		Error code.
+ * @return A constant error message string, or \c NULL if \a code does not
+ * match any error message.
+ * @since 0.3
+ */
+const gchar *maker_dialog_get_error_message(MakerDialogErrorCode code);
+
+/**
  * Print a MakerDialog configuration error message.
  *
  * Print a MakerDialog configuration error message in following format:
  * @code
- * [WW] domain:\<domain\> [\<code\>] \<message\>
+ * [WW] domain:\<domain\> [\<code\>] \<error message\>, \<extra message\>
  * @endcode
  *
  * To suppress the error message, set environment variable \c MAKER_DIALOG_VERBOSE to a negative number.
@@ -154,22 +217,6 @@ gboolean maker_dialog_atob(const gchar *str);
  * @since 0.2
  */
 void maker_dialog_error_print(MakerDialogError *error);
-
-/**
- * Print a MakerDialog configuration error message with prefix.
- *
- * Print a MakerDialog configuration error message with prefix in following format:
- * @code
- * [WW] \<prefix\>domain:\<domain\> [\<code\>] \<message\>
- * @endcode
- *
- * To suppress the error message, set environment variable \c MAKER_DIALOG_VERBOSE to a negative number.
- *
- * @param prefix	Prefix of the error message.
- * @param error 	Error to be printed.
- * @since 0.2
- */
-void maker_dialog_error_print_with_prefix(const gchar *prefix, MakerDialogError *error);
 
 /**
  * Handle the error by keeping the latest error and print out the old error.
@@ -297,7 +344,7 @@ gchar **maker_dialog_string_split_set
  * @since 0.2
  */
 gchar *maker_dialog_string_list_combine
-(const gchar **strList, const gchar *delimiters, gchar escapeChar, gboolean emptyToken);
+(gchar **strList, const gchar *delimiters, gchar escapeChar, gboolean emptyToken);
 
 /**
  * Whether a set of flags contains all the specified flags.

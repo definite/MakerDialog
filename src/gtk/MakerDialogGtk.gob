@@ -616,7 +616,7 @@ class Maker:Dialog:Gtk from Gtk:Dialog{
 		    maker_dialog_value_from_double(value, gtk_spin_button_get_value (GTK_SPIN_BUTTON(widget)));
 		    break;
 		case MKDG_TYPE_STRING:
-		    maker_dialog_value_set_string(value, gtk_entry_get_text (GTK_ENTRY(widget)));
+		    maker_dialog_value_set_string(value, (gchar *) gtk_entry_get_text (GTK_ENTRY(widget)));
 		    break;
 		default:
 		    break;

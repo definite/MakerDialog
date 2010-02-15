@@ -60,8 +60,8 @@ typedef enum {
     MKDG_TYPE_STRING,		//!< String type.
     MKDG_TYPE_STRING_LIST,	//!< List of strings.
     MKDG_TYPE_COLOR,		//!< Color type.
-    MKDG_TYPE_FILE,		//!< File type.
-    MKDG_TYPE_KEY_COMBINATION,	//!< Type for key combination. Such as "Ctrl-A"
+//    MKDG_TYPE_FILE,		//!< File type.
+//    MKDG_TYPE_KEY_COMBINATION,	//!< Type for key combination. Such as "Ctrl-A"
     MKDG_TYPE_NONE,		//!< "None" type.
 } MkdgType;
 

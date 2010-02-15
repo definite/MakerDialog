@@ -30,16 +30,23 @@
 #include "MakerDialogConfig.h"
 
 /**
- * New a MakerDialogConfig using GConf back-end.
+ * The configure file interface for GConf.
  *
- * This function constructs a configuration back-end using GConf GKeyFile
- * back-end.
+ * The configure file interface for GConf.
+ */
+extern MakerDialogConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF;
+
+/**
+ * New a MakerDialogConfig which use glib GConf back-end.
+ *
+ * This function returns a newly allocated MakerDialogConfig
+ * which use glib GConf back-end.
  *
  * During construction, the new MakerDialogConfig is associated to the \a mDialog.
  * Thus, maker_dialog_destroy() can free the associated MakerDialogConfig as well.
  *
  * @param mDialog 	A MakerDialog.
- * @return A newly allocated MakerDialogConfig with glib GKeyFile back-end.
+ * @return A newly allocated MakerDialogConfig with glib GConf back-end.
  * @see maker_dialog_config_new().
  */
 MakerDialogConfig *maker_dialog_config_use_gconf(MakerDialog *mDialog);

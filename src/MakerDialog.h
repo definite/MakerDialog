@@ -47,6 +47,8 @@ typedef struct _MakerDialog MakerDialog;
 #include "MakerDialogPage.h"
 #include "MakerDialogUi.h"
 #include "MakerDialogConfig.h"
+#include "MakerDialogConfigSet.h"
+#include "MakerDialogConfigFile.h"
 #include "MakerDialogConfigKeyFile.h"
 
 /**
@@ -77,7 +79,7 @@ typedef enum{
 /**
  * Data structure of a MakerDialog.
  *
- *
+ * Data structure of a MakerDialog.
  */
 struct _MakerDialog{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.

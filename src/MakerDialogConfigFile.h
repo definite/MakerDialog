@@ -1,0 +1,274 @@
+/*
+ * Copyright © 2010  Red Hat, Inc. All rights reserved.
+ * Copyright © 2010  Ding-Yi Chen <dchen at redhat.com>
+ *
+ *  This file is part of MakerDialog.
+ *
+ *  MakerDialog is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  MakerDialog is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
+ * @file MakerDialogConfigFile.h
+ * Configuration File for MakerDialog.
+ *
+ * A configuration file stores property values.
+ *
+ * The configuration back-end interface functions are defined here.
+ *
+ * @since 0.3; was included in MakerDialogConfig.h prior 0.2.
+ */
+#ifndef MAKER_DIALOG_CONFIG_FILE_H_
+#define MAKER_DIALOG_CONFIG_FILE_H_
+#include "MakerDialogConfigDef.h"
+
+/**
+ * Configuration file.
+ *
+ * Configuration file stores the path and the pointer to the file handle.
+ */
+struct _MakerDialogConfigFile{
+    const gchar 		*path;			//!< Path to configuration file.
+    MakerDialogConfigFileFlags	flags;			//!< Flags for configuration file.
+    MakerDialogConfigSet	*configSet;		//!< Configuration set which manages this file.
+    gpointer			fileObj;		//!< Configuration file instance.
+    gpointer			userData;		//!< Extra user data that can be used to hold interface specific data.
+};
+
+/**
+ * New a MakerDialog configuration file.
+ *
+ * New a MakerDialog configuration file.
+ * @param path		//!< Path of the file.
+ * @param configSet	//!< Associated configuration set.
+ * @return A newly allocated MakerDialog configuration file.
+ */
+MakerDialogConfigFile *maker_dialog_config_file_new(const gchar *path, MakerDialogConfigSet *configSet);
+
+/**
+ * New a MakerDialog configuration file.
+ *
+ * New a MakerDialog configuration file.
+ * @param path		//!< Path of the file.
+ * @param flags		//!< Flags for configuration file.
+ * @param configSet	//!< Associated configuration set.
+ * @return A newly allocated MakerDialog configuration file.
+ */
+MakerDialogConfigFile *maker_dialog_config_file_new_full(const gchar *path, MakerDialogConfigFileFlags flags,MakerDialogConfigSet *configSet);
+
+
+/**
+ * Free a MakerDialog configuration file.
+ *
+ * Free a MakerDialog configuration file.
+ * @param configFile	//!< The MakerDialog configuration file to be freed.
+ */
+void maker_dialog_config_file_free(MakerDialogConfigFile *configFile);
+
+/**
+ * MakerDialog configuration callback functions to be implemented.
+ *
+ * These callback functions connect to configuration back-end
+ * to perform corresponding tasks.
+ * These callback functions are called automatically, so no need
+ * to call them directly.
+ * @since 0.3
+ */
+struct _MakerDialogConfigFileInterface{
+    /**
+     * Initialize configuration set.
+     *
+     * This function initializes configuration set by
+     * filling \a fileArray with available configuration files and
+     * pointing \a writeIndex to proper file, that is:
+     * - last writable file if if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is not set;
+     * - or pointing to first writable file if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is set.
+     * - -1 if no writable files or \c MAKER_DIALOG_CONFIG_READONLY is set.
+     *
+     * For non-file-based configuration back-end,
+     * insert an empty configure file to \a fileArray,
+     * and point \a writeIndex is set to:
+     * - 0, if \c MAKER_DIALOG_CONFIG_READONLY is not set;
+     * - or -1, if \c MAKER_DIALOG_CONFIG_READONLY is not set.
+     *
+     * @param configSet		A MakerDialog configuration set.
+     * @param error		Error return location, or \c NULL.
+     * @return \c TRUE if user is granted with the \a permission;\c FALSE otherwise.
+     */
+    gboolean (* config_set_init)(MakerDialogConfigSet *configSet, MakerDialogError **error);
+
+    /**
+     * Finalize configuration set.
+     *
+     * This function finalizes configuration set.
+     * All file associated/opened by this configuration set should be close.
+     * Associated instances should be freed as well.
+     * @param configSet		A MakerDialog configuration set.
+     */
+    void (* config_set_finalize)(MakerDialogConfigSet *configSet);
+
+    /**
+     * Callback function that checks user's permission of a configuration file.
+     *
+     * This function connects to function that checks whether the current user
+     * can access the file with given permission.
+     *
+     * Permission consist one or more following flags:
+     * - F_OK: File exists.
+     * - R_OK: File is readable.
+     * - W_OK: File is writable.
+     * - X_OK: File is executable.
+     *
+     * This function returns \c TRUE if user is granted with the \a permission;
+     * \c FALSE otherwise.
+     *
+     * @param configFile	The configuration file to checked.
+     * @param permission	The permission mask.
+     * @param error		Error return location, or \c NULL.
+     * @return \c TRUE if user is granted with the \a permission;\c FALSE otherwise.
+     */
+    gboolean (* config_file_can_access)(MakerDialogConfigFile *configFile, guint permission, MakerDialogError **error);
+
+    /**
+     * Callback function to create a new configuration file.
+     *
+     * This function connects to create function of the configuration back-end.
+     * That is, it creates a file (or record) which does not yet exist.
+     * \c FALSE is returned when the file already existed,
+     * or failed to create the file.
+     *
+     * Called by maker_dialog_config_set_open().
+     * @param configFile	The configuration file to be manipulated.
+     * @param error		Error return location, or \c NULL.
+     * @return \c TRUE if succeed; \c FALSE if the file already exists or failed to create.
+     */
+    gboolean (* config_file_create)(MakerDialogConfigFile *configFile, MakerDialogError **error);
+
+    /**
+     * Callback function to open a configuration file.
+     *
+     * This function connects to open function of the configuration back-end.
+     * That is, it opens a file (or record) if it is readable.
+     * \c FALSE is returned when the file is not readable,
+     * or failed to open the file.
+     *
+     *
+     * Called by maker_dialog_config_set_open().
+     * @param configFile	The configuration file to be manipulated.
+     * @param error		Error return location, or \c NULL.
+     * @return \c TRUE if succeed; \c FALSE if the file does not exist or failed to open.
+     */
+    gboolean (* config_file_open)(MakerDialogConfigFile *configFile, MakerDialogError **error);
+
+    /**
+     * Callback function to close a configuration file.
+     *
+     * This function connects to close function of the configuration back-end.
+     * Called by maker_dialog_config_set_close().
+     * @param configFile	The configuration file to be manipulated.
+     * @param error		Error return location, or \c NULL.
+     * @return \c TRUE if succeed; \c FALSE otherwise.
+     */
+    gboolean (* config_file_close)(MakerDialogConfigFile *configFile, MakerDialogError **error);
+
+    /**
+     * Callback function to preload all property from a configuration file.
+     *
+     * This function connects to function that load all property from a
+     * configuration file to a configuration buffer.
+     * Called by maker_dialog_config_set_preload().
+     *
+     * @param configFile	The configuration file to be manipulated.
+     * @param configBuf		The configuration buffer for storing the loaded property.
+     * @param error		Error return location, or \c NULL.
+     * @return \c TRUE if succeed; \c FALSE otherwise.
+     * @see config_file_preload_page(), config_file_preload_property()
+     */
+    gboolean (* config_file_preload)(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, MakerDialogError **error);
+
+    /**
+     * Callback function to save all property from a configuration file.
+     *
+     * This function connects to function that save all property from a
+     * configuration file.
+     * Called by maker_dialog_config_set_preload().
+     *
+     * @param configFile	The configuration file to be manipulated.
+     * @param error		Error return location, or \c NULL.
+     * @return \c TRUE if succeed; \c FALSE otherwise.
+     * @see config_file_preload_page(), config_file_preload_property()
+     */
+    gboolean (* config_file_save)(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, MakerDialogError **error);
+
+    /**
+     * Callback function to get all pages in a configuration file.
+     *
+     * This function connects to function that save a property
+     * from a configuration file.
+     * Called by maker_dialog_config_set_save().
+     *
+     * @param configFile	The configuration file to be manipulated.
+     * @param error		Error return location, or \c NULL.
+     * @return A newly allocated list of strings which contains results;  or \c NULL if no pages are found.
+     * @see config_file_save(), config_file_save_page().
+     */
+    gchar ** (* config_file_get_pages)(MakerDialogConfigFile *configFile, MakerDialogError **error);
+
+};
+
+/**
+ * New a MakerDialog config buffer.
+ *
+ * This function news a MakerDialog config buffer.
+ * MakerDialog config buffer is a buffer of property key and value pairs.
+ * The buffer is filled in preload stage,
+ * and freed after load or save stage.
+ *
+ * This function is meant to be used internally,
+ * so most people do not need to call it.
+ * @return A newly allocated MakerDialogConfigBuffer instance.
+ */
+MakerDialogConfigBuffer *maker_dialog_config_buffer_new();
+
+/**
+ * Insert a value to a MakerDialog config buffer.
+ *
+ * Insert a value to a MakerDialog config buffer.
+ * @param configBuf 	A MakerDialog config buffer.
+ * @param key		Property key to be inserted. This key will be duplicated in MakerDialog config buffer.
+ * @param value		Value for the property.
+ */
+void maker_dialog_config_buffer_insert(MakerDialogConfigBuffer *configBuf, const gchar *key, MkdgValue *value);
+
+/**
+ * Lookup the associated value of a key in MakerDialog config buffer.
+ *
+ * Lookup the associated value of a key in MakerDialog config buffer.
+ * @param configBuf 	A MakerDialog config buffer.
+ * @param key		Property key to be inserted. This key will be duplicated in MakerDialog config buffer.
+ * @return The associated value of a key, or \c NULL the no such key in the config buffer.
+ */
+MkdgValue *maker_dialog_config_buffer_lookup(MakerDialogConfigBuffer *configBuf, const gchar *key);
+
+/**
+ * Free a MakerDialog config buffer.
+ *
+ * Free a MakerDialog config buffer.
+ *
+ * This function is meant to be used internally,
+ * so most people do not need to call it.
+ * @param configBuf A MakerDialog config buffer.
+ */
+void maker_dialog_config_buffer_free(MakerDialogConfigBuffer *configBuf);
+
+#endif /* MAKER_DIALOG_CONFIG_FILE_H_ */
+

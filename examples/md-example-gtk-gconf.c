@@ -20,16 +20,15 @@ int main(int argc,char *argv[]){
     if (!config){
 	exit(1);
     }
-    MakerDialogConfigSet *configSet=maker_dialog_config_set_new_full(NULL,0,
-	    "/apps/md-example-gtk-gconf", NULL, NULL,  -1, NULL);
+    MakerDialogConfigSet *configSet=maker_dialog_config_set_new_full(
+	    NULL, "/apps/md-example-gtk-gconf", NULL, NULL,  -1,
+	    0, &MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF, NULL);
     maker_dialog_config_add_config_set(config, configSet, NULL);
     maker_dialog_config_open_all(config, NULL);
     if (!maker_dialog_config_load_all(config, NULL)){
 	exit(-1);
     }
-    g_debug("*** 1\n");
     /* Set UI */
-    g_debug("*** 1\n");
     MakerDialogUi *ui=maker_dialog_ui_use_gtk(mDialog, &argc, &argv);
     if (!ui){
 	exit(1);

@@ -23,6 +23,7 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DI
 SET(MAKER_DIALOG_BASE_SRC_C
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigFile.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigSet.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogPage.c
@@ -35,6 +36,8 @@ SET(MAKER_DIALOG_BASE_SRC_C
 SET(MAKER_DIALOG_BASE_SRC_H
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfig.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigDef.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigFile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigSet.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogPage.h
@@ -74,7 +77,7 @@ ADD_LIBRARY(MakerDialogGConf MakerDialogConfigGConf.h MakerDialogConfigGConf.c)
 TARGET_LINK_LIBRARIES(MakerDialogGConf MakerDialog ${GCONF2_LIBRARIES})
 
 ADD_EXECUTABLE(MakerDialogGConfSchemas MakerDialogConfigGConfSchemas.c)
-TARGET_LINK_LIBRARIES(MakerDialogGConfSchemas MakerDialogGConf)
+TARGET_LINK_LIBRARIES(MakerDialogGConfSchemas MakerDialog MakerDialogGConf)
 
 SET_TARGET_PROPERTIES(MakerDialog MakerDialogGtk MakerDialogGConf
     PROPERTIES SOVERSION "${SO_VER_MAJOR}"
