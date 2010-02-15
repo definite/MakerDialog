@@ -45,6 +45,12 @@ MkdgComp_TestRec COMPARISON_DATASET[]={
     {{0}, {MKDG_TYPE_STRING, "dvorak", "dvorak", NULL, NULL}},
     {{-1}, {MKDG_TYPE_STRING, "dvorak", "dvorak_hsu", NULL, NULL}},
     {{-1}, {MKDG_TYPE_INT, "32", "103", NULL, NULL}},
+    {{0}, {MKDG_TYPE_COLOR, "white", "#FFFFFF", NULL, NULL}},
+    {{0}, {MKDG_TYPE_COLOR, "red", "#FF0000", NULL, NULL}},
+    {{-1}, {MKDG_TYPE_COLOR, "blue", "red", NULL, NULL}},
+    {{0},  {MKDG_TYPE_STRING_LIST, "test1;test2","test1;test2", NULL, NULL}},
+    {{-1},  {MKDG_TYPE_STRING_LIST, "test1","test1;test2", NULL, NULL}},
+    {{1},  {MKDG_TYPE_STRING_LIST, "SADF;ASDF","TTT", NULL, NULL}},
     {{-1}, {MKDG_TYPE_INVALID, NULL, NULL, NULL, NULL}},
 };
 
@@ -97,6 +103,15 @@ typedef struct{
     MkdgFromStr_InputRec in;
 } MkdgFromStr_TestRec;
 
+char *STRING_LIST_DATA[7][3]={
+    {"ASDF", "SADF",NULL},
+    {"ASDF", "",NULL},
+    {"", "SADF",NULL},
+    {"ASDF;", "SADF",NULL},
+    {"ASDF", ";SADF",NULL},
+    {"ASDF", "S;ADF",NULL},
+    {NULL, NULL, NULL}
+};
 
 MkdgFromStr_TestRec FROM_STR_DATASET[]={
     {{.v_int=2},	{MKDG_TYPE_INT,		"2", NULL}},
@@ -105,6 +120,12 @@ MkdgFromStr_TestRec FROM_STR_DATASET[]={
     {{.v_double=2.0}, 	{MKDG_TYPE_DOUBLE, 	"2.0", NULL}},
     {{.v_double=0.0}, 	{MKDG_TYPE_DOUBLE, 	"0.0", NULL}},
     {{.v_double=-1.0}, 	{MKDG_TYPE_DOUBLE, 	"-1.0", NULL}},
+    {{.v_string_list=STRING_LIST_DATA[0]}, 	{MKDG_TYPE_STRING_LIST, "ASDF;SADF", NULL}},
+    {{.v_string_list=STRING_LIST_DATA[1]}, 	{MKDG_TYPE_STRING_LIST, "ASDF;", NULL}},
+    {{.v_string_list=STRING_LIST_DATA[2]}, 	{MKDG_TYPE_STRING_LIST, ";SADF", NULL}},
+    {{.v_string_list=STRING_LIST_DATA[3]}, 	{MKDG_TYPE_STRING_LIST, "ASDF\\;;SADF", NULL}},
+    {{.v_string_list=STRING_LIST_DATA[4]}, 	{MKDG_TYPE_STRING_LIST, "ASDF;\\;SADF", NULL}},
+    {{.v_string_list=STRING_LIST_DATA[5]}, 	{MKDG_TYPE_STRING_LIST, "ASDF;S\\;ADF", NULL}},
     {{0}, 	{MKDG_TYPE_INVALID, 	"0", NULL}},
 };
 

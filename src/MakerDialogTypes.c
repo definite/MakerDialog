@@ -104,7 +104,7 @@ static gchar *md_boolean_to_string(MkdgValue *value, const gchar *toStringFormat
 }
 
 static gint md_boolean_compare(MkdgValue *value1, MkdgValue *value2, const gchar *compareOption){
-    if (G_VALUE_TYPE(value2)!=G_TYPE_BOOLEAN){
+    if (value2->mType!=MKDG_TYPE_BOOLEAN){
 	return -3;
     }
     gboolean val1=value1->data[0].v_boolean;
@@ -458,6 +458,10 @@ static MkdgValue *md_string_list_from_string(MkdgValue *value, const gchar *str,
     const gchar *delimiters=(maker_dialog_string_is_empty(parseOption))? ";": parseOption;
     gchar **sList=maker_dialog_string_split_set(str,delimiters, '\\', TRUE, -1);
     maker_dialog_value_set_string_list(value, sList);
+    gint i;
+    for(i=0;sList[i]!=NULL;i++);
+    // Count number of string length.
+    value->data[1].v_int=i;
     return value;
 }
 
@@ -466,7 +470,7 @@ static gchar *md_string_list_to_string(MkdgValue *value, const gchar *toStringFo
 }
 
 static gint md_string_list_compare(MkdgValue *value1, MkdgValue *value2, const gchar *compareOption){
-    if (value2->mType!=MKDG_TYPE_STRING){
+    if (value2->mType!=MKDG_TYPE_STRING_LIST){
 	return -3;
     }
     gint ret;
@@ -483,7 +487,6 @@ static gint md_string_list_compare(MkdgValue *value1, MkdgValue *value2, const g
     }
     gchar **strList1=maker_dialog_value_get_string_list(value1);
     gchar **strList2=maker_dialog_value_get_string_list(value2);
-    gint i;
     if (strList1==NULL){
 	if (strList2==NULL)
 	    return 0;
@@ -493,18 +496,25 @@ static gint md_string_list_compare(MkdgValue *value1, MkdgValue *value2, const g
 	return 1;
     }
 
-    for(i=0;strList2[i]!=NULL;i++){
-	if (strList1[i]==NULL)
-	    return -1;
-	if (flags & STRING_COMPARE_CASE_INSENSITIVE_FLAG){
-	    ret=g_ascii_strcasecmp(strList1[i], strList2[i]);
-	}else{
-	    ret=strcmp(strList1[i], strList2[i]);
+    gint i=0;
+    if (value1->data[1].v_int < value2->data[1].v_int){
+	return -1;
+    }else if (value1->data[1].v_int > value2->data[1].v_int){
+	return 1;
+    }else{
+	for(i=0;strList2[i]!=NULL;i++){
+	    if (strList1[i]==NULL)
+		return -1;
+	    if (flags & STRING_COMPARE_CASE_INSENSITIVE_FLAG){
+		ret=g_ascii_strcasecmp(strList1[i], strList2[i]);
+	    }else{
+		ret=strcmp(strList1[i], strList2[i]);
+	    }
+	    if (ret>0)
+		return 1;
+	    else if (ret<0)
+		return -1;
 	}
-	if (ret>0)
-	    return 1;
-	else if (ret<0)
-	    return -1;
     }
     if (strList1[i]!=NULL)
 	return 1;
