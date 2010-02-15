@@ -88,7 +88,7 @@ static void maker_dialog_control_rules_free(MakerDialogControlRule *rules){
 }
 
 void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec){
-    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FROM_FILE){
+    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
 	g_free((gchar *)spec->key);
 	g_free((gchar *)spec->defaultValue);
 	g_strfreev((gchar **)spec->validValues);

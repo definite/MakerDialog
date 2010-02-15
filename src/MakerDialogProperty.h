@@ -63,15 +63,15 @@
  * type, determine how the UI is represented.
  */
 typedef enum {
-    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE    		=0x1, //!< The property spec can be freed. This flag is automatically set.
     /**
-     * The property spec is read from a file.
-     * This flag is automatically set.
-     * It implies that the strings in spec structure will be freed during maker_dialog_propery_spec_free().
+     * The property spec can be freed.
+     *
+     * This flag is automatically set by maker_dialog_property_spec_new() and maker_dialog_property_spec_new_full().
+     * Property specs read from file are freeable, for example.
      */
-    MAKER_DIALOG_PROPERTY_FLAG_FROM_FILE    		=0x2,
-    MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET 		=0x10, //!< The property choose only among predefined valid values.
-    MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS 	=0x20, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
+    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE    		=0x100,
+    MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET 		=0x200, //!< The property choose only among predefined valid values.
+    MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS 	=0x400, //!< Use radio buttons if possible. Need to set ::MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET as well.
 } MAKER_DIALOG_PROPERTY_FLAG;
 
 /**

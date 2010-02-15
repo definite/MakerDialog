@@ -43,10 +43,13 @@ SET(CVS_DIST_TAGS EL-5 F-11 F-12)
 SET(HOSTING_SERVICE_PROVIDER "GitHub")
 SET(DEVELOPER_SETTING_FILE "DEVELOPER_SETTING_NO_PACK")
 #SET(DEVELOPER_DEPENDS ***USER_DEFINE***)
-ADD_CUSTOM_TARGET(tag
+ADD_CUSTOM_TARGET(commit
+    COMMAND git commit -a -m "${CHANGE_SUMMARY}"
     COMMAND git tag -a "${PRJ_VER}" -m "Ver ${PRJ_VER}" HEAD
-    COMMENT "Tag version ${PRJ_VER}"
+    COMMENT "Commit and tag the changes"
+    VERBATIM
     )
+
 
 ####################################################################
 # Includes

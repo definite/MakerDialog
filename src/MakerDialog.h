@@ -130,7 +130,7 @@ MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *button
  * @param error		Returned error is stored here; or \c NULL to ignore error.
  * @return A newly allocated MakerDialog instance; or \c NULL if failed.
  */
-MakerDialog *maker_dialog_load_from_key_file(const gchar *filename, MakerDialogError **error);
+MakerDialog *maker_dialog_new_from_key_file(const gchar *filename, MakerDialogError **error);
 
 /**
  * Add a property context to the maker dialog.
