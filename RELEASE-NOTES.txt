@@ -11,6 +11,8 @@ SO_VER_MINOR=3
 - MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION is removed.
 - maker_dialog_config_error_handle() is renamed to maker_dialog_error_handle()
 - maker_dialog_config_error_print() is renamed to maker_dialog_error_print()
+- maker_dialog_button_parse_respond_id() is renamed to
+  maker_dialog_parse_button_respond_id()
 
 Removed:
 - MakerDialogConfig's struct  member: fileBased. Because this info should

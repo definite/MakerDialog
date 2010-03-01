@@ -37,9 +37,15 @@ ELSE(${NEED_RPM_RELEASE_INFO})
 ENDIF(${NEED_RPM_RELEASE_INFO})
 
 #==================================================================
+# Project specific setting
+#
+
+SET(DATADIR_D "${DATADIR}/${PROJECT_NAME}.d")
+
+#==================================================================
 # Developer setting.
 #
-SET(CVS_DIST_TAGS EL-5 F-11 F-12)
+SET(CVS_DIST_TAGS EL-5 F-11 F-12 F-13)
 SET(HOSTING_SERVICE_PROVIDER "GitHub")
 SET(DEVELOPER_SETTING_FILE "DEVELOPER_SETTING_NO_PACK")
 #SET(DEVELOPER_DEPENDS ***USER_DEFINE***)
@@ -84,9 +90,6 @@ GENERATE_SPEC(SPECS/project.spec.in)
 ####################################################################
 # Definitions
 ####################################################################
-ADD_DEFINITIONS(-DPRJ_VERSION='"${PRJ_VER_FULL}"')
-ADD_DEFINITIONS(-DPKGDATADIR='"${PROJECT_DATADIR}"')
-ADD_DEFINITIONS(-DSYSTEMDIR='"${PROJECT_DATADIR}"')
 
 ####################################################################
 # Required

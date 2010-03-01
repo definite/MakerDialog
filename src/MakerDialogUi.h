@@ -44,8 +44,9 @@ typedef struct _MakerDialogDimension{
 }MakerDialogDimension;
 
 /**
- * Describe the alignment (size) of a visible component.
+ * Describe the alignment of a visible component.
  *
+ * Alignment of a visible component.
  */
 typedef struct _MakerDialogAlignment{
     gfloat x;	//!< Alignment in X axis. 0 for Left; 0.5 for Center; 1.0 for Right.
@@ -60,42 +61,43 @@ typedef struct _MakerDialogAlignment{
  * These ids are actually coming from GTK_RESPONSE ids.
  */
 typedef enum{
-    MAKER_DIALOG_RESPONSE_NIL=-1,		//!< Returned if the dialog gets programmatically hidden or destroyed, or serves as button definition terminator.
-    MAKER_DIALOG_RESPONSE_REJECT=-2,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
-    MAKER_DIALOG_RESPONSE_ACCEPT=-3,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
-    MAKER_DIALOG_RESPONSE_DELETE_EVENT=-4,	//!< Returned if the dialog is deleted.
-    MAKER_DIALOG_RESPONSE_OK=-5,		//!< Returned when an "OK" button is pressed.
-    MAKER_DIALOG_RESPONSE_CANCEL=-6,		//!< Returned when a "Cancel" button is pressed.
-    MAKER_DIALOG_RESPONSE_CLOSE=-7,		//!< Returned when a "Close" button is pressed.
-    MAKER_DIALOG_RESPONSE_YES=-8,		//!< Returned when a "Yes" button is pressed.
-    MAKER_DIALOG_RESPONSE_NO=-9,		//!< Returned when a "No" button is pressed.
-    MAKER_DIALOG_RESPONSE_APPLY=-10,		//!< Returned when a "Apply" button is pressed.
-    MAKER_DIALOG_RESPONSE_FILE=-11,		//!< Returned when a "File" button is pressed.
-    MAKER_DIALOG_RESPONSE_NEW=-12,		//!< Returned when a "New" button is pressed.
-    MAKER_DIALOG_RESPONSE_OPEN=-13,		//!< Returned when a "Open" button is pressed.
-    MAKER_DIALOG_RESPONSE_SAVE=-14,		//!< Returned when a "Save" button is pressed.
-    MAKER_DIALOG_RESPONSE_SAVE_AS=-15,		//!< Returned when a "Save As" button is pressed.
-    MAKER_DIALOG_RESPONSE_PRINT=-16,		//!< Returned when a "Print" button is pressed.
-    MAKER_DIALOG_RESPONSE_QUIT=-17,		//!< Returned when a "Apply" button is pressed.
-    MAKER_DIALOG_RESPONSE_EDIT=-18,		//!< Returned when a "Edit" button is pressed.
-    MAKER_DIALOG_RESPONSE_UNDO=-19,		//!< Returned when a "Undo" button is pressed.
-    MAKER_DIALOG_RESPONSE_REDO=-20,		//!< Returned when a "Redo" button is pressed.
-    MAKER_DIALOG_RESPONSE_REFRESH=-21,		//!< Returned when a "Refresh" button is pressed.
-    MAKER_DIALOG_RESPONSE_CUT=-22,		//!< Returned when a "Cut" button is pressed.
-    MAKER_DIALOG_RESPONSE_COPY=-23,		//!< Returned when a "Copy" button is pressed.
-    MAKER_DIALOG_RESPONSE_PASTE=-24,		//!< Returned when a "Paste" button is pressed.
-    MAKER_DIALOG_RESPONSE_SELECT_ALL=-25,	//!< Returned when a "Select all" button is pressed.
-    MAKER_DIALOG_RESPONSE_FIND=-26,		//!< Returned when a "Find" button is pressed.
-    MAKER_DIALOG_RESPONSE_FIND_AND_REPLACE=-27,	//!< Returned when a "Find and replace" button is pressed.
-    MAKER_DIALOG_RESPONSE_HELP=-28,		//!< Returned when a "Help" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_TOP=-29,		//!< Returned when a "Top" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_BOTTOM=-30,	//!< Returned when a "Bottom" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_FIRST=-31,	//!< Returned when a "First" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_LAST=-32,	//!< Returned when a "Last" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_UP=-33,		//!< Returned when a "Up" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_DOWN=-34,		//!< Returned when a "Down" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_BACK=-35,		//!< Returned when a "Back" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_FORWARD=-36,	//!< Returned when a "Forward" button is pressed.
+    MAKER_DIALOG_RESPONSE_INVALID=-1,		//!< The respond is invalid. Use in parser.
+    MAKER_DIALOG_RESPONSE_NIL=-2,		//!< Returned if the dialog gets programmatically hidden or destroyed, or serves as button definition terminator.
+    MAKER_DIALOG_RESPONSE_REJECT=-3,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
+    MAKER_DIALOG_RESPONSE_ACCEPT=-4,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
+    MAKER_DIALOG_RESPONSE_DELETE_EVENT=-5,	//!< Returned if the dialog is deleted.
+    MAKER_DIALOG_RESPONSE_OK=-6,		//!< Returned when an "OK" button is pressed.
+    MAKER_DIALOG_RESPONSE_CANCEL=-7,		//!< Returned when a "Cancel" button is pressed.
+    MAKER_DIALOG_RESPONSE_CLOSE=-8,		//!< Returned when a "Close" button is pressed.
+    MAKER_DIALOG_RESPONSE_YES=-9,		//!< Returned when a "Yes" button is pressed.
+    MAKER_DIALOG_RESPONSE_NO=-10,		//!< Returned when a "No" button is pressed.
+    MAKER_DIALOG_RESPONSE_APPLY=-11,		//!< Returned when a "Apply" button is pressed.
+    MAKER_DIALOG_RESPONSE_FILE=-12,		//!< Returned when a "File" button is pressed.
+    MAKER_DIALOG_RESPONSE_NEW=-13,		//!< Returned when a "New" button is pressed.
+    MAKER_DIALOG_RESPONSE_OPEN=-14,		//!< Returned when a "Open" button is pressed.
+    MAKER_DIALOG_RESPONSE_SAVE=-15,		//!< Returned when a "Save" button is pressed.
+    MAKER_DIALOG_RESPONSE_SAVE_AS=-16,		//!< Returned when a "Save As" button is pressed.
+    MAKER_DIALOG_RESPONSE_PRINT=-17,		//!< Returned when a "Print" button is pressed.
+    MAKER_DIALOG_RESPONSE_QUIT=-18,		//!< Returned when a "Apply" button is pressed.
+    MAKER_DIALOG_RESPONSE_EDIT=-19,		//!< Returned when a "Edit" button is pressed.
+    MAKER_DIALOG_RESPONSE_UNDO=-20,		//!< Returned when a "Undo" button is pressed.
+    MAKER_DIALOG_RESPONSE_REDO=-21,		//!< Returned when a "Redo" button is pressed.
+    MAKER_DIALOG_RESPONSE_REFRESH=-22,		//!< Returned when a "Refresh" button is pressed.
+    MAKER_DIALOG_RESPONSE_CUT=-23,		//!< Returned when a "Cut" button is pressed.
+    MAKER_DIALOG_RESPONSE_COPY=-24,		//!< Returned when a "Copy" button is pressed.
+    MAKER_DIALOG_RESPONSE_PASTE=-25,		//!< Returned when a "Paste" button is pressed.
+    MAKER_DIALOG_RESPONSE_SELECT_ALL=-26,	//!< Returned when a "Select all" button is pressed.
+    MAKER_DIALOG_RESPONSE_FIND=-27,		//!< Returned when a "Find" button is pressed.
+    MAKER_DIALOG_RESPONSE_FIND_AND_REPLACE=-28,	//!< Returned when a "Find and replace" button is pressed.
+    MAKER_DIALOG_RESPONSE_HELP=-29,		//!< Returned when a "Help" button is pressed.
+    MAKER_DIALOG_RESPONSE_GOTO_TOP=-30,		//!< Returned when a "Top" button is pressed.
+    MAKER_DIALOG_RESPONSE_GOTO_BOTTOM=-31,	//!< Returned when a "Bottom" button is pressed.
+    MAKER_DIALOG_RESPONSE_GOTO_FIRST=-32,	//!< Returned when a "First" button is pressed.
+    MAKER_DIALOG_RESPONSE_GOTO_LAST=-33,	//!< Returned when a "Last" button is pressed.
+    MAKER_DIALOG_RESPONSE_GO_UP=-34,		//!< Returned when a "Up" button is pressed.
+    MAKER_DIALOG_RESPONSE_GO_DOWN=-35,		//!< Returned when a "Down" button is pressed.
+    MAKER_DIALOG_RESPONSE_GO_BACK=-36,		//!< Returned when a "Back" button is pressed.
+    MAKER_DIALOG_RESPONSE_GO_FORWARD=-37,	//!< Returned when a "Forward" button is pressed.
 } MAKER_DIALOG_RESPONSE;
 
 /**
@@ -319,16 +321,26 @@ gboolean maker_dialog_ui_update(MakerDialogUi *dlgUi, MakerDialogPropertyContext
 gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key);
 
 /**
- * Parse a response ID from a string.
+ * Parse a button response ID from a string.
  *
  * This function parses two kinds of strings in to response ids.
  * - Pre-defined respond id in #MakerDialogResponsePredefined without the "MAKER_DIALOG_RESPONSE_" prefix, such as "OK", "CLOSE", "SAVE_AS"; or
  * - string that can converted into positive integer.
  *
- * All others string will return \c MAKER_DIALOG_RESPONSE_NIL.
+ * All others string will return \c MAKER_DIALOG_RESPONSE_INVALID.
  *
- * @param idStr 	The string to be parse.
- * @return Corresponding response id. Or \c MAKER_DIALOG_RESPONSE_NIL if parse failed.
+ * @param idStr 	The string to be parsed.
+ * @return Corresponding response id; or \c MAKER_DIALOG_RESPONSE_INVALID if parse failed.
  */
-MakerDialogResponse maker_dialog_button_parse_response_id(const gchar *idStr);
+MakerDialogResponse maker_dialog_parse_button_response_id(const gchar *idStr);
+
+/**
+ * Parse a widget control from a string.
+ *
+ * Parse a widget control from a string.
+ * @param str		The string to be parsed.
+ * @return Corresponding widget control; or \c MAKER_DIALOG_WIDGET_CONTROL_NOTHING if none matched.
+ */
+MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str);
+
 

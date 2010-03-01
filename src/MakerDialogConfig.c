@@ -300,3 +300,17 @@ gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *p
     return maker_dialog_config_set_save(configSet, -1, (gpointer) pageName, error);
 }
 
+static MakerDialogIdDataPair mkdgConfigFlagData[]={
+    {"READONLY",		{MAKER_DIALOG_CONFIG_FLAG_READONLY}},
+    {"NO_OVERRIDE",		{MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE}},
+    {"NO_APPLY",		{MAKER_DIALOG_CONFIG_FLAG_NO_APPLY}},
+    {"STOP_ON_ERROR",		{MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR}},
+    {"HIDE_DEFAULT",		{MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT}},
+    {"HIDE_DUPLICATE",		{MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE}},
+    {NULL,			{0}},
+};
+
+MakerDialogConfigFlags maker_dialog_config_flags_parse(const gchar *str){
+    return maker_dialog_flag_parse(mkdgConfigFlagData, str, FALSE);
+}
+

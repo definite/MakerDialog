@@ -1,6 +1,8 @@
 SET(LINK_TYPE SHARED)
 #SET(LINK_TYPE STATIC)
 
+SET_ENV(DATADIR_D "${PROJECT_DATADIR}/${PROJECT_NAME}.d")
+
 # Location of library include files
 INCLUDE_DIRECTORIES(${GLIB2_INCLUDE_DIRS}
     ${GTK2_INCLUDE_DIRS} ${GCONF2_INCLUDE_DIRS} . "internal")
@@ -28,6 +30,7 @@ SET(MAKER_DIALOG_BASE_SRC_C
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogPage.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogSpecParser.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.c
@@ -42,6 +45,7 @@ SET(MAKER_DIALOG_BASE_SRC_H
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogConfigKeyFile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogProperty.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogSpecParser.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogTypes.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUi.h
     ${CMAKE_CURRENT_SOURCE_DIR}/MakerDialogUtil.h
@@ -100,6 +104,10 @@ INSTALL(TARGETS MakerDialog MakerDialogGtk MakerDialogGConf
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/static
 )
+
+INSTALL(FILES GTK2 GCONF2
+    DESTINATION ${DATADIR_D}
+    )
 
 INSTALL(FILES ${MAKER_DIALOG_BASE_SRC_H}
     MakerDialogUiGtk.h

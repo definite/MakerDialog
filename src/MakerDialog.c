@@ -26,7 +26,7 @@
 #include "MakerDialog.h"
 extern gint makerDialogVerboseLevel;
 
-static MakerDialog *maker_dialog_new(){
+MakerDialog *maker_dialog_new(){
     MakerDialog *mDialog=g_new(MakerDialog,1);
     mDialog->title=NULL;
     mDialog->buttonSpecs=NULL;
@@ -53,26 +53,6 @@ MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *button
     MakerDialog *mDialog=maker_dialog_new();
     mDialog->title=g_strdup(title);
     mDialog->buttonSpecs=buttonSpecs;
-    return mDialog;
-}
-
-MakerDialog *maker_dialog_new_from_key_file(const gchar *filename, MakerDialogError **error){
-    GKeyFile *keyFile=g_key_file_new();
-    MakerDialogError *cfgErr=NULL;
-    MakerDialog *mDialog=NULL;
-    if (!g_key_file_load_from_file(keyFile, filename, G_KEY_FILE_NONE, &cfgErr)){
-	maker_dialog_error_handle(cfgErr, error);
-	goto FINAL_LOAD_FROM_KEYFILE;
-    }
-    mDialog=maker_dialog_new();
-    maker_dialog_new_from_key_file_section_main(mDialog, keyFile, &cfgErr);
-    maker_dialog_error_handle(cfgErr,error);
-    maker_dialog_new_from_key_file_section_keys(mDialog, keyFile, &cfgErr);
-    maker_dialog_error_handle(cfgErr,error);
-    mDialog->flags|= MAKER_DIALOG_FLAG_FREE_ALL;
-FINAL_LOAD_FROM_KEYFILE:
-    g_key_file_free(keyFile);
-
     return mDialog;
 }
 
@@ -189,3 +169,29 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValu
     return ret;
 }
 
+
+static gboolean is_module_exist(const gchar *filename){
+    gchar *testFile=g_build_filename(DATADIR_D,filename, NULL);
+    gint ret=g_access(testFile, F_OK);
+    g_free(testFile);
+    if (!ret)
+	return TRUE;
+
+    testFile=g_build_filename("src",filename, NULL);
+    ret=g_access(testFile, F_OK);
+    g_free(testFile);
+    if (!ret)
+	return TRUE;
+
+    return FALSE;
+}
+
+gboolean maker_dialog_is_module_installed(MAKER_DIALOG_MODULE module){
+    switch (module){
+	case MAKER_DIALOG_MODULE_GCONF2:
+	    return is_module_exist("GCONF2");
+	case MAKER_DIALOG_MODULE_GTK2:
+	    return is_module_exist("GTK2");
+    }
+    return FALSE;
+}

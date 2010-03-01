@@ -39,6 +39,14 @@
 #
 # Get date in specified format and locale.
 #
+#-------------------------------------------------------------------
+# SET_ENV(var default_value [env])
+#     var: Variable to be set
+#     default_value: Default value of the var
+#     env: The name of environment variable. Only need if different from var.
+#
+# Set the variable and add compiler environment.
+#
 
 IF(NOT DEFINED _BASIC_MACROS_CMAKE_)
     SET(_BASIC_MACROS_CMAKE_ "DEFINED")
@@ -99,6 +107,21 @@ IF(NOT DEFINED _BASIC_MACROS_CMAKE_)
 	ENDIF(_locale)
 	COMMAND_OUTPUT_TO_VARIABLE(${date_var} date "${format}")
     ENDMACRO(DATE_FORMAT date_var format)
+
+    MACRO(SET_ENV var default_value)
+	SET(_env ${ARGV2})
+	SET(value ${${var}})
+	IF(_env)
+	    SET(env ${_env})
+	ELSE()
+	    SET(env ${var})
+	ENDIF()
+	IF(NOT DEFINED value)
+	    SET(value "${default_value}")
+	    SET(${var} "${value}")
+	ENDIF(NOT DEFINED value)
+	ADD_DEFINITIONS(-D${env}='"${value}"')
+    ENDMACRO(SET_ENV var default_value env)
 
 ENDIF(NOT DEFINED _BASIC_MACROS_CMAKE_)
 

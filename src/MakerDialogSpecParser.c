@@ -1,52 +1,6 @@
-static void maker_dialog_new_from_keyfile_section_main(MakerDialog *mDialog, GKeyFile *keyFile, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
-    if (g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN)){
-	if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "title", &cfgErr)){
-	    mDialog->title=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "title", &cfgErr);
-	}else{
-	    mDialog->title=g_strdup("Preference");
-	}
-	maker_dialog_error_handle(cfgErr, error);
-	if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonResponseIds", &cfgErr)){
-	    gchar *idBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonResponseIds", &cfgErr);
-	    gchar **idStrs=maker_dialog_string_split_set(idBuf, ";", '\\', TRUE, -1);
-	    gchar *buttonBuf=NULL;
-	    gchar **buttonTexts=NULL;
-	    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonTexts", &cfgErr)){
-		buttonBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonTexts", &cfgErr);
-		buttonTexts=maker_dialog_string_split_set(buttonBuf, ";", '\\', TRUE, -1);
-	    }
-	    maker_dialog_error_handle(cfgErr, error);
-
-	    gint i;
-	    MakerDialogButtonSpec *spec=NULL;
-	    GArray *specArray=g_array_new(FALSE, FALSE, sizeof(MakerDialogButtonSpec));
-	    for(i=0;idStrs[i]!=NULL;i++){
-		gint responseId=maker_dialog_button_parse_response_id(idStrs[i]);
-		if (responseId!=MAKER_DIALOG_RESPONSE_NIL){
-		    g_array_set_size(specArray, specArray->len+1);
-		    spec=&g_array_index(specArray, MakerDialogButtonSpec, specArray->len-1);
-		    spec->responseId=responseId;
-		    if (buttonTexts && !maker_dialog_string_is_empty(buttonTexts[i])){
-			spec->buttonText=g_strdup(buttonTexts[i]);
-		    }else{
-			spec->buttonText=NULL;
-		    }
-		}
-	    }
-	    g_array_set_size(specArray, specArray->len+1);
-	    spec=&g_array_index(specArray, MakerDialogButtonSpec, specArray->len-1);
-	    spec->responseId=MAKER_DIALOG_RESPONSE_NIL;
-	    spec->buttonText=NULL;
-	    mDialog->buttonSpecs=(MakerDialogButtonSpec *) g_array_free(specArray, FALSE);
-	    g_free(idBuf);
-	    g_strfreev(idStrs);
-	    g_free(buttonBuf);
-	    g_strfreev(buttonTexts);
-	    g_assert(mDialog->buttonSpecs[0].responseId==MAKER_DIALOG_RESPONSE_CLOSE);
-	}
-    }
-}
+#include <string.h>
+#include "MakerDialog.h"
+#include "MakerDialogSpecParser.h"
 
 typedef void (* MakerDialogSetSpecFunc)(MakerDialogPropertySpec *spec, const gchar *prop, MkdgValue *mValue);
 typedef struct{
@@ -55,43 +9,6 @@ typedef struct{
     MakerDialogSetSpecFunc func;
 } MakerDialogSetSpecData;
 
-static MakerDialogIdDataPair mkdgWidgetControlData[]={
-    {"SHOW",		{MAKER_DIALOG_WIDGET_CONTROL_SHOW}},
-    {"HIDE",		{MAKER_DIALOG_WIDGET_CONTROL_HIDE}},
-    {"SENSITIVE",	{MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE}},
-    {"INSENSITIVE",	{MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE}},
-    {NULL,		{MAKER_DIALOG_WIDGET_CONTROL_NOTHING}},
-};
-
-static MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str){
-    return maker_dialog_flag_parse(mkdgWidgetControlData, str, FALSE);
-}
-
-static MakerDialogIdDataPair mkdgWidgetRelationData[]={
-    {"==",	{MAKER_DIALOG_RELATION_EQUAL}},
-    {"!=",	{MAKER_DIALOG_RELATION_NOT_EQUAL}},
-    {"<",	{MAKER_DIALOG_RELATION_LESS}},
-    {"<=",	{MAKER_DIALOG_RELATION_LESS_OR_EQUAL}},
-    {">",	{MAKER_DIALOG_RELATION_GREATER}},
-    {">=",	{MAKER_DIALOG_RELATION_GREATER_OR_EQUAL}},
-    {"EQ",	{MAKER_DIALOG_RELATION_EQUAL}},
-    {"NE",	{MAKER_DIALOG_RELATION_NOT_EQUAL}},
-    {"LT",	{MAKER_DIALOG_RELATION_LESS}},
-    {"LE",	{MAKER_DIALOG_RELATION_LESS_OR_EQUAL}},
-    {"GT",	{MAKER_DIALOG_RELATION_GREATER}},
-    {"GE",	{MAKER_DIALOG_RELATION_GREATER_OR_EQUAL}},
-    {NULL,	{0}},
-};
-
-static MakerDialogRelation maker_dialog_widget_control_relation(const gchar *str){
-    return (maker_dialog_id_parse(mkdgWidgetRelationData, str, FALSE))->data.v_int32;
-}
-
-static MakerDialogIdDataPair mkdgSpecFlagData[]={
-    {"FIXED_SET",		{MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET}},
-    {"PREFER_RADIO_BUTTONS",	{MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS}},
-    {NULL,			{0}},
-};
 
 static void maker_dialog_control_rule_set
 (MakerDialogControlRule *rule, MakerDialogRelation relation, const gchar *testValue, const gchar *key, MakerDialogWidgetControl match, MakerDialogWidgetControl notMatch){
@@ -110,7 +27,7 @@ static void mkdg_set_widget_control(MakerDialogPropertySpec *spec, const gchar *
     for(i=0;ctrlList[i]!=NULL;i++){
 	gchar **strList=maker_dialog_string_split_set(ctrlList[i], ",", '\\', FALSE, 5);
 	/* StrList[0] is relation */
-	MakerDialogRelation relation=maker_dialog_widget_control_relation(strList[0]);
+	MakerDialogRelation relation=maker_dialog_relation_parse(strList[0]);
 	if (relation<=0){
 	    goto END_WIDGET_CONTROL_RULE;
 	}
@@ -130,7 +47,7 @@ END_WIDGET_CONTROL_RULE:
 }
 
 static void mkdg_set_flags(MakerDialogPropertySpec *spec, const gchar *prop, MkdgValue *mValue){
-    spec->flags=maker_dialog_flag_parse(mkdgSpecFlagData, maker_dialog_value_get_string(mValue), FALSE);
+    spec->flags=maker_dialog_property_flags_parse(maker_dialog_value_get_string(mValue));
 }
 
 static void mkdg_set_string(MakerDialogPropertySpec *spec, const gchar *prop, MkdgValue *mValue){
@@ -291,5 +208,95 @@ static void maker_dialog_new_from_key_file_section_keys(MakerDialog *mDialog, GK
 	g_strfreev(keyList);
     }
     g_strfreev(groupList);
+}
+
+static void maker_dialog_new_from_key_file_section_main(MakerDialog *mDialog, GKeyFile *keyFile, MakerDialogError **error){
+    MakerDialogError *cfgErr=NULL;
+    if (!g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN))
+	return;
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "title", &cfgErr)){
+	mDialog->title=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "title", &cfgErr);
+    }else{
+	mDialog->title=g_strdup("Preference");
+    }
+    maker_dialog_error_handle(cfgErr, error);
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonResponseIds", &cfgErr)){
+	gchar *idBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonResponseIds", &cfgErr);
+	gchar **idStrs=maker_dialog_string_split_set(idBuf, ";", '\\', TRUE, -1);
+	gchar *buttonBuf=NULL;
+	gchar **buttonTexts=NULL;
+	if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonTexts", &cfgErr)){
+	    buttonBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonTexts", &cfgErr);
+	    buttonTexts=maker_dialog_string_split_set(buttonBuf, ";", '\\', TRUE, -1);
+	}
+	maker_dialog_error_handle(cfgErr, error);
+
+	gint i;
+	MakerDialogButtonSpec *spec=NULL;
+	GArray *specArray=g_array_new(FALSE, FALSE, sizeof(MakerDialogButtonSpec));
+	for(i=0;idStrs[i]!=NULL;i++){
+	    gint responseId=maker_dialog_parse_button_response_id(idStrs[i]);
+	    if (responseId!=MAKER_DIALOG_RESPONSE_NIL){
+		g_array_set_size(specArray, specArray->len+1);
+		spec=&g_array_index(specArray, MakerDialogButtonSpec, specArray->len-1);
+		spec->responseId=responseId;
+		if (buttonTexts && !maker_dialog_string_is_empty(buttonTexts[i])){
+		    spec->buttonText=g_strdup(buttonTexts[i]);
+		}else{
+		    spec->buttonText=NULL;
+		}
+	    }
+	}
+	g_array_set_size(specArray, specArray->len+1);
+	spec=&g_array_index(specArray, MakerDialogButtonSpec, specArray->len-1);
+	spec->responseId=MAKER_DIALOG_RESPONSE_NIL;
+	spec->buttonText=NULL;
+	mDialog->buttonSpecs=(MakerDialogButtonSpec *) g_array_free(specArray, FALSE);
+	g_free(idBuf);
+	g_strfreev(idStrs);
+	g_free(buttonBuf);
+	g_strfreev(buttonTexts);
+	g_assert(mDialog->buttonSpecs[0].responseId==MAKER_DIALOG_RESPONSE_CLOSE);
+    }
+}
+
+static void maker_dialog_new_from_key_file_section_config(MakerDialog *mDialog, GKeyFile *keyFile, const gchar *keyfileGroup, MakerDialogError **error){
+    MakerDialogError *cfgErr=NULL;
+    gsize groupLen;
+    if (!g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG))
+	return;
+    MakerDialogConfig *config=maker_dialog_config_new(mDialog);
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "flags", &cfgErr)){
+	gchar *flagsStr=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "flags", &cfgErr);
+	config->flags=maker_dialog_config_flags_parse(flagsStr);
+	g_free(flagsStr);
+    }
+
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "configInterface", &cfgErr)){
+	gchar *configInterfaceStr=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "configInterface", &cfgErr);
+	gchar **configInterfaceStrList=g_strsplit(configInterfaceStr,";",-1);
+	g_strfreev(configInterfaceStrList);
+	g_free(configInterfaceStr);
+    }
+}
+
+MakerDialog *maker_dialog_new_from_key_file(const gchar *filename, MakerDialogError **error){
+    GKeyFile *keyFile=g_key_file_new();
+    MakerDialogError *cfgErr=NULL;
+    MakerDialog *mDialog=NULL;
+    if (!g_key_file_load_from_file(keyFile, filename, G_KEY_FILE_NONE, &cfgErr)){
+	maker_dialog_error_handle(cfgErr, error);
+	goto FINAL_LOAD_FROM_KEYFILE;
+    }
+    mDialog=maker_dialog_new();
+    maker_dialog_new_from_key_file_section_main(mDialog, keyFile, &cfgErr);
+    maker_dialog_error_handle(cfgErr,error);
+    maker_dialog_new_from_key_file_section_keys(mDialog, keyFile, &cfgErr);
+    maker_dialog_error_handle(cfgErr,error);
+    mDialog->flags|= MAKER_DIALOG_FLAG_FREE_ALL;
+FINAL_LOAD_FROM_KEYFILE:
+    g_key_file_free(keyFile);
+
+    return mDialog;
 }
 

@@ -85,7 +85,8 @@ typedef guint MakerDialogPropertyFlags;
  * The relation is used to test property value and test value.
  */
 typedef enum {
-    MAKER_DIALOG_RELATION_NIL=0,			//!< No relation, it is used as a terminator.
+    MAKER_DIALOG_RELATION_INVALID=-1,		//!< Invalid relation.
+    MAKER_DIALOG_RELATION_NIL=0,		//!< No relation, it is used as a terminator.
     MAKER_DIALOG_RELATION_EQUAL,		//!< If property value and test value are equal.
     MAKER_DIALOG_RELATION_NOT_EQUAL,		//!< If property value and test value are not equal.
     MAKER_DIALOG_RELATION_LESS,			//!< If property value is less than test value.
@@ -568,6 +569,25 @@ void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
  */
 void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData);
 
+/**
+ * Parse a MakerDialog relation from string.
+ *
+ * Parse a MakerDialog relation from string.
+ * @param str		String to be parsed.
+ * @return Corresponding MakerDialogRelation; or \c MAKER_DIALOG_RELATION_INVALID if none matched.
+ */
+MakerDialogRelation maker_dialog_relation_parse(const gchar *str);
+
+/**
+ * Parse a MakerDialog property flags from string.
+ *
+ * This function parse a MakerDialog property flags from string,
+ * which use '|' to delimit among flags.
+ *
+ * @param str		String to be parsed. '|' is used to separate flags.
+ * @return Corresponding MakerDialogPropertyFlags; or \c 0 if none matched.
+ */
+MakerDialogPropertyFlags maker_dialog_property_flags_parse(const gchar *str);
 /*=== End Function Definition  ===*/
 
 #endif /* MAKER_DIALOG_PROPERTY_H_ */

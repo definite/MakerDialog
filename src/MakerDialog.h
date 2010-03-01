@@ -38,6 +38,7 @@
 #define MAKER_DIALOG_H_
 #include <glib.h>
 #include <glib-object.h>
+#include <glib/gstdio.h>
 #include "MakerDialogUtil.h"
 #include "MakerDialogTypes.h"
 
@@ -50,14 +51,11 @@ typedef struct _MakerDialog MakerDialog;
 #include "MakerDialogConfigSet.h"
 #include "MakerDialogConfigFile.h"
 #include "MakerDialogConfigKeyFile.h"
-
-/**
- * The section name which is use in MakerDialog spec file.
- */
-#define MAKER_DIALOG_SPEC_SECTION_MAIN "_MAIN_"
+#include "MakerDialogSpecParser.h"
 
 /**
  * Inter-process communication module.
+ *
  * To be implement in the future.
  * @todo Implement Inter-process communication instance.
  */
@@ -99,11 +97,29 @@ struct _MakerDialog{
     gpointer	userData;			//!< Custom user data.
 };
 
-/*=== Start Function Definition  ===*/
+/**
+ * New an empty MakerDialog.
+ *
+ * This function allocates a new MakerDialog instance and
+ * set the struct members to their default value.
+ *
+ * This function is called for MakerDialog spec parsers
+ * and maker_dialog_init(), so no need to call this function directly.
+ *
+ * Either call maker_dialog_new_from_key_file() to read the MakerDialog spec from
+ * a file; or use maker_dialog_init() to define the MakerDialog spec from
+ * programs.
+ * @return A newly allocated MakerDialog instance.
+ *
+ * @see maker_dialog_init(), maker_dialog_construct()
+ * @since 0.3
+ */
+MakerDialog *maker_dialog_new();
+
 /**
  * Initialize a MakerDialog.
  *
- * This function initialize an MakerDialog instance.
+ * This function initialize a MakerDialog instance.
  * The title and buttons are specified in this function, however,
  * no property is specified at this point.
  * Run maker_dialog_add_property() to add property context and specification.
@@ -116,21 +132,9 @@ struct _MakerDialog{
  * @param buttonSpecs Button specification. Can be \c NULL.
  * @return A newly allocated MakerDialog instance.
  *
- * @see maker_dialog_construct().
+ * @see maker_dialog_new(), maker_dialog_construct().
  */
 MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *buttonSpecs);
-
-/**
- * Load MakerDialog setting from a glib key file.
- *
- * This function loads MakerDialog setting and specs of properties
- * from a glib key file, whose format is similar to .desktop file.
- *
- * @param filename 	The file to load.
- * @param error		Returned error is stored here; or \c NULL to ignore error.
- * @return A newly allocated MakerDialog instance; or \c NULL if failed.
- */
-MakerDialog *maker_dialog_new_from_key_file(const gchar *filename, MakerDialogError **error);
 
 /**
  * Add a property context to the maker dialog.
@@ -235,8 +239,26 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  */
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValue *value);
 
-/*=== End Function Definition  ===*/
+/**
+ * MakerDialog supported modules.
+ *
+ * Thie enumeration list current MakerDialog supported modules.
+ * Note that GKeyFile support is built-in, so it does not deem a module.
+ * @since 0.3
+ */
+typedef enum{
+    MAKER_DIALOG_MODULE_GCONF2,		//!< GConf2 module for configuration interface.
+    MAKER_DIALOG_MODULE_GTK2,		//!< Gtk2 module for UI interface.
+} MAKER_DIALOG_MODULE;
 
+/**
+ * Whether a module installed.
+ *
+ * This function returns whether a module is installed.
+ * @param module The module to be checked.
+ * @return \c TRUE if the module installed, \c FALSE otherwise.
+ */
+gboolean maker_dialog_is_module_installed(MAKER_DIALOG_MODULE module);
 
 #endif /* MAKER_DIALOG_H_ */
 

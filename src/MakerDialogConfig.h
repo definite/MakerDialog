@@ -51,7 +51,6 @@ typedef struct{
     /// @endcond
 } MakerDialogConfig;
 
-
 /**
  * New a MakerDialogConfig.
  *
@@ -198,6 +197,15 @@ gboolean maker_dialog_config_load_page(MakerDialogConfig *config, const gchar *p
  * @return TRUE if success; FALSE otherwise.
  */
 gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *pageName, MakerDialogError **error);
+
+/**
+ * Parse the configuration flags from a string.
+ *
+ * Parse the configuration flags from a string.
+ * @param str		String to be parsed.
+ * @return Parsed configuration flag; or \c 0 if none matched.
+ */
+MakerDialogConfigFlags maker_dialog_config_flags_parse(const gchar *str);
 
 /**
  * GQuark for MakerDialog configuration domain.

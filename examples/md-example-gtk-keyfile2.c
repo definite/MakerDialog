@@ -8,7 +8,7 @@ int main(int argc,char *argv[]){
     MakerDialogError  *cfgErr=NULL;
     gchar *dir=g_path_get_dirname (argv[0]);
     gchar *mkdgFile=g_strjoin("/",dir,"md-example.mkdg", NULL);
-    MakerDialog *mDialog=maker_dialog_load_from_key_file(mkdgFile, &cfgErr);
+    MakerDialog *mDialog=maker_dialog_new_from_key_file(mkdgFile, &cfgErr);
     g_free(mkdgFile);
     g_free(dir);
     if (cfgErr){

@@ -44,7 +44,6 @@ void maker_dialog_ui_destroy(MakerDialogUi *dlgUi){
     g_assert(dlgUi->dlgObj);
     g_assert(dlgUi->toolkitInterface->dialog_destroy);
     dlgUi->toolkitInterface->dialog_destroy(dlgUi);
-    //    g_free(dlgUi->dlgObj);
 }
 
 gint maker_dialog_ui_run(MakerDialogUi *dlgUi){
@@ -129,14 +128,27 @@ static MakerDialogIdDataPair mkdgResponseIdData[]={
     {"GO_BACK",			{MAKER_DIALOG_RESPONSE_GO_BACK}},
     {"GO_FORWARD",		{MAKER_DIALOG_RESPONSE_GO_FORWARD}},
     {"NIL",			{MAKER_DIALOG_RESPONSE_NIL}},
-    {NULL,			{MAKER_DIALOG_RESPONSE_NIL}},
+    {NULL,			{MAKER_DIALOG_RESPONSE_INVALID}},
 };
 
-MakerDialogResponse maker_dialog_button_parse_response_id(const gchar *idStr){
+MakerDialogResponse maker_dialog_parse_button_response_id(const gchar *idStr){
     gint id;
     if ((id=atoi(idStr))>0){
 	return id;
     }
     return maker_dialog_id_parse(mkdgResponseIdData, idStr, FALSE)->data.v_int32;
 }
+
+static MakerDialogIdDataPair mkdgWidgetControlData[]={
+    {"SHOW",		{MAKER_DIALOG_WIDGET_CONTROL_SHOW}},
+    {"HIDE",		{MAKER_DIALOG_WIDGET_CONTROL_HIDE}},
+    {"SENSITIVE",	{MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE}},
+    {"INSENSITIVE",	{MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE}},
+    {NULL,		{MAKER_DIALOG_WIDGET_CONTROL_NOTHING}},
+};
+
+MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str){
+    return maker_dialog_flag_parse(mkdgWidgetControlData, str, FALSE);
+}
+
 
