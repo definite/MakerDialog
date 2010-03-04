@@ -326,29 +326,29 @@ void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer u
 
 /*=== Start enumeration and flags ===*/
 static MakerDialogIdDataPair mkdgRelationData[]={
-    {"==",	{MAKER_DIALOG_RELATION_EQUAL}},
-    {"!=",	{MAKER_DIALOG_RELATION_NOT_EQUAL}},
-    {"<",	{MAKER_DIALOG_RELATION_LESS}},
-    {"<=",	{MAKER_DIALOG_RELATION_LESS_OR_EQUAL}},
-    {">",	{MAKER_DIALOG_RELATION_GREATER}},
-    {">=",	{MAKER_DIALOG_RELATION_GREATER_OR_EQUAL}},
-    {"EQ",	{MAKER_DIALOG_RELATION_EQUAL}},
-    {"NE",	{MAKER_DIALOG_RELATION_NOT_EQUAL}},
-    {"LT",	{MAKER_DIALOG_RELATION_LESS}},
-    {"LE",	{MAKER_DIALOG_RELATION_LESS_OR_EQUAL}},
-    {"GT",	{MAKER_DIALOG_RELATION_GREATER}},
-    {"GE",	{MAKER_DIALOG_RELATION_GREATER_OR_EQUAL}},
-    {NULL,	{MAKER_DIALOG_RELATION_INVALID}},
+    {"==",	MAKER_DIALOG_RELATION_EQUAL},
+    {"!=",	MAKER_DIALOG_RELATION_NOT_EQUAL},
+    {"<",	MAKER_DIALOG_RELATION_LESS},
+    {"<=",	MAKER_DIALOG_RELATION_LESS_OR_EQUAL},
+    {">",	MAKER_DIALOG_RELATION_GREATER},
+    {">=",	MAKER_DIALOG_RELATION_GREATER_OR_EQUAL},
+    {"EQ",	MAKER_DIALOG_RELATION_EQUAL},
+    {"NE",	MAKER_DIALOG_RELATION_NOT_EQUAL},
+    {"LT",	MAKER_DIALOG_RELATION_LESS},
+    {"LE",	MAKER_DIALOG_RELATION_LESS_OR_EQUAL},
+    {"GT",	MAKER_DIALOG_RELATION_GREATER},
+    {"GE",	MAKER_DIALOG_RELATION_GREATER_OR_EQUAL},
+    {NULL,	MAKER_DIALOG_RELATION_INVALID},
 };
 
 MakerDialogRelation maker_dialog_relation_parse(const gchar *str){
-    return (maker_dialog_id_parse(mkdgRelationData, str, FALSE))->data.v_int32;
+    return maker_dialog_id_parse(mkdgRelationData, str, FALSE);
 }
 
 static MakerDialogIdDataPair mkdgSpecFlagData[]={
-    {"FIXED_SET",		{MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET}},
-    {"PREFER_RADIO_BUTTONS",	{MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS}},
-    {NULL,			{0}},
+    {"FIXED_SET",		MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET},
+    {"PREFER_RADIO_BUTTONS",	MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS},
+    {NULL,			0},
 };
 
 MakerDialogPropertyFlags maker_dialog_property_flags_parse(const gchar *str){

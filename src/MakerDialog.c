@@ -170,6 +170,7 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValu
 }
 
 
+
 static gboolean is_module_exist(const gchar *filename){
     gchar *testFile=g_build_filename(DATADIR_D,filename, NULL);
     gint ret=g_access(testFile, F_OK);
@@ -190,6 +191,8 @@ gboolean maker_dialog_is_module_installed(MAKER_DIALOG_MODULE module){
     switch (module){
 	case MAKER_DIALOG_MODULE_GCONF2:
 	    return is_module_exist("GCONF2");
+	case MAKER_DIALOG_MODULE_GKEYFILE:
+	    return TRUE;
 	case MAKER_DIALOG_MODULE_GTK2:
 	    return is_module_exist("GTK2");
     }

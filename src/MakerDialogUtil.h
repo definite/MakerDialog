@@ -67,14 +67,14 @@ typedef union {
 } MkdgValueHolder;
 
 /**
- * Paired data, consist a string id and corresponding data.
+ * Paired data, consist a numerical Id, a string Id and corresponding data.
  *
- * Paired data, consist a string id and corresponding data.
+ * Paired data, consist a numerical Id, a string Id and corresponding data.
  * @since 0.2
  */
 typedef struct{
-    const gchar		*strId;	//!< String Id,
-    MkdgValueHolder	data;	//!< Corrseponding data;
+    const gchar		*strId;	//!< String Id.
+    gint		intId;	//!< Integer Id.
 } MakerDialogIdDataPair;
 
 /**
@@ -253,7 +253,7 @@ gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **e
  * @return Matched data pair; or the last data pair if none matched.
  * @since 0.2
  */
-MakerDialogIdDataPair *maker_dialog_id_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive);
+gint maker_dialog_id_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive);
 
 /**
  * Parse flags from a string.

@@ -248,6 +248,7 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValu
  */
 typedef enum{
     MAKER_DIALOG_MODULE_GCONF2,		//!< GConf2 module for configuration interface.
+    MAKER_DIALOG_MODULE_GKEYFILE,	//!< GKeyFile module for configuration interface.
     MAKER_DIALOG_MODULE_GTK2,		//!< Gtk2 module for UI interface.
 } MAKER_DIALOG_MODULE;
 

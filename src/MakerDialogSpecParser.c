@@ -275,10 +275,24 @@ static void maker_dialog_new_from_key_file_section_config(MakerDialog *mDialog, 
     if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "configInterface", &cfgErr)){
 	gchar *configInterfaceStr=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "configInterface", &cfgErr);
 	gchar **configInterfaceStrList=g_strsplit(configInterfaceStr,";",-1);
+	gint i;
+	for (i=0; configInterfaceStrList[i]!=NULL;i++){
+	}
 	g_strfreev(configInterfaceStrList);
 	g_free(configInterfaceStr);
     }
 }
+
+static MakerDialogIdDataPair mkdgConfigFlagData[]={
+    {"GCONF2",			MAKER_DIALOG_MODULE_GCONF2},
+    {"NO_OVERRIDE",		MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE},
+    {"NO_APPLY",		MAKER_DIALOG_CONFIG_FLAG_NO_APPLY},
+    {"STOP_ON_ERROR",		MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR},
+    {"HIDE_DEFAULT",		MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT},
+    {"HIDE_DUPLICATE",		MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE},
+    {NULL,			0},
+};
+
 
 MakerDialog *maker_dialog_new_from_key_file(const gchar *filename, MakerDialogError **error){
     GKeyFile *keyFile=g_key_file_new();
