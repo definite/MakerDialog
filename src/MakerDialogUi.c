@@ -91,7 +91,7 @@ gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key){
     return NULL;
 }
 
-static MakerDialogIdDataPair mkdgResponseIdData[]={
+static MakerDialogIdPair mkdgResponseIdData[]={
     {"REJECT",			MAKER_DIALOG_RESPONSE_REJECT},
     {"ACCEPT",			MAKER_DIALOG_RESPONSE_ACCEPT},
     {"DELETE_EVENT",		MAKER_DIALOG_RESPONSE_DELETE_EVENT},
@@ -139,7 +139,7 @@ MakerDialogResponse maker_dialog_parse_button_response_id(const gchar *idStr){
     return maker_dialog_id_parse(mkdgResponseIdData, idStr, FALSE);
 }
 
-static MakerDialogIdDataPair mkdgWidgetControlData[]={
+static MakerDialogIdPair mkdgWidgetControlData[]={
     {"SHOW",		MAKER_DIALOG_WIDGET_CONTROL_SHOW},
     {"HIDE",		MAKER_DIALOG_WIDGET_CONTROL_HIDE},
     {"SENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE},

@@ -56,6 +56,16 @@ MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar *
     return NULL;
 }
 
+gboolean maker_dialog_module_init(MakerDialog *mDialog){
+    if (gtk_init_check(&mDialog->argc, &mDialog->argv)){
+	maker_dialog_ui_init(mDialog, &makerDialogToolkitInterface_gtk);
+	return TRUE;
+    }
+    return FALSE;
+}
+
+
+
 /*=== End toolkit interface definitions ===*/
 
 /*=== Start foreach functions ===*/

@@ -46,6 +46,8 @@ MakerDialog *maker_dialog_new(){
     mDialog->ui=NULL;
     mDialog->config=NULL;
     mDialog->userData=NULL;
+    mDialog->argc=0;
+    mDialog->argv=NULL;
     return mDialog;
 }
 
@@ -54,6 +56,11 @@ MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *button
     mDialog->title=g_strdup(title);
     mDialog->buttonSpecs=buttonSpecs;
     return mDialog;
+}
+
+void maker_dialog_set_args(MakerDialog *mDialog, gint argc, gchar **argv){
+    mDialog->argc=argc;
+    mDialog->argv=argv;
 }
 
 static GNode *maker_dialog_prepare_page_node(MakerDialog *mDialog, const gchar *pageName){
@@ -170,31 +177,3 @@ gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValu
 }
 
 
-
-static gboolean is_module_exist(const gchar *filename){
-    gchar *testFile=g_build_filename(DATADIR_D,filename, NULL);
-    gint ret=g_access(testFile, F_OK);
-    g_free(testFile);
-    if (!ret)
-	return TRUE;
-
-    testFile=g_build_filename("src",filename, NULL);
-    ret=g_access(testFile, F_OK);
-    g_free(testFile);
-    if (!ret)
-	return TRUE;
-
-    return FALSE;
-}
-
-gboolean maker_dialog_is_module_installed(MAKER_DIALOG_MODULE module){
-    switch (module){
-	case MAKER_DIALOG_MODULE_GCONF2:
-	    return is_module_exist("GCONF2");
-	case MAKER_DIALOG_MODULE_GKEYFILE:
-	    return TRUE;
-	case MAKER_DIALOG_MODULE_GTK2:
-	    return is_module_exist("GTK2");
-    }
-    return FALSE;
-}

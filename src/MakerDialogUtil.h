@@ -70,12 +70,12 @@ typedef union {
  * Paired data, consist a numerical Id, a string Id and corresponding data.
  *
  * Paired data, consist a numerical Id, a string Id and corresponding data.
- * @since 0.2
+ * @since 0.3
  */
 typedef struct{
     const gchar		*strId;	//!< String Id.
     gint		intId;	//!< Integer Id.
-} MakerDialogIdDataPair;
+} MakerDialogIdPair;
 
 /**
  * Environment variable for MakerDialog debug.
@@ -241,19 +241,33 @@ void maker_dialog_error_print(MakerDialogError *error);
 gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **errOut);
 
 /**
- * Parse data from a string.
+ * Parse a numerical Id from a string.
  *
- * This function parses data from a string, and returns the data pair whose \a strId
- * is identical to \a str.
+ * This function parses a string and converts it to corresponding numerical Id.
+ * Note the \a strId of the last Id pair must be \c NULL,
+ * and its associated \a intId is served as default value, i.e.
+ * returned if \a str does not match any \a strId in \a pairedData.
  *
- * If none match, the last data paired is returned.
  * @param pairedData	Paired data for parsing.
  * @param str		String to be parsed.
  * @param caseSensitive	Whether the matched is case sensitive.
- * @return Matched data pair; or the last data pair if none matched.
- * @since 0.2
+ * @return Matched intId, or the last intId if none matched.
+ * @since 0.3
  */
-gint maker_dialog_id_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive);
+gint maker_dialog_id_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive);
+
+/**
+ * Return the associated string Id from a numerical id.
+ *
+ * This function returns the associated string Id from a numerical id.
+ * Note the \a strId of the last Id pair must be \c NULL.
+ *
+ * @param pairedData	Paired data for parsing.
+ * @param intId		Numerical Id.
+ * @return Associated string Id; or NULL if none matches.
+ * @since 0.3
+ */
+const gchar *maker_dialog_id_to_string(MakerDialogIdPair *pairedData, gint intId);
 
 /**
  * Parse flags from a string.
@@ -267,7 +281,7 @@ gint maker_dialog_id_parse(MakerDialogIdDataPair *pairedData, const gchar *str, 
  * @return Flags value; or 0 if none matched.
  * @since 0.2
  */
-guint32 maker_dialog_flag_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive);
+guint32 maker_dialog_flag_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive);
 
 /**
  * Return the index of a string in a string list.

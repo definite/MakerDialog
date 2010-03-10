@@ -21,7 +21,6 @@ ELSE()
     SET(MAKERDIALOG_LIBRARY_DIRS ../bin .)
 ENDIF()
 
-
 # Location of library include files
 INCLUDE_DIRECTORIES(${GLIB2_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS}
     ${GCONF2_INCLUDE_DIRS} ${MAKERDIALOG_INCLUDE_DIRS} .)
@@ -31,23 +30,29 @@ LINK_DIRECTORIES(${GLIB2_LIBRARY_DIRS} ${GTK2_LIBRARY_DIRS}
     ${GCONF2_LIBRARY_DIRS} ${MAKERDIALOG_LIBRARY_DIRS} .)
 
 SET(COMMON_LIBS  ${GLIB2_LIBRARIES} ${GOBJECT2_LIBRARIES} ${GTK2_LIBRARIES}
-    MakerDialog MakerDialogGtk)
+    MakerDialog MakerDialogGtk2)
 
-ADD_EXECUTABLE(md-example-gtk-keyfile.exe
-   md-example-gtk-keyfile.c
-)
-TARGET_LINK_LIBRARIES(md-example-gtk-keyfile.exe ${COMMON_LIBS})
+#ADD_EXECUTABLE(md-example-gtk-keyfile.exe
+#   md-example-gtk-keyfile.c
+#)
+#TARGET_LINK_LIBRARIES(md-example-gtk-keyfile.exe ${COMMON_LIBS})
 
-ADD_EXECUTABLE(md-example-gtk-keyfile2.exe
-    md-example-gtk-keyfile2.c
+#ADD_EXECUTABLE(md-example-gtk-keyfile2.exe
+#    md-example-gtk-keyfile2.c
+#    )
+#TARGET_LINK_LIBRARIES(md-example-gtk-keyfile2.exe ${COMMON_LIBS})
+
+ADD_EXECUTABLE(md-example-gtk-keyfile3.exe
+    md-example-gtk-keyfile3.c
     )
-TARGET_LINK_LIBRARIES(md-example-gtk-keyfile2.exe ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(md-example-gtk-keyfile3.exe ${COMMON_LIBS}
+    MakerDialogGKeyFile)
 
-ADD_EXECUTABLE(md-example-gtk-gconf.exe
-    md-example-gtk-gconf.c
-)
-TARGET_LINK_LIBRARIES(md-example-gtk-gconf.exe MakerDialogGConf
-    ${COMMON_LIBS} ${GCONF2_LIBRARIES})
+#ADD_EXECUTABLE(md-example-gtk-gconf.exe
+#    md-example-gtk-gconf.c
+#)
+#TARGET_LINK_LIBRARIES(md-example-gtk-gconf.exe MakerDialogGConf
+#    ${COMMON_LIBS} ${GCONF2_LIBRARIES})
 
 #INSTALL(TARGETS
 #    RUNTIME DESTINATION bin

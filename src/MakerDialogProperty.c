@@ -325,7 +325,7 @@ void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer u
 }
 
 /*=== Start enumeration and flags ===*/
-static MakerDialogIdDataPair mkdgRelationData[]={
+static MakerDialogIdPair mkdgRelationData[]={
     {"==",	MAKER_DIALOG_RELATION_EQUAL},
     {"!=",	MAKER_DIALOG_RELATION_NOT_EQUAL},
     {"<",	MAKER_DIALOG_RELATION_LESS},
@@ -345,7 +345,7 @@ MakerDialogRelation maker_dialog_relation_parse(const gchar *str){
     return maker_dialog_id_parse(mkdgRelationData, str, FALSE);
 }
 
-static MakerDialogIdDataPair mkdgSpecFlagData[]={
+static MakerDialogIdPair mkdgSpecFlagData[]={
     {"FIXED_SET",		MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET},
     {"PREFER_RADIO_BUTTONS",	MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS},
     {NULL,			0},

@@ -300,7 +300,7 @@ gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *p
     return maker_dialog_config_set_save(configSet, -1, (gpointer) pageName, error);
 }
 
-static MakerDialogIdDataPair mkdgConfigFlagData[]={
+static MakerDialogIdPair mkdgConfigFlagData[]={
     {"READONLY",		MAKER_DIALOG_CONFIG_FLAG_READONLY},
     {"NO_OVERRIDE",		MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE},
     {"NO_APPLY",		MAKER_DIALOG_CONFIG_FLAG_NO_APPLY},

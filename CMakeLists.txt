@@ -9,7 +9,7 @@ INCLUDE(init.CMakeLists.txt)
 ####################################################################
 PROJECT(MakerDialog)
 SET(PROJECT_DESCRIPTION "Utility that conveniently handle configuration properties")
-SET(CMAKE_C_FLAGS "-Wall")
+SET(CMAKE_C_FLAGS "-Wall -rdynamic")
 
 SET(RELEASE_FILE ${CMAKE_SOURCE_DIR}/RELEASE-NOTES.txt)
 SET(RPM_RELEASE_FILE ${CMAKE_SOURCE_DIR}/SPECS/RPM-RELEASE-NOTES.txt)
@@ -40,7 +40,7 @@ ENDIF(${NEED_RPM_RELEASE_INFO})
 # Project specific setting
 #
 
-SET(DATADIR_D "${DATADIR}/${PROJECT_NAME}.d")
+SET_ENV(PRJ_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib${IS_64}/${PROJECT_NAME})
 
 #==================================================================
 # Developer setting.
@@ -85,7 +85,6 @@ CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/project-gconf.pc.in"
 ####################################################################
 FILE(READ ${CMAKE_SOURCE_DIR}/SPECS/RPM-ChangeLog RPM_CHANGELOG)
 GENERATE_SPEC(SPECS/project.spec.in)
-
 
 ####################################################################
 # Definitions

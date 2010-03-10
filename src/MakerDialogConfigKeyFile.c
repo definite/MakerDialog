@@ -334,4 +334,8 @@ MakerDialogConfig *maker_dialog_config_use_key_file(MakerDialog *mDialog){
 }
 
 
+gboolean maker_dialog_module_init(MakerDialog *mDialog){
+    maker_dialog_config_new_full(mDialog, 0, &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE);
+    return TRUE;
 
+}

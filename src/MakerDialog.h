@@ -51,6 +51,7 @@ typedef struct _MakerDialog MakerDialog;
 #include "MakerDialogConfigSet.h"
 #include "MakerDialogConfigFile.h"
 #include "MakerDialogConfigKeyFile.h"
+#include "MakerDialogModule.h"
 #include "MakerDialogSpecParser.h"
 
 /**
@@ -89,6 +90,8 @@ struct _MakerDialog{
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
     guint32 flags;				//!< Flags of makerDialog
     /// @cond
+    gint argc;
+    gchar **argv;
     GNode *pageRoot;				//!< Store pages and keys under it. Depth 1 is root, point to NULL; Depth 2 stores pages; Depth 3 stores keys.
     MakerDialogUi *ui;				//!< UI instance.
     MakerDialogConfig *config;			//!< Configure instance.
@@ -128,13 +131,24 @@ MakerDialog *maker_dialog_new();
  * Use \c MAKER_DIALOG_RESPONSE_NIL as respond id at end of button
  * specification to signified the end of \a buttonSpec.
  *
- * @param title Title of the dialog. This string will be duplicated in MakerDialog.
- * @param buttonSpecs Button specification. Can be \c NULL.
+ * @param title 	Title of the dialog. This string will be duplicated in MakerDialog.
+ * @param buttonSpecs 	Button specification. Can be \c NULL.
  * @return A newly allocated MakerDialog instance.
  *
  * @see maker_dialog_new(), maker_dialog_construct().
  */
 MakerDialog *maker_dialog_init(const gchar *title, MakerDialogButtonSpec *buttonSpecs);
+
+/**
+ * Set command line options.
+ *
+ * Some application would like to process command line options in their own
+ * ways. UI toolkits like Gtk2 or Qt also offer further tweak via command line options.
+ * @param argc Number of arguments, as in main(int argc, char **argv)
+ * @param argv List of arguments, as in main(int argc, char **argv)
+ * @since 0.3
+ */
+void maker_dialog_set_args(MakerDialog *mDialog, gint argc, gchar **argv);
 
 /**
  * Add a property context to the maker dialog.
@@ -239,27 +253,6 @@ gboolean maker_dialog_apply_value(MakerDialog *mDialog, const gchar *key);
  */
 gboolean maker_dialog_set_value(MakerDialog *mDialog, const gchar *key, MkdgValue *value);
 
-/**
- * MakerDialog supported modules.
- *
- * Thie enumeration list current MakerDialog supported modules.
- * Note that GKeyFile support is built-in, so it does not deem a module.
- * @since 0.3
- */
-typedef enum{
-    MAKER_DIALOG_MODULE_GCONF2,		//!< GConf2 module for configuration interface.
-    MAKER_DIALOG_MODULE_GKEYFILE,	//!< GKeyFile module for configuration interface.
-    MAKER_DIALOG_MODULE_GTK2,		//!< Gtk2 module for UI interface.
-} MAKER_DIALOG_MODULE;
-
-/**
- * Whether a module installed.
- *
- * This function returns whether a module is installed.
- * @param module The module to be checked.
- * @return \c TRUE if the module installed, \c FALSE otherwise.
- */
-gboolean maker_dialog_is_module_installed(MAKER_DIALOG_MODULE module);
 
 #endif /* MAKER_DIALOG_H_ */
 

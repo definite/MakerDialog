@@ -138,17 +138,7 @@ gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **e
     return FALSE;
 }
 
-const gchar *maker_dialog_id_to_string(MakerDialogIdDataPair *pairedData, gint intId){
-    gint i=0;
-    for(i=0; pairedData[i].strId!=NULL;i++){
-	if (intId==pairedData[i].intId){
-	    return pairedData[i].strId;
-	}
-    }
-    return NULL;
-}
-
-gint maker_dialog_id_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive){
+gint maker_dialog_id_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive){
     gint i=0,ret;
     for(i=0; pairedData[i].strId!=NULL;i++){
 	if (caseSensitive){
@@ -162,7 +152,17 @@ gint maker_dialog_id_parse(MakerDialogIdDataPair *pairedData, const gchar *str, 
     return pairedData[i].intId;
 }
 
-guint32 maker_dialog_flag_parse(MakerDialogIdDataPair *pairedData, const gchar *str, gboolean caseSensitive){
+const gchar *maker_dialog_id_to_string(MakerDialogIdPair *pairedData, gint intId){
+    gint i=0;
+    for(i=0; pairedData[i].strId!=NULL;i++){
+	if (intId==pairedData[i].intId){
+	    return pairedData[i].strId;
+	}
+    }
+    return NULL;
+}
+
+guint32 maker_dialog_flag_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive){
     gchar **flagList=maker_dialog_string_split_set(str, " \t|;", '\\', FALSE, -1);
     guint32 flags=0;
     gint i;

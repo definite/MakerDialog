@@ -210,6 +210,7 @@ static void maker_dialog_new_from_key_file_section_keys(MakerDialog *mDialog, GK
     g_strfreev(groupList);
 }
 
+
 static void maker_dialog_new_from_key_file_section_main(MakerDialog *mDialog, GKeyFile *keyFile, MakerDialogError **error){
     MakerDialogError *cfgErr=NULL;
     if (!g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN))
@@ -277,21 +278,24 @@ static void maker_dialog_new_from_key_file_section_config(MakerDialog *mDialog, 
 	gchar **configInterfaceStrList=g_strsplit(configInterfaceStr,";",-1);
 	gint i;
 	for (i=0; configInterfaceStrList[i]!=NULL;i++){
+//            if (maker_dialog_module_installed(configInterfaceStrList[i])){
+//                MAKER_DIALOG_MODULE module=maker_dialog_module_parse(maker_dialog_module_installed(configInterfaceStrList[i]));
+//                switch(module){
+//                    case MAKER_DIALOG_MODULE_GCONF2:
+
+//                        break;
+//                    case MAKER_DIALOG_MODULE_GTK2:
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
 	}
 	g_strfreev(configInterfaceStrList);
 	g_free(configInterfaceStr);
     }
 }
 
-static MakerDialogIdDataPair mkdgConfigFlagData[]={
-    {"GCONF2",			MAKER_DIALOG_MODULE_GCONF2},
-    {"NO_OVERRIDE",		MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE},
-    {"NO_APPLY",		MAKER_DIALOG_CONFIG_FLAG_NO_APPLY},
-    {"STOP_ON_ERROR",		MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR},
-    {"HIDE_DEFAULT",		MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT},
-    {"HIDE_DUPLICATE",		MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE},
-    {NULL,			0},
-};
 
 
 MakerDialog *maker_dialog_new_from_key_file(const gchar *filename, MakerDialogError **error){
