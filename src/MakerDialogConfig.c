@@ -28,6 +28,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include "MakerDialog.h"
+#include "MakerDialogTypes.h"
 
 MakerDialogConfig *maker_dialog_config_new(MakerDialog *mDialog){
     return maker_dialog_config_new_full(mDialog, 0, NULL);
@@ -298,6 +299,103 @@ gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *p
 	configSet=(MakerDialogConfigSet *) g_ptr_array_index(config->setArray,0);
     }
     return maker_dialog_config_set_save(configSet, -1, (gpointer) pageName, error);
+}
+
+static gboolean merge_str_lists(GPtrArray *ptrArray, gchar **strList){
+    gint j;
+    if (strList==NULL)
+	return FALSE;
+    for(j=0;strList[j]!=NULL;j++){
+	gint index=maker_dialog_find_string(strList[j], (gchar **) ptrArray->pdata, -1);
+	if (index<0){
+	    g_ptr_array_add(ptrArray, g_strdup(strList[j]));
+	}
+    }
+    g_strfreev(strList);
+    return TRUE;
+}
+
+static gboolean maker_dialog_config_file_get_pages(
+	MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, gpointer userData, MakerDialogError **error){
+    GPtrArray *ptrArray=(GPtrArray *) userData;
+    gchar **pages=configFile->configSet->configInterface->config_file_get_pages(configFile,  error);
+    return merge_str_lists(ptrArray, pages);
+}
+
+static gboolean maker_dialog_config_set_get_pages(MakerDialogConfigSet *configSet, gint untilIndex, gpointer userData, MakerDialogError **error){
+    return maker_dialog_config_set_foreach_file(
+	    configSet, NULL, maker_dialog_config_file_get_pages, untilIndex, userData, error);
+}
+
+gchar **maker_dialog_config_get_pages(MakerDialogConfig *config, MakerDialogError **error){
+    MakerDialogError *cfgErr=NULL;
+    if (config->setArray->len<=0){
+	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_NO_CONFIG_SET, "config_get_pages()");
+	maker_dialog_error_handle(cfgErr, error);
+	return FALSE;
+    }
+    GPtrArray *ptrArray=g_ptr_array_new();
+    maker_dialog_foreach_config_set(config, maker_dialog_config_set_get_pages, -1, ptrArray, error);
+    return (gchar **) g_ptr_array_free(ptrArray, FALSE);
+}
+
+typedef struct {
+    GPtrArray *ptrArray;
+    const gchar *str;
+}  MkdgConfigPtrArrayStrBind;
+
+static gboolean maker_dialog_config_file_get_keys(
+	MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, gpointer userData, MakerDialogError **error){
+    MkdgConfigPtrArrayStrBind *mBind=(MkdgConfigPtrArrayStrBind *) userData;
+    gchar **keys=configFile->configSet->configInterface->config_file_get_keys(configFile, mBind->str, error);
+    return merge_str_lists(mBind->ptrArray, keys);
+}
+
+static gboolean maker_dialog_config_set_get_keys(MakerDialogConfigSet *configSet, gint untilIndex, gpointer userData, MakerDialogError **error){
+    return maker_dialog_config_set_foreach_file(
+	    configSet, NULL, maker_dialog_config_file_get_keys, untilIndex, userData, error);
+}
+
+gchar **maker_dialog_config_get_keys(MakerDialogConfig *config, const gchar *pageName, MakerDialogError **error){
+    MakerDialogError *cfgErr=NULL;
+    if (config->setArray->len<=0){
+	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_NO_CONFIG_SET, "config_get_keys()");
+	maker_dialog_error_handle(cfgErr, error);
+	return FALSE;
+    }
+    MkdgConfigPtrArrayStrBind mBind;
+    mBind.ptrArray=g_ptr_array_new();
+    mBind.str=pageName;
+    maker_dialog_foreach_config_set(config, maker_dialog_config_set_get_keys, -1, &mBind, error);
+    return (gchar **) g_ptr_array_free(mBind.ptrArray, FALSE);
+}
+
+MkdgValue *maker_dialog_config_get_value(MakerDialogConfig *config, const gchar *pageName, const gchar *key,
+	MkdgType valueType, const gchar *parseOption, MakerDialogError **error){
+    MakerDialogConfigSet *configSet=NULL;
+    if (g_hash_table_size(config->pageSetTable)){
+	configSet=(MakerDialogConfigSet *) g_hash_table_lookup(config->pageSetTable, pageName);
+    }else{
+	configSet=(MakerDialogConfigSet *) g_ptr_array_index(config->setArray,0);
+    }
+
+    gint i;
+    MkdgValue *mValue=NULL, *mValueOld=NULL;
+    MakerDialogError *cfgErr=NULL;
+    for(i=0; i< configSet->fileArray->len;i++){
+	MakerDialogConfigFile *configFile=(MakerDialogConfigFile *) g_ptr_array_index(configSet->fileArray,i);
+	mValue=configSet->configInterface->config_file_get_value(configFile, pageName, key, valueType, parseOption, &cfgErr);
+	if (mValue!=NULL){
+	    if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE){
+		return mValue;
+	    }
+	    if (mValueOld!=NULL){
+		maker_dialog_value_free(mValueOld);
+	    }
+	    mValueOld=mValue;
+	}
+    }
+    return mValue;
 }
 
 static MakerDialogIdPair mkdgConfigFlagData[]={

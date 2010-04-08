@@ -212,16 +212,50 @@ struct _MakerDialogConfigFileInterface{
     /**
      * Callback function to get all pages in a configuration file.
      *
-     * This function connects to function that save a property
+     * This function connects to function which retrieve all pages
      * from a configuration file.
-     * Called by maker_dialog_config_set_save().
+     * Called by maker_dialog_config_get_pages().
      *
      * @param configFile	The configuration file to be manipulated.
      * @param error		Error return location, or \c NULL.
      * @return A newly allocated list of strings which contains results;  or \c NULL if no pages are found.
-     * @see config_file_save(), config_file_save_page().
+     * @see maker_dialog_config_get_pages(), config_file_get_keys(), maker_dialog_config_get_keys().
      */
     gchar ** (* config_file_get_pages)(MakerDialogConfigFile *configFile, MakerDialogError **error);
+
+    /**
+     * Callback function to get all keys of a page in a configuration file.
+     *
+     * This function connects to function which retrieve all keys in a page
+     * from a configuration file.
+     * Called by maker_dialog_config_get_keys().
+     *
+     * @param configFile	The configuration file to be manipulated.
+     * @param pageName		Name of the page.
+     * @param error		Error return location, or \c NULL.
+     * @return A newly allocated list of strings which contains results;  or \c NULL if no keys are found.
+     * @see config_get_pages(), maker_dialog_config_get_pages(), maker_dialog_config_get_keys().
+     */
+    gchar ** (* config_file_get_keys)(MakerDialogConfigFile *configFile, const gchar *pageName, MakerDialogError **error);
+
+    /**
+     * Callback function to get the value of associated key.
+     *
+     * This function connects to function which retrieve the value of the
+     * given key from a configuration file.
+     * Called by maker_dialog_config_get_value().
+     *
+     * @param configFile	The configuration file to be manipulated.
+     * @param pageName		Name of the page.
+     * @param key		Key.
+     * @param valueType		Type of the value.
+     * @param parseOption	Parse option. Use \c NULL for default handling.
+     * @param error		Error return location, or \c NULL.
+     * @return A newly allocated list of strings which contains results;  or \c NULL if no keys are found.
+     * @see config_get_pages(), maker_dialog_config_get_pages(), maker_dialog_config_get_keys().
+     */
+    MkdgValue * (* config_file_get_value)(MakerDialogConfigFile *configFile, const gchar *pageName, const gchar *key,
+	    MkdgType valueType, const gchar *parseOption, MakerDialogError **error);
 
 };
 

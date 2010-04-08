@@ -42,10 +42,16 @@ typedef guint32 MkdgColor;
  * Enumeration of supported MakerDialog types.
  *
  * These are constants, which can be used in initializer elements.
+ * Most of the type has corresponding UI widget, except
+ * - \c MKDG_TYPE_INVALID : Type is invalid, or as a terminator.
+ * - \c MKDG_TYPE_NONE : No type
+ * - \c MKDG_TYPE_POINTER : Like gpointer, used as custom type.
+ *
  *
  */
 typedef enum {
     MKDG_TYPE_INVALID=-1,	//!< "Invalid" type. Usually use as terminator.
+    MKDG_TYPE_POINTER,		//!< Pointer type.
     MKDG_TYPE_BOOLEAN,		//!< Boolean type.
     MKDG_TYPE_INT,		//!< Integer type.
     MKDG_TYPE_UINT,		//!< Unsigned integer type.
@@ -91,21 +97,54 @@ typedef struct{
 /**
  * Type interface.
  *
- * Type interface are callback function that handles following property value operations:
- * - set(): Set the value.
+ * Type interface are callback function that handles following MkdgValue operations:
+ * - extract(): Extract the content of a MkdgValue to an appointed pointer.
+ * - set(): Set a value to MkdgValue.
  * - from_string() : parse value from string.
  * - to_string(): output value as a string.
  * - compare(): compare 2 values. See maker_dialog_value_compare() for details of return values.
  */
 typedef struct{
     /**
-     * Set value.
+     * Extract the content of a MkdgValue to an appointed pointer.
+     *
+     * Extract the content of a MkdgValue to an appointed pointer.
+     * For example, use following code for obtain an int value i from
+     * a MKDG_TYPE_INT type MkdgValue.
+     * @code
+     * int i;
+     * mkdg_int_extract(mValue, &i);
+     * @endcode
+     * and for string (MKDG_TYPE_STRING) type:
+     * @code
+     * char *s;
+     * mkdg_string_extract(mValue, &s);
+     * @endcode
+     *
+     * @note
+     * It is caller's responsibility to ensure that \a ptr is indeed the
+     * pointer to the correct type.
+     *
+     * @param mValue 		MkdgValue that stores the result.
+     * @param ptr		The appointed pointer.
+     */
+    void (* extract)(MkdgValue *mValue, gpointer ptr);
+
+    /**
+     * Set a value to MkdgValue.
      *
      * Set value to a MakerDialog value.
-     * Note for pointer-type type such as #MKDG_TYPE_STRING,
+     *
+     * @note
+     * For pointer-type such as \c MKDG_TYPE_STRING, \c MKDG_TYPE_POINTER
      * the \a setValue must be deep-copied to \a mValue,
      * unless \a needFree in mValue is \c FALSE.
-     * @param value 		MkdgValue that stores the result.
+     *
+     * @note
+     * It is caller's responsibility to ensure that \a ptr is indeed the
+     * pointer to the correct type.
+     *
+     * @param mValue 		MkdgValue that stores the result.
      * @param setValue		Value to be set. \c NULL for default value for the type.
      */
     void (* set)(MkdgValue *mValue, gpointer setValue);
@@ -114,31 +153,31 @@ typedef struct{
      * Parse from string callback function.
      *
      * Parse from string callback function.
-     * @param value 		MkdgValue that stores the result.
+     * @param mValue 		MkdgValue that stores the result.
      * @param str   		String to be parse from. \c NULL or "" to assign type default,
      * such as 0 for numeric values.
      * @param parseOption 	Option for parsing.
      * @return \a value if succeed; \c NULL if failed.
      */
-    MkdgValue *(* from_string) (MkdgValue *value, const gchar *str, const gchar *parseOption);
+    MkdgValue *(* from_string) (MkdgValue *mValue, const gchar *str, const gchar *parseOption);
 
     /**
      * Output value as string callback function.
      *
      * Output value as string callback function.
-     * @param value 		A MkdgValue.
+     * @param mValue 		A MkdgValue.
      * @param toStringFormat 	printf()-like format string.
      * @return A newly allocated string which shows the value; \c NULL if failed.
      */
-    gchar *(* to_string) (MkdgValue *value, const gchar *toStringFormat);
+    gchar *(* to_string) (MkdgValue *mValue, const gchar *toStringFormat);
 
     /**
      * Compare value of two MkdgValues.
      *
      * This function compares value of two MkdgValues.
      *
-     * @param value1 	The first value.
-     * @param value2 	The second value.
+     * @param mValue1 	The first value.
+     * @param mValue2 	The second value.
      * @param compareOption Comparison option. Can be \c NULL.
      * @retval -3  if the values cannot be compared.
      * @retval -2 if the type is not supported.
@@ -147,13 +186,13 @@ typedef struct{
      * @retval 1 if \a value1 \> \a value2.
      * @see maker_dialog_value_compare()
      */
-    gint (* compare) (MkdgValue *value1, MkdgValue *value2, const gchar *compareOption);
+    gint (* compare) (MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption);
 
     /**
      * Free the MkdgValues.
      *
      * Free the MkdgValues.
-     * @param value 		A MkdgValue.
+     * @param mValue 		A MkdgValue.
      */
     void (* free) (MkdgValue *mValue);
 
@@ -214,6 +253,32 @@ MkdgValue *maker_dialog_value_new_static(MkdgType mType, gpointer setValue);
  * @return \c TRUE if succeed; \c FALSE if types of these values are not identical.
  */
 gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue);
+
+/**
+ * Extract the content of a MkdgValue to an appointed pointer.
+ *
+ * Extract the content of a MkdgValue to an appointed pointer.
+ * For example, use following code for obtain an int value i from
+ * a MKDG_TYPE_INT type MkdgValue.
+ * @code
+ * int i;
+ * maker_dialog_value_extract(mValue, &i);
+ * @endcode
+ * and for string (MKDG_TYPE_STRING) type:
+ * @code
+ * char *s;
+ * maker_dialog_value_extract(mValue, &s);
+ * @endcode
+ *
+ * @note
+ * It is caller's responsibility to ensure that \a ptr is indeed the
+ * pointer to the correct type.
+ *
+ * @param mValue 	MkdgValue that stores the result.
+ * @param ptr		The appointed pointer.
+ * @since 0.3
+ */
+void maker_dialog_value_extract(MkdgValue *mValue, gpointer ptr);
 
 /**
  * Set a MakerDialog value.
@@ -418,6 +483,24 @@ gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gc
  * @see maker_dialog_value_compare()
  */
 gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2, MakerDialogCompareFunc compFunc);
+
+/**
+ * Get a pointer value from a MakerDialog value.
+ *
+ * Get a pointer value from a MakerDialog value.
+ * @param mValue A MakerDailog value.
+ * @return The pointer value.
+ */
+#define maker_dialog_value_get_pointer(mValue)		mValue->data[0].v_pointer
+
+/**
+ * Set a pointer value to a MakerDialog value.
+ *
+ * Set a pointer value to a MakerDialog value.
+ * @param mValue A MakerDailog value.
+ * @param setValue The value to be set.
+ */
+#define maker_dialog_value_set_pointer(mValue, setValue)	mValue->data[0].v_pointer = setValue
 
 /**
  * Get a boolean value from a MakerDialog value.

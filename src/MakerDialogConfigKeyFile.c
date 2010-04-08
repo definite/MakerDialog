@@ -22,7 +22,7 @@
 #include <glib/gstdio.h>
 #include "MakerDialog.h"
 
-static GError *convert_error_code(GError *error, const gchar *filename, const gchar *prefix){
+static MakerDialogError *convert_error_code(GError *error, const gchar *filename, const gchar *prefix){
     if (!error)
 	return NULL;
     if (error->domain==MAKER_DIALOG_ERROR)
@@ -72,6 +72,25 @@ static void maker_dialog_config_set_key_file_finalize(MakerDialogConfigSet *conf
 
 static gchar **maker_dialog_config_file_key_file_get_pages(MakerDialogConfigFile *configFile, MakerDialogError **error){
     return g_key_file_get_groups (configFile->fileObj, NULL);
+}
+
+static gchar **maker_dialog_config_file_key_file_get_keys(MakerDialogConfigFile *configFile, const gchar *pageName, MakerDialogError **error){
+    return g_key_file_get_keys (configFile->fileObj, pageName, NULL, error);
+}
+
+static MkdgValue *maker_dialog_config_file_key_file_get_value(MakerDialogConfigFile *configFile, const gchar *pageName, const gchar *key,
+       	MkdgType valueType, const gchar *parseOption, MakerDialogError **error){
+    MakerDialogError *cfgErr_prep=NULL;
+    gchar *str=g_key_file_get_string(configFile->fileObj, pageName, key, &cfgErr_prep);
+    if (cfgErr_prep!=NULL){
+	MakerDialogError *cfgErr=convert_error_code(cfgErr_prep, configFile->path, "config_file_key_file_get_value()");
+	maker_dialog_error_handle(cfgErr,error);
+	return NULL;
+    }
+    MkdgValue *mValue=maker_dialog_value_new(valueType,NULL);
+    MkdgValue *ret=maker_dialog_value_from_string(mValue, str, parseOption);
+    g_free(str);
+    return ret;
 }
 
 static gboolean maker_dialog_config_file_key_file_can_access(MakerDialogConfigFile *configFile, guint permission, MakerDialogError **error){
@@ -160,12 +179,13 @@ static gboolean key_file_preload_property(MakerDialogConfigFile *configFile, Mak
 	/* It is expected behavior if NO_OVERRIDE is set. */
 	return TRUE;
     }
-    gchar *value=g_key_file_get_value((GKeyFile *)configFile->fileObj, ctx->spec->pageName, ctx->spec->key, error);
-    if (*error){
+    MakerDialogError *cfgErr=NULL;
+    MkdgValue *mValue= maker_dialog_config_file_key_file_get_value(configFile, ctx->spec->pageName, ctx->spec->key,
+	    ctx->spec->valueType, ctx->spec->parseOption, &cfgErr);
+    if (mValue==NULL){
+	maker_dialog_error_handle(cfgErr,error);
 	return FALSE;
     }
-    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
-    maker_dialog_value_from_string(mValue, value, ctx->spec->parseOption);
     maker_dialog_config_buffer_insert(configBuf, ctx->spec->key, mValue);
     return TRUE;
 }
@@ -325,7 +345,9 @@ MakerDialogConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE={
     maker_dialog_config_file_key_file_close,
     maker_dialog_config_file_key_file_preload,
     maker_dialog_config_file_key_file_save,
-    maker_dialog_config_file_key_file_get_pages
+    maker_dialog_config_file_key_file_get_pages,
+    maker_dialog_config_file_key_file_get_keys,
+    maker_dialog_config_file_key_file_get_value,
 };
 
 MakerDialogConfig *maker_dialog_config_use_key_file(MakerDialog *mDialog){

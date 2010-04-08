@@ -83,6 +83,13 @@ typedef struct{
 #define MAKER_DLALOG_VERBOSE_ENV "MAKER_DIALOG_VERBOSE"
 
 /**
+ * Flags data structure.
+ *
+ * 32-bit unsigned integer that holds flags.
+ */
+typedef guint32 MakerDialogFlags;
+
+/**
  * Data structure for reporting error in MakerDialog.
  *
  * It is essentially GError.
@@ -160,6 +167,13 @@ typedef enum{
     MAKER_DIALOG_ERROR_CONFIG_NOT_READY, 	//!< Configuration back-end is not ready.
     MAKER_DIALOG_ERROR_CONFIG_PERMISSION_DENY,	//!< Permission denied; the file permissions do not allow the attempted operation.
     MAKER_DIALOG_ERROR_CONFIG_OTHER, 		//!< Other error.
+    MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_LIB=50,	//!< Can't load library.
+    MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_SYM,	//!< Can't load such symbol.
+    MAKER_DIALOG_ERROR_SPEC_CANT_READ=100,	//!< Spec file cannot be read.
+    MAKER_DIALOG_ERROR_SPEC_INVALID_FORMAT, 	//!< Spec file format is invalid.
+    MAKER_DIALOG_ERROR_SPEC_INVALID_KEY, 	//!< Spec file is invalid (no such key).
+    MAKER_DIALOG_ERROR_SPEC_INVALID_PAGE, 	//!< Spec file is invalid (no such page).
+    MAKER_DIALOG_ERROR_SPEC_INVALID_VALUE, 	//!< Spec attribute value is invalid.
 } MakerDialogErrorCode;
 
 /**

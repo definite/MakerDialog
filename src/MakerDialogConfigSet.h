@@ -44,7 +44,7 @@
  * @cond
  */
 typedef enum{
-    MAKER_DIALOG_CONFIG_SET_STATUS_HAS_LOCAL_SETTING=	0x1, //!< Whether the configure set is prepared.
+    MAKER_DIALOG_CONFIG_SET_STATUS_HAS_LOCAL_SETTING=	0x1, //!< Whether the configure set has local setting.
     MAKER_DIALOG_CONFIG_SET_STATUS_IS_PREPARED=		0x2, //!< Whether the configure set is prepared.
 }MAKER_DIALOG_CONFIG_SET_STATUS;
 /**
@@ -62,7 +62,7 @@ typedef enum{
  * and flags to fine tune the configuration set.
  *
  * If \a flags are not explicitly defined,
- * it copies paraent MakerDialogConfig's flags for its own setting.
+ * it copies parent MakerDialogConfig's flags for its own setting.
  *
  * The member writeIndex is pointing to last writable file if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is not set;
  * or pointing to first writable file if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is set;
@@ -87,7 +87,6 @@ struct _MakerDialogConfigSet{
     gpointer				userData;		//!< Pass user data.
     /// @cond
     guint32				status;			//!< Current set status.
-    gboolean				hasLocalSetting;	//!< Has local setting.
     MakerDialogConfig			*config;		//!< Parent MakerDialog config.
  //   MakerDialogConfigBuffer		*configBuf;		//!< Configure buffer.
     /// @endcond

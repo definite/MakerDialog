@@ -133,7 +133,7 @@ static void gconf_gslist_free(GSList *sList, GFreeFunc freeFunc){
     g_slist_free(sList);
 }
 
-static gchar **config_gconf_get_page_list(MakerDialogConfigFile *configFile, MakerDialogError **error){
+static gchar **maker_dialog_config_file_gconf_get_pages(MakerDialogConfigFile *configFile, MakerDialogError **error){
     MakerDialogError *cfgErr=NULL;
     g_assert(configFile->configSet->userData);
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
@@ -145,7 +145,7 @@ static gchar **config_gconf_get_page_list(MakerDialogConfigFile *configFile, Mak
     if (cfgErr==NULL){
 	for(;sList!=NULL; sList=g_slist_next(sList)){
 	    pagePath=(gchar *)sList->data;
-	    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_get_page_list(%s, ) path=%s", configFile->path, pagePath);
+	    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_get_pages(%s, ) path=%s", configFile->path, pagePath);
 	    page=g_path_get_basename (pagePath);
 	    g_ptr_array_add(ptrArray, page);
 	}
@@ -158,8 +158,99 @@ static gchar **config_gconf_get_page_list(MakerDialogConfigFile *configFile, Mak
     return (gchar **) g_ptr_array_free(ptrArray, FALSE);
 }
 
-static gchar **maker_dialog_config_file_gconf_get_pages(MakerDialogConfigFile *configFile, MakerDialogError **error){
-    return config_gconf_get_page_list(configFile, error);
+static gchar **maker_dialog_config_file_gconf_get_keys(MakerDialogConfigFile *configFile, const gchar *pageName, MakerDialogError **error){
+    MakerDialogError *cfgErr=NULL;
+    g_assert(configFile->configSet->userData);
+    GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
+    gchar *path=g_build_filename(configFile->path, pageName, NULL);
+    GSList *sListHead=gconf_engine_all_dirs(engine,path,&cfgErr);
+    GSList *sList=sListHead;
+    GConfEntry *cfgEntry;
+    gchar *key=NULL;
+    GPtrArray *ptrArray=g_ptr_array_new();
+    if (cfgErr==NULL){
+	for(;sList!=NULL; sList=g_slist_next(sList)){
+	    cfgEntry=(GConfEntry *)sList->data;
+	    key=g_strdup(cfgEntry->key);
+	    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_get_keys(%s, ) path=%s key=%s", configFile->path, path, key );
+	    g_ptr_array_add(ptrArray,key);
+	}
+	/* Free sList */
+	gconf_gslist_free(sListHead, gconf_entry_free_wrapper);
+    }else{
+	maker_dialog_error_handle(cfgErr,error);
+    }
+    g_ptr_array_add(ptrArray, NULL);
+    return (gchar **) g_ptr_array_free(ptrArray, FALSE);
+}
+
+static MkdgValue *maker_dialog_config_gconf_engine_get_value(GConfEngine *engine, const gchar *path,
+	MkdgType valueType, const gchar *parseOption, MakerDialogError **error){
+    MakerDialogError *cfgErr_prep=NULL;
+    MkdgValue *mValue=maker_dialog_value_new(valueType, NULL);
+    gchar *strValue=NULL;
+    switch(valueType){
+	case MKDG_TYPE_BOOLEAN:
+	    maker_dialog_value_set_boolean(mValue, gconf_engine_get_bool(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_INT:
+	    maker_dialog_value_set_int(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_INT32:
+	    maker_dialog_value_set_int32(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_INT64:
+	    maker_dialog_value_set_int64(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_UINT:
+	    maker_dialog_value_set_uint(mValue, (guint) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_UINT32:
+	    maker_dialog_value_set_uint32(mValue, (guint32) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_UINT64:
+	    maker_dialog_value_set_uint64(mValue, (guint64) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_LONG:
+	    maker_dialog_value_set_long(mValue,  gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_ULONG:
+	    maker_dialog_value_set_ulong(mValue, (gulong) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_FLOAT:
+	    maker_dialog_value_set_float(mValue, (gfloat) gconf_engine_get_float(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_DOUBLE:
+	    maker_dialog_value_set_double(mValue, gconf_engine_get_float(engine, path, &cfgErr_prep));
+	    break;
+	case MKDG_TYPE_STRING:
+	case MKDG_TYPE_STRING_LIST:
+	case MKDG_TYPE_COLOR:
+	    strValue=(gchar *) gconf_engine_get_string(engine, path, &cfgErr_prep);
+	    if (strValue!=NULL){
+		MAKER_DIALOG_DEBUG_MSG(6, "[I6] config_gconf_engine_get_value() strValue=%s", strValue);
+		maker_dialog_value_from_string(mValue, strValue, parseOption);
+		g_free(strValue);
+	    }
+	    break;
+	default:
+	    break;
+    }
+    if (cfgErr_prep!=NULL){
+	MakerDialogError *cfgErr=convert_error_code(cfgErr_prep, "config_gconf_engine_get_value()" );
+	maker_dialog_error_handle(cfgErr, error);
+	return NULL;
+    }
+    return mValue;
+}
+
+static MkdgValue *maker_dialog_config_file_gconf_get_value(MakerDialogConfigFile *configFile, const gchar *pageName, const gchar *key,
+	MkdgType valueType, const gchar *parseOption, MakerDialogError **error){
+    GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
+    gchar *path=g_build_filename(configFile->path, pageName, key, NULL);
+    MkdgValue *mValue=maker_dialog_config_gconf_engine_get_value(engine, path, valueType, parseOption, error);
+    g_free(path);
+    return mValue;
 }
 
 static guint maker_dialog_config_file_gconf_get_access(MakerDialogConfigFile *configFile, MakerDialogError **error){
@@ -483,7 +574,9 @@ MakerDialogConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF={
     maker_dialog_config_file_gconf_close,
     maker_dialog_config_file_gconf_preload,
     maker_dialog_config_file_gconf_save,
-    maker_dialog_config_file_gconf_get_pages
+    maker_dialog_config_file_gconf_get_pages,
+    maker_dialog_config_file_gconf_get_keys,
+    maker_dialog_config_file_gconf_get_value,
 };
 
 MakerDialogConfig *maker_dialog_config_use_gconf(MakerDialog *mDialog){

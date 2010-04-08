@@ -105,6 +105,20 @@ const gchar *maker_dialog_get_error_message(MakerDialogErrorCode code){
 	    return "Config: Permission deny";
 	case MAKER_DIALOG_ERROR_CONFIG_OTHER:
 	    return "Config: Other";
+	case MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_LIB:
+	    return "Loader: Cannot load library";
+	case MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_SYM:
+	    return "Loader: Cannot load  symbol";
+	case MAKER_DIALOG_ERROR_SPEC_CANT_READ:
+	    return "Spec: Cannot be read";
+	case MAKER_DIALOG_ERROR_SPEC_INVALID_FORMAT:
+	    return "Spec: Invalid format";
+	case MAKER_DIALOG_ERROR_SPEC_INVALID_KEY:
+	    return "Spec: Invalid key";
+	case MAKER_DIALOG_ERROR_SPEC_INVALID_PAGE:
+	    return "Spec: Invalid page";
+	case MAKER_DIALOG_ERROR_SPEC_INVALID_VALUE:
+	    return "Spec: Invalid value";
 	default:
 	    break;
     }

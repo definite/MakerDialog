@@ -88,8 +88,8 @@ struct _MakerDialog{
     MakerDialogDimension maxSizeInChar;		//!< The maximum size in characters. Default is (-1, -1).
     MakerDialogAlignment labelAlignment;	//!< The alignment for label. Default is (0, 0.5);
     MakerDialogAlignment componentAlignment;	//!< The alignment for UI component. Default is (0, 0.5);
-    guint32 flags;				//!< Flags of makerDialog
     /// @cond
+    MakerDialogFlags flags;			//!< Flags of makerDialog
     gint argc;
     gchar **argv;
     GNode *pageRoot;				//!< Store pages and keys under it. Depth 1 is root, point to NULL; Depth 2 stores pages; Depth 3 stores keys.

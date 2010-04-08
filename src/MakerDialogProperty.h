@@ -77,7 +77,7 @@ typedef enum {
 /**
  * Data structure for storing property flags.
  */
-typedef guint MakerDialogPropertyFlags;
+typedef MakerDialogFlags MakerDialogPropertyFlags;
 
 /**
  * The relational operators used in MakerDialog.

@@ -199,6 +199,49 @@ gboolean maker_dialog_config_load_page(MakerDialogConfig *config, const gchar *p
 gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *pageName, MakerDialogError **error);
 
 /**
+ * Return all pages in configuration back-end.
+ *
+ * This function returns all pages which are stored in configuration back-end.
+ *
+ * @param config	The configuration back-end.
+ * @param error		Error return location, or \c NULL.
+ * @return A newly allocated list of strings which contains results;  or \c NULL if no pages are found.
+ */
+gchar **maker_dialog_config_get_pages(MakerDialogConfig *config, MakerDialogError **error);
+
+
+/**
+ * Return all keys in a page of the configuration back-end.
+ *
+ * This function returns all keys in configuration back-end of a given page.
+ *
+ * @param config	The configuration back-end.
+ * @param pageName	Name of the page.
+ * @param error		Error return location, or \c NULL.
+ * @return A newly allocated list of strings which contains results;  or \c NULL if no keys are found.
+ */
+gchar **maker_dialog_config_get_keys(MakerDialogConfig *config, const gchar *pageName, MakerDialogError **error);
+
+/**
+ * Return the value of a key in configuration back-end.
+ *
+ * This function traverses all configuration files and returns the value of
+ * the key.
+ *
+ * If \c MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE is set, the first corresponding value is returned,
+ * otherwise the last value is returned.
+ *
+ * Note that if MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE
+ *
+ * @param config	The configuration back-end.
+ * @param pageName	Name of the page.
+ * @param error		Error return location, or \c NULL.
+ * @return A newly allocated MkdgValue that store the value;  or \c NULL if the key is not in the configuration back-end.
+ */
+MkdgValue *maker_dialog_config_get_value(MakerDialogConfig *config, const gchar *pageName, const gchar *key,
+	MkdgType valueType, const gchar *parseOption, MakerDialogError **error);
+
+/**
  * Parse the configuration flags from a string.
  *
  * Parse the configuration flags from a string.

@@ -94,7 +94,7 @@ typedef enum{
  *
  * Data structure for configuration flags.
  */
-typedef guint32 MakerDialogConfigFlags;
+typedef MakerDialogFlags MakerDialogConfigFlags;
 
 /**
  * Enumeration of configuration file flags.
@@ -102,12 +102,13 @@ typedef guint32 MakerDialogConfigFlags;
  * Enumeration of configuration file flags, which are used in configuration
  * file function.
  *
- * Flags smaller than 0x100 are for user-defined flags.
+ * Flags lesser than 0x100 are for user-defined flags.
+ * These flags should be set and used inside the configuration back-end.
  */
 typedef enum{
-    MAKER_DIALOG_CONFIG_FILE_FLAG_HAS_CONTENT=	0x100,	//!< File object has content, such that preload functions can proceed.
+    MAKER_DIALOG_CONFIG_FILE_FLAG_HAS_CONTENT=	0x100,	//!< File object has content, so preload functions can proceed.
     MAKER_DIALOG_CONFIG_FILE_FLAG_BUFFERED=	0x200,	//!< Property is loaded to MakerDialog config buffer.
-    MAKER_DIALOG_CONFIG_FILE_FLAG_CANT_WRITE=	0x400,	//!< File cannot be written. Automatically set/unset.
+    MAKER_DIALOG_CONFIG_FILE_FLAG_CANT_WRITE=	0x400,	//!< File cannot be written.
 } MAKER_DIALOG_CONFIG_FILE_FLAG;
 
 /**
@@ -115,7 +116,7 @@ typedef enum{
  *
  * Data structure for configuration file flags.
  */
-typedef guint32 MakerDialogConfigFileFlags;
+typedef MakerDialogFlags MakerDialogConfigFileFlags;
 
 /**
  * Configuration buffer which stores the contents of pre-loaded properties.
