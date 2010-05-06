@@ -139,16 +139,5 @@ MakerDialogResponse maker_dialog_parse_button_response_id(const gchar *idStr){
     return maker_dialog_id_parse(mkdgResponseIdData, idStr, FALSE);
 }
 
-static MakerDialogIdPair mkdgWidgetControlData[]={
-    {"SHOW",		MAKER_DIALOG_WIDGET_CONTROL_SHOW},
-    {"HIDE",		MAKER_DIALOG_WIDGET_CONTROL_HIDE},
-    {"SENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE},
-    {"INSENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE},
-    {NULL,		MAKER_DIALOG_WIDGET_CONTROL_NOTHING},
-};
-
-MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str){
-    return maker_dialog_flag_parse(mkdgWidgetControlData, str, FALSE);
-}
 
 

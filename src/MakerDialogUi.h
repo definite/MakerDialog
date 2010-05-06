@@ -31,6 +31,8 @@
 /**
  * Separator used in Widget ID.
  */
+#ifndef MAKER_DIALOG_UI_H_
+#define MAKER_DIALOG_UI_H_
 #define WIDGET_ID_SEPARATOR "+"
 
 /**
@@ -334,13 +336,5 @@ gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key);
  */
 MakerDialogResponse maker_dialog_parse_button_response_id(const gchar *idStr);
 
-/**
- * Parse a widget control from a string.
- *
- * Parse a widget control from a string.
- * @param str		The string to be parsed.
- * @return Corresponding widget control; or \c MAKER_DIALOG_WIDGET_CONTROL_NOTHING if none matched.
- */
-MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str);
-
+#endif /* MAKER_DIALOG_UI_H_ */
 

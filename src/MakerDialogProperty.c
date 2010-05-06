@@ -355,6 +355,52 @@ MakerDialogPropertyFlags maker_dialog_property_flags_parse(const gchar *str){
     return maker_dialog_flag_parse(mkdgSpecFlagData, str, FALSE);
 }
 
+static MakerDialogIdPair mkdgWidgetControlData[]={
+    {"SHOW",		MAKER_DIALOG_WIDGET_CONTROL_SHOW},
+    {"HIDE",		MAKER_DIALOG_WIDGET_CONTROL_HIDE},
+    {"SENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE},
+    {"INSENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE},
+    {NULL,		MAKER_DIALOG_WIDGET_CONTROL_NOTHING},
+};
+
+MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str){
+    return maker_dialog_flag_parse(mkdgWidgetControlData, str, FALSE);
+}
+
+static MakerDialogIdPair mkdgWidgetControlData[]={
+    {"SHOW",		MAKER_DIALOG_WIDGET_CONTROL_SHOW},
+    {"HIDE",		MAKER_DIALOG_WIDGET_CONTROL_HIDE},
+    {"SENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE},
+    {"INSENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE},
+    {NULL,		MAKER_DIALOG_WIDGET_CONTROL_NOTHING},
+};
+
+MakerDialogControlRule  *maker_dialog_control_rules_parse(const gchar *str){
+    GArray *ctrlArray=g_array_new(FALSE, FALSE, sizeof(MakerDialogControlRule));
+    MakerDialogControlRule *rule=NULL;
+    for(i=0;ctrlList[i]!=NULL;i++){
+	gchar **strList=maker_dialog_string_split_set(ctrlList[i], ",", '\\', FALSE, 5);
+	/* StrList[0] is relation */
+	MakerDialogRelation relation=maker_dialog_relation_parse(strList[0]);
+	if (relation<=0){
+	    goto END_WIDGET_CONTROL_RULE;
+	}
+	g_array_set_size(ctrlArray, ctrlArray->len+1);
+	rule=&g_array_index(ctrlArray, MakerDialogControlRule, ctrlArray->len-1);
+	MakerDialogWidgetControl match=maker_dialog_widget_control_parse(strList[3]);
+	MakerDialogWidgetControl notMatch=maker_dialog_widget_control_parse(strList[4]);
+	maker_dialog_control_rule_set(rule, relation,strList[1],strList[2],match,notMatch);
+END_WIDGET_CONTROL_RULE:
+	g_strfreev(strList);
+    }
+    g_array_set_size(ctrlArray, ctrlArray->len+1);
+    rule=&g_array_index(ctrlArray, MakerDialogControlRule, ctrlArray->len-1);
+    maker_dialog_control_rule_set(rule, MAKER_DIALOG_RELATION_NIL, NULL, NULL, 0, 0);
+    spec->rules=(MakerDialogControlRule *) g_array_free(ctrlArray, FALSE);
+    g_strfreev(ctrlList);
+
+
+}
 
 /*=== End enumeration and flags ===*/
 

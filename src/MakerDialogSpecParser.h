@@ -65,7 +65,7 @@
  * This is the GKeyFile group name for UI section of MakerDialog spec file.
  * MakerDialog UI definition and flags are listed in the section.
  */
-#define MAKER_DIALOG_SPEC_SECTION_MAIN "_UI_"
+#define MAKER_DIALOG_SPEC_SECTION_UI "_UI_"
 
 /**
  * Load MakerDialog setting from a glib key file.

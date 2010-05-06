@@ -588,6 +588,16 @@ MakerDialogRelation maker_dialog_relation_parse(const gchar *str);
  * @return Corresponding MakerDialogPropertyFlags; or \c 0 if none matched.
  */
 MakerDialogPropertyFlags maker_dialog_property_flags_parse(const gchar *str);
+
+/**
+ * Parse a widget control from a string.
+ *
+ * Parse a widget control from a string.
+ * @param str		The string to be parsed.
+ * @return Corresponding widget control; or \c MAKER_DIALOG_WIDGET_CONTROL_NOTHING if none matched.
+ */
+MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str);
+
 /*=== End Function Definition  ===*/
 
 #endif /* MAKER_DIALOG_PROPERTY_H_ */
