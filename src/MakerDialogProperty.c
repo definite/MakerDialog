@@ -71,6 +71,15 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
     return spec;
 }
 
+static void maker_dialog_control_rule_set
+(MakerDialogControlRule *rule, MakerDialogRelation relation, const gchar *testValue, const gchar *key, MakerDialogWidgetControl match, MakerDialogWidgetControl notMatch){
+    rule->relation=relation;
+    rule->testValue=g_strdup(testValue);
+    rule->key=g_strdup(key);
+    rule->match=match;
+    rule->notMatch=notMatch;
+}
+
 void maker_dialog_control_rule_free(MakerDialogControlRule *rule){
     g_free((gchar *) rule->testValue);
     g_free((gchar *) rule->key);
@@ -367,17 +376,11 @@ MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str){
     return maker_dialog_flag_parse(mkdgWidgetControlData, str, FALSE);
 }
 
-static MakerDialogIdPair mkdgWidgetControlData[]={
-    {"SHOW",		MAKER_DIALOG_WIDGET_CONTROL_SHOW},
-    {"HIDE",		MAKER_DIALOG_WIDGET_CONTROL_HIDE},
-    {"SENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE},
-    {"INSENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE},
-    {NULL,		MAKER_DIALOG_WIDGET_CONTROL_NOTHING},
-};
-
 MakerDialogControlRule  *maker_dialog_control_rules_parse(const gchar *str){
+    gchar **ctrlList=maker_dialog_string_split_set(str, ";", '\\', FALSE, -1);
     GArray *ctrlArray=g_array_new(FALSE, FALSE, sizeof(MakerDialogControlRule));
     MakerDialogControlRule *rule=NULL;
+    gint i;
     for(i=0;ctrlList[i]!=NULL;i++){
 	gchar **strList=maker_dialog_string_split_set(ctrlList[i], ",", '\\', FALSE, 5);
 	/* StrList[0] is relation */
@@ -393,13 +396,12 @@ MakerDialogControlRule  *maker_dialog_control_rules_parse(const gchar *str){
 END_WIDGET_CONTROL_RULE:
 	g_strfreev(strList);
     }
+    g_strfreev(ctrlList);
     g_array_set_size(ctrlArray, ctrlArray->len+1);
     rule=&g_array_index(ctrlArray, MakerDialogControlRule, ctrlArray->len-1);
     maker_dialog_control_rule_set(rule, MAKER_DIALOG_RELATION_NIL, NULL, NULL, 0, 0);
-    spec->rules=(MakerDialogControlRule *) g_array_free(ctrlArray, FALSE);
-    g_strfreev(ctrlList);
-
-
+    MakerDialogControlRule *rules=(MakerDialogControlRule *) g_array_free(ctrlArray, FALSE);
+    return rules;
 }
 
 /*=== End enumeration and flags ===*/

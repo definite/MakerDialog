@@ -279,15 +279,6 @@ static gchar *maker_dialog_g_keyfile_has_key_then_get_string(GKeyFile *keyFile, 
 //        return !essential;
 //}
 
-static void maker_dialog_control_rule_set
-(MakerDialogControlRule *rule, MakerDialogRelation relation, const gchar *testValue, const gchar *key, MakerDialogWidgetControl match, MakerDialogWidgetControl notMatch){
-    rule->relation=relation;
-    rule->testValue=g_strdup(testValue);
-    rule->key=g_strdup(key);
-    rule->match=match;
-    rule->notMatch=notMatch;
-}
-
 static void mkdg_set_widget_control(MakerDialogPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
     gchar **ctrlList=maker_dialog_string_split_set(maker_dialog_value_get_string(mValue), ";", '\\', FALSE, -1);
     gint i;

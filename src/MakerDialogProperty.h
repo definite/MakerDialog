@@ -598,6 +598,15 @@ MakerDialogPropertyFlags maker_dialog_property_flags_parse(const gchar *str);
  */
 MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str);
 
+/**
+ * Parse control rules from a string.
+ *
+ * Parse control rules from a string.
+ * @param str		The string to be parsed.
+ * @return A newly allocated array of MakerDialogControlRule, ending with the rule that
+ * has the \c MAKER_DIALOG_RELATION_NIL.
+ */
+MakerDialogControlRule  *maker_dialog_control_rules_parse(const gchar *str);
 /*=== End Function Definition  ===*/
 
 #endif /* MAKER_DIALOG_PROPERTY_H_ */
