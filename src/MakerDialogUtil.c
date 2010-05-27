@@ -2,20 +2,20 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
- *  MakerDialog is free software: you can redistribute it and/or modify
+ *  Mkdg is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  MakerDialog is distributed in the hope that it will be useful,
+ *  Mkdg is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <libgen.h>
 #include <pwd.h>
@@ -26,10 +26,10 @@
 #include <sys/types.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include "MakerDialogUtil.h"
+#include "MkdgUtil.h"
 
 #ifndef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "MakerDialog"
+#define G_LOG_DOMAIN "Mkdg"
 #endif
 
 gint makerDialogVerboseLevel=0;
@@ -63,19 +63,19 @@ gboolean maker_dialog_atob(const gchar *string){
 }
 
 GQuark maker_dialog_error_quark(){
-    return g_quark_from_static_string("MakerDialog");
+    return g_quark_from_static_string("Mkdg");
 }
 
-MakerDialogError *maker_dialog_error_new(MakerDialogErrorCode code, const gchar *formatStr, ...){
+MkdgError *maker_dialog_error_new(MkdgErrorCode code, const gchar *formatStr, ...){
     va_list ap;
     va_start(ap, formatStr);
     gchar *errMsg=(formatStr) ? g_strdup_vprintf(formatStr, ap): NULL;
-    MakerDialogError *error=g_error_new_literal(MAKER_DIALOG_ERROR, code, (errMsg)? errMsg : "");
+    MkdgError *error=g_error_new_literal(MAKER_DIALOG_ERROR, code, (errMsg)? errMsg : "");
     g_free(errMsg);
     return error;
 }
 
-const gchar *maker_dialog_get_error_message(MakerDialogErrorCode code){
+const gchar *maker_dialog_get_error_message(MkdgErrorCode code){
     switch(code){
 	case MAKER_DIALOG_OK:
 	    return "Ok";
@@ -125,7 +125,7 @@ const gchar *maker_dialog_get_error_message(MakerDialogErrorCode code){
     return NULL;
 }
 
-void maker_dialog_error_print(MakerDialogError *error){
+void maker_dialog_error_print(MkdgError *error){
     if (MAKER_DIALOG_DEBUG_RUN(0)){
 	const gchar *errMsg=(error->domain==MAKER_DIALOG_ERROR) ? maker_dialog_get_error_message(error->code) : "";
 	g_warning("[WW] domain:%s [%d] %s, %s", g_quark_to_string(error->domain),
@@ -133,7 +133,7 @@ void maker_dialog_error_print(MakerDialogError *error){
     }
 }
 
-gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **errOut){
+gboolean maker_dialog_error_handle(MkdgError *errIn, MkdgError **errOut){
 //    MAKER_DIALOG_DEBUG_MSG(4,"[I4] error_handle() errIn=%s errOut:%s", (errIn)? errIn->message : "NULL", (errOut) ? ((*errOut)? (*errOut)->message: "EMPTY") : "NULL");
     if (errIn!=NULL){
 	if (errOut!=NULL){
@@ -152,7 +152,7 @@ gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **e
     return FALSE;
 }
 
-gint maker_dialog_id_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive){
+gint maker_dialog_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive){
     gint i=0,ret;
     for(i=0; pairedData[i].strId!=NULL;i++){
 	if (caseSensitive){
@@ -166,7 +166,7 @@ gint maker_dialog_id_parse(MakerDialogIdPair *pairedData, const gchar *str, gboo
     return pairedData[i].intId;
 }
 
-const gchar *maker_dialog_id_to_string(MakerDialogIdPair *pairedData, gint intId){
+const gchar *maker_dialog_id_to_string(MkdgIdPair *pairedData, gint intId){
     gint i=0;
     for(i=0; pairedData[i].strId!=NULL;i++){
 	if (intId==pairedData[i].intId){
@@ -176,7 +176,7 @@ const gchar *maker_dialog_id_to_string(MakerDialogIdPair *pairedData, gint intId
     return NULL;
 }
 
-guint32 maker_dialog_flag_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive){
+guint32 maker_dialog_flag_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive){
     gchar **flagList=maker_dialog_string_split_set(str, " \t|;", '\\', FALSE, -1);
     guint32 flags=0;
     gint i;

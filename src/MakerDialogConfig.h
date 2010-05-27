@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,11 +15,11 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogConfig.h
- * Configuration back-end interface for MakerDialog.
+ * @file MkdgConfig.h
+ * Configuration back-end interface for Mkdg.
  *
  * This configuration interface bridges between MakerDialog and configuration back-end
  * such as GKeyFile, GConf, and KCfg.
@@ -30,10 +30,10 @@
  */
 #ifndef MAKER_DIALOG_CONFIG_H_
 #define MAKER_DIALOG_CONFIG_H_
-#include "MakerDialogConfigDef.h"
+#include "MkdgConfigDef.h"
 
 /**
- * Configuration of MakerDialog.
+ * Configuration of Mkdg.
  *
  * Note that normally you don't have to directly use the members here.
  * The values of members will be filled when constructing MakerDialog config.
@@ -42,38 +42,38 @@
  * developer of config interfaces.
  */
 typedef struct{
-    MakerDialog				*mDialog;		//!< Referring MakerDialog.
-    MakerDialogConfigFlags	 	flags; 			//!< Global configuration flags. It maybe override by set specifc flags.
-    MakerDialogConfigFileInterface	*configInterface;	//!< Global configure file interface.  It maybe override by set specifc interfaces.
+    Mkdg				*mDialog;		//!< Referring Mkdg.
+    MkdgConfigFlags	 	flags; 			//!< Global configuration flags. It maybe override by set specifc flags.
+    MkdgConfigFileInterface	*configInterface;	//!< Global configure file interface.  It maybe override by set specifc interfaces.
     /// @cond
-    GHashTable *pageSetTable;		//!< Hash table whose key is a page name, value is a MakerDialogConfigSet.
+    GHashTable *pageSetTable;		//!< Hash table whose key is a page name, value is a MkdgConfigSet.
     GPtrArray  *setArray;		//!< Pointer array that hold the config sets.
     /// @endcond
-} MakerDialogConfig;
+} MkdgConfig;
 
 /**
- * New a MakerDialogConfig.
+ * New a MkdgConfig.
  *
- * This function allocates an empty MakerDialogConfig instances.
+ * This function allocates an empty MkdgConfig instances.
  * It is equivalent of  maker_dialog_config_new_full(mDialog, 0, NULL);
  *
  * @param mDialog 	A MakerDialog instance.
  * @param flags 	Configuration flags.
  * @param configInterface A MakerDialog configuration interface.
- * @return A newly allocated MakerDialogConfig.
+ * @return A newly allocated MkdgConfig.
  * @see maker_dialog_config_new_full().
  * @since Modified in 0.3.
  */
- MakerDialogConfig *maker_dialog_config_new(MakerDialog *mDialog);
+ MkdgConfig *maker_dialog_config_new(Mkdg *mDialog);
 
 /**
- * New a MakerDialogConfig.
+ * New a MkdgConfig.
  *
  * This function constructs a configuration back-end using the given
  * configuration interface.
  *
- * During construction, the new MakerDialogConfig is associated to the \a mDialog.
- * Thus, maker_dialog_destroy() can free the associated MakerDialogConfig as well.
+ * During construction, the new MkdgConfig is associated to the \a mDialog.
+ * Thus, maker_dialog_destroy() can free the associated MkdgConfig as well.
  *
  * This function is meant for configuration interface developers.
  * For GKeyFile, gconf, kcfg users, it is more convenient to call
@@ -84,28 +84,28 @@ typedef struct{
  * @param mDialog 	A MakerDialog instance.
  * @param flags 	Configuration flags.
  * @param configInterface A MakerDialog configuration interface.
- * @return A newly allocated MakerDialogConfig.
+ * @return A newly allocated MkdgConfig.
  * @see maker_dialog_config_new().
  * @since 0.3
  */
-MakerDialogConfig *maker_dialog_config_new_full(
-	MakerDialog *mDialog,
-	MakerDialogConfigFlags flags, MakerDialogConfigFileInterface *configInterface);
+MkdgConfig *maker_dialog_config_new_full(
+	Mkdg *mDialog,
+	MkdgConfigFlags flags, MkdgConfigFileInterface *configInterface);
 
 /**
- * Free a MakerDialogConfig.
+ * Free a MkdgConfig.
  *
- * This function frees a MakerDialogConfig instances.
+ * This function frees a MkdgConfig instances.
  * Also close the configuration files.
  *
  * @param config	A MakerDialog config instance.
  */
-void maker_dialog_config_free(MakerDialogConfig *config);
+void maker_dialog_config_free(MkdgConfig *config);
 
 /**
- * Add a configuration set to MakerDialog.
+ * Add a configuration set to Mkdg.
  *
- * This function add a configuration set to MakerDialog,
+ * This function add a configuration set to Mkdg,
  * so that applications can access the configuration set.
  *
  * This function also finds files which match the constrain of configuration set by following steps:
@@ -120,9 +120,9 @@ void maker_dialog_config_free(MakerDialogConfig *config);
  * @param config 	A MakerDialog config.
  * @param configSet 	The configuration set to be added.
  * @param error		Error return location, or \c NULL.
- * @see ::MakerDialogConfig.
+ * @see ::MkdgConfig.
  */
-void maker_dialog_config_add_config_set(MakerDialogConfig *config, MakerDialogConfigSet *configSet, MakerDialogError **error);
+void maker_dialog_config_add_config_set(MkdgConfig *config, MkdgConfigSet *configSet, MkdgError **error);
 
 /**
  * Open all configuration set and associated files.
@@ -135,7 +135,7 @@ void maker_dialog_config_add_config_set(MakerDialogConfig *config, MakerDialogCo
  * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
-gboolean maker_dialog_config_open_all(MakerDialogConfig *config, MakerDialogError **error);
+gboolean maker_dialog_config_open_all(MkdgConfig *config, MkdgError **error);
 
 /**
  * Close all configuration set and associated files.
@@ -145,7 +145,7 @@ gboolean maker_dialog_config_open_all(MakerDialogConfig *config, MakerDialogErro
  * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
-gboolean maker_dialog_config_close_all(MakerDialogConfig *config, MakerDialogError **error);
+gboolean maker_dialog_config_close_all(MkdgConfig *config, MkdgError **error);
 
 /**
  * Load all configuration options of MakerDialog from file.
@@ -157,7 +157,7 @@ gboolean maker_dialog_config_close_all(MakerDialogConfig *config, MakerDialogErr
  * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
-gboolean maker_dialog_config_load_all(MakerDialogConfig *config, MakerDialogError **error);
+gboolean maker_dialog_config_load_all(MkdgConfig *config, MkdgError **error);
 
 /**
  * Save all configuration options of MakerDialog to file.
@@ -169,7 +169,7 @@ gboolean maker_dialog_config_load_all(MakerDialogConfig *config, MakerDialogErro
  * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
-gboolean maker_dialog_config_save_all(MakerDialogConfig *config, MakerDialogError **error);
+gboolean maker_dialog_config_save_all(MkdgConfig *config, MkdgError **error);
 
 /**
  * Load a page of configuration options of MakerDialog from file.
@@ -182,9 +182,9 @@ gboolean maker_dialog_config_save_all(MakerDialogConfig *config, MakerDialogErro
  * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  *
- * @return MAKER_DIALOG_CONFIG_OK if success; non-zero ::MakerDialogConfigErrorCode code otherwise.
+ * @return MAKER_DIALOG_CONFIG_OK if success; non-zero ::MkdgConfigErrorCode code otherwise.
  */
-gboolean maker_dialog_config_load_page(MakerDialogConfig *config, const gchar *pageName, MakerDialogError **error);
+gboolean maker_dialog_config_load_page(MkdgConfig *config, const gchar *pageName, MkdgError **error);
 
 /**
  * Save a page of configuration options of MakerDialog to file.
@@ -196,7 +196,7 @@ gboolean maker_dialog_config_load_page(MakerDialogConfig *config, const gchar *p
  * @param error		Error return location, or \c NULL.
  * @return TRUE if success; FALSE otherwise.
  */
-gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *pageName, MakerDialogError **error);
+gboolean maker_dialog_config_save_page(MkdgConfig *config, const gchar *pageName, MkdgError **error);
 
 /**
  * Return all pages in configuration back-end.
@@ -207,7 +207,7 @@ gboolean maker_dialog_config_save_page(MakerDialogConfig *config, const gchar *p
  * @param error		Error return location, or \c NULL.
  * @return A newly allocated list of strings which contains results;  or \c NULL if no pages are found.
  */
-gchar **maker_dialog_config_get_pages(MakerDialogConfig *config, MakerDialogError **error);
+gchar **maker_dialog_config_get_pages(MkdgConfig *config, MkdgError **error);
 
 
 /**
@@ -220,7 +220,7 @@ gchar **maker_dialog_config_get_pages(MakerDialogConfig *config, MakerDialogErro
  * @param error		Error return location, or \c NULL.
  * @return A newly allocated list of strings which contains results;  or \c NULL if no keys are found.
  */
-gchar **maker_dialog_config_get_keys(MakerDialogConfig *config, const gchar *pageName, MakerDialogError **error);
+gchar **maker_dialog_config_get_keys(MkdgConfig *config, const gchar *pageName, MkdgError **error);
 
 /**
  * Return the value of a key in configuration back-end.
@@ -238,8 +238,8 @@ gchar **maker_dialog_config_get_keys(MakerDialogConfig *config, const gchar *pag
  * @param error		Error return location, or \c NULL.
  * @return A newly allocated MkdgValue that store the value;  or \c NULL if the key is not in the configuration back-end.
  */
-MkdgValue *maker_dialog_config_get_value(MakerDialogConfig *config, const gchar *pageName, const gchar *key,
-	MkdgType valueType, const gchar *parseOption, MakerDialogError **error);
+MkdgValue *maker_dialog_config_get_value(MkdgConfig *config, const gchar *pageName, const gchar *key,
+	MkdgType valueType, const gchar *parseOption, MkdgError **error);
 
 /**
  * Parse the configuration flags from a string.
@@ -248,7 +248,7 @@ MkdgValue *maker_dialog_config_get_value(MakerDialogConfig *config, const gchar 
  * @param str		String to be parsed.
  * @return Parsed configuration flag; or \c 0 if none matched.
  */
-MakerDialogConfigFlags maker_dialog_config_flags_parse(const gchar *str);
+MkdgConfigFlags maker_dialog_config_flags_parse(const gchar *str);
 
 /**
  * GQuark for MakerDialog configuration domain.

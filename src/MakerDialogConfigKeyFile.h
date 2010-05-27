@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,13 +15,13 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogConfigKeyFile.h
+ * @file MkdgConfigKeyFile.h
  * Glib key file: Manipulate INI like configuration file.
  *
- * MakerDialogConfigKeyFile lets you parse, edit or create files containing groups of key-value pairs.
+ * MkdgConfigKeyFile lets you parse, edit or create files containing groups of key-value pairs.
  * This module is, in fact, a wrapper of GKeyFile in glib.
  *
  * Similar with GKeyFile, Key files consists of groups of key-value pairs, interspersed with comments.
@@ -85,28 +85,28 @@
 #define MAKER_DIALOG_CONFIG_KEY_FILE_H_
 #include <glib.h>
 #include <glib-object.h>
-#include "MakerDialogConfig.h"
+#include "MkdgConfig.h"
 
 /**
  * The configure file interface for GKeyFile.
  *
  * The configure file interface for GKeyFile.
  */
-extern MakerDialogConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE;
+extern MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE;
 
 /**
- * New a MakerDialogConfig which use glib GKeyFile back-end.
+ * New a MkdgConfig which use glib GKeyFile back-end.
  *
- * This function returns a newly allocated MakerDialogConfig
+ * This function returns a newly allocated MkdgConfig
  * which use glib GKeyFile back-end.
  *
- * During construction, the new MakerDialogConfig is associated to the \a mDialog.
- * Thus, maker_dialog_destroy() can free the associated MakerDialogConfig as well.
+ * During construction, the new MkdgConfig is associated to the \a mDialog.
+ * Thus, maker_dialog_destroy() can free the associated MkdgConfig as well.
  *
- * @param mDialog 	A MakerDialog.
- * @return A newly allocated MakerDialogConfig with glib GKeyFile back-end.
+ * @param mDialog 	A Mkdg.
+ * @return A newly allocated MkdgConfig with glib GKeyFile back-end.
  * @see maker_dialog_config_new().
  */
-MakerDialogConfig *maker_dialog_config_use_key_file(MakerDialog *mDialog);
+MkdgConfig *maker_dialog_config_use_key_file(Mkdg *mDialog);
 
 #endif /* MAKER_DIALOG_CONFIG_KEY_FILE_H_ */

@@ -2,24 +2,24 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
- *  MakerDialog is free software: you can redistribute it and/or modify
+ *  Mkdg is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  MakerDialog is distributed in the hope that it will be useful,
+ *  Mkdg is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogUtil.h
- * Utility functions for MakerDialog.
+ * @file MkdgUtil.h
+ * Utility functions for Mkdg.
  *
  * This file lists the utility functions for general purpose.
  */
@@ -75,10 +75,10 @@ typedef union {
 typedef struct{
     const gchar		*strId;	//!< String Id.
     gint		intId;	//!< Integer Id.
-} MakerDialogIdPair;
+} MkdgIdPair;
 
 /**
- * Environment variable for MakerDialog debug.
+ * Environment variable for Mkdg debug.
  */
 #define MAKER_DLALOG_VERBOSE_ENV "MAKER_DIALOG_VERBOSE"
 
@@ -87,14 +87,14 @@ typedef struct{
  *
  * 32-bit unsigned integer that holds flags.
  */
-typedef guint32 MakerDialogFlags;
+typedef guint32 MkdgFlags;
 
 /**
- * Data structure for reporting error in MakerDialog.
+ * Data structure for reporting error in Mkdg.
  *
  * It is essentially GError.
  */
-typedef GError MakerDialogError;
+typedef GError MkdgError;
 
 /**
  * Prototype of comparing function.
@@ -105,7 +105,7 @@ typedef GError MakerDialogError;
  * @retval 0 if \a value1 = \a value2.
  * @retval 1 if \a value1 \> \a value2.
  */
-typedef gint (* MakerDialogCompareFunc)(gpointer value1, gpointer value2);
+typedef gint (* MkdgCompareFunc)(gpointer value1, gpointer value2);
 
 
 /**
@@ -174,35 +174,35 @@ typedef enum{
     MAKER_DIALOG_ERROR_SPEC_INVALID_KEY, 	//!< Spec file is invalid (no such key).
     MAKER_DIALOG_ERROR_SPEC_INVALID_PAGE, 	//!< Spec file is invalid (no such page).
     MAKER_DIALOG_ERROR_SPEC_INVALID_VALUE, 	//!< Spec attribute value is invalid.
-} MakerDialogErrorCode;
+} MkdgErrorCode;
 
 /**
- * Error domain for MakerDialog.
+ * Error domain for Mkdg.
  *
- * Errors in this domain will be from the ::MakerDialogErrorCode enumeration.
+ * Errors in this domain will be from the ::MkdgErrorCode enumeration.
  * See GError for information on error domains.
  */
 #define MAKER_DIALOG_ERROR maker_dialog_error_quark()
 
 /**
- * GQuark of MakerDialog domain for error reporting.
+ * GQuark of Mkdg domain for error reporting.
  *
- * GQuark of MakerDialog domain for error reporting.
- * @returns GQuark of MakerDialog domain for error reporting.
+ * GQuark of Mkdg domain for error reporting.
+ * @returns GQuark of Mkdg domain for error reporting.
  */
 GQuark maker_dialog_error_quark (void);
 
 /**
- * New a MakerDialog error.
+ * New a Mkdg error.
  *
- * New a MakerDialog error.
+ * New a Mkdg error.
  * @param code 		Error code.
  * @param formatStr	printf() format string.
  * @param ...		Argument for formatStr.
- * @return A newly allocated MakerDialog error instance.
+ * @return A newly allocated Mkdg error instance.
  * @since 0.3
  */
-MakerDialogError *maker_dialog_error_new(MakerDialogErrorCode code, const gchar *formatStr, ...);
+MkdgError *maker_dialog_error_new(MkdgErrorCode code, const gchar *formatStr, ...);
 
 /**
  * Return corresponding error message, given error code.
@@ -215,12 +215,12 @@ MakerDialogError *maker_dialog_error_new(MakerDialogErrorCode code, const gchar 
  * match any error message.
  * @since 0.3
  */
-const gchar *maker_dialog_get_error_message(MakerDialogErrorCode code);
+const gchar *maker_dialog_get_error_message(MkdgErrorCode code);
 
 /**
- * Print a MakerDialog configuration error message.
+ * Print a Mkdg configuration error message.
  *
- * Print a MakerDialog configuration error message in following format:
+ * Print a Mkdg configuration error message in following format:
  * @code
  * [WW] domain:\<domain\> [\<code\>] \<error message\>, \<extra message\>
  * @endcode
@@ -230,7 +230,7 @@ const gchar *maker_dialog_get_error_message(MakerDialogErrorCode code);
  * @param error 	Error to be printed.
  * @since 0.2
  */
-void maker_dialog_error_print(MakerDialogError *error);
+void maker_dialog_error_print(MkdgError *error);
 
 /**
  * Handle the error by keeping the latest error and print out the old error.
@@ -252,7 +252,7 @@ void maker_dialog_error_print(MakerDialogError *error);
  * @return TRUE if error input is not NULL (has error); FALSE otherwise.
  * @since 0.2
  */
-gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **errOut);
+gboolean maker_dialog_error_handle(MkdgError *errIn, MkdgError **errOut);
 
 /**
  * Parse a numerical Id from a string.
@@ -268,7 +268,7 @@ gboolean maker_dialog_error_handle(MakerDialogError *errIn, MakerDialogError **e
  * @return Matched intId, or the last intId if none matched.
  * @since 0.3
  */
-gint maker_dialog_id_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive);
+gint maker_dialog_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive);
 
 /**
  * Return the associated string Id from a numerical id.
@@ -281,7 +281,7 @@ gint maker_dialog_id_parse(MakerDialogIdPair *pairedData, const gchar *str, gboo
  * @return Associated string Id; or NULL if none matches.
  * @since 0.3
  */
-const gchar *maker_dialog_id_to_string(MakerDialogIdPair *pairedData, gint intId);
+const gchar *maker_dialog_id_to_string(MkdgIdPair *pairedData, gint intId);
 
 /**
  * Parse flags from a string.
@@ -295,7 +295,7 @@ const gchar *maker_dialog_id_to_string(MakerDialogIdPair *pairedData, gint intId
  * @return Flags value; or 0 if none matched.
  * @since 0.2
  */
-guint32 maker_dialog_flag_parse(MakerDialogIdPair *pairedData, const gchar *str, gboolean caseSensitive);
+guint32 maker_dialog_flag_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive);
 
 /**
  * Return the index of a string in a string list.

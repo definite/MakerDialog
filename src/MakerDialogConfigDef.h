@@ -2,7 +2,7 @@
  * Copyright © 2010  Red Hat, Inc. All rights reserved.
  * Copyright © 2010  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,15 +15,15 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogConfigDef.h
- * Data type definition of configuration module for MakerDialog.
+ * @file MkdgConfigDef.h
+ * Data type definition of configuration module for Mkdg.
  *
- * Data type definition of configuration module for MakerDialog.
+ * Data type definition of configuration module for Mkdg.
  *
- * @since 0.3; was included in MakerDialogConfig.h prior 0.2.
+ * @since 0.3; was included in MkdgConfig.h prior 0.2.
  */
 #ifndef MAKER_DIALOG_CONFIG_DEF_H_
 #define MAKER_DIALOG_CONFIG_DEF_H_
@@ -94,7 +94,7 @@ typedef enum{
  *
  * Data structure for configuration flags.
  */
-typedef MakerDialogFlags MakerDialogConfigFlags;
+typedef MkdgFlags MkdgConfigFlags;
 
 /**
  * Enumeration of configuration file flags.
@@ -116,22 +116,22 @@ typedef enum{
  *
  * Data structure for configuration file flags.
  */
-typedef MakerDialogFlags MakerDialogConfigFileFlags;
+typedef MkdgFlags MkdgConfigFileFlags;
 
 /**
  * Configuration buffer which stores the contents of pre-loaded properties.
  *
  * Configuration buffer stores the contents of pre-loaded properties.
- * This buffer can then be loaded to MakerDialog, or save only the modified
+ * This buffer can then be loaded to Mkdg, or save only the modified
  * parts.
  */
 typedef struct{
     GHashTable *keyValueTable;			//!< Hash table whose key is configuration key, value is associated value for that key.
-} MakerDialogConfigBuffer;
+} MkdgConfigBuffer;
 
-typedef struct _MakerDialogConfigSet		MakerDialogConfigSet;
-typedef struct _MakerDialogConfigFile		MakerDialogConfigFile;
-typedef struct _MakerDialogConfigFileInterface	MakerDialogConfigFileInterface;
+typedef struct _MkdgConfigSet		MkdgConfigSet;
+typedef struct _MkdgConfigFile		MkdgConfigFile;
+typedef struct _MkdgConfigFileInterface	MkdgConfigFileInterface;
 
 
 #endif /* MAKER_DIALOG_CONFIG_DEF_H_ */

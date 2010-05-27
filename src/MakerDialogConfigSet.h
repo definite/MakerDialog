@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,17 +15,17 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogConfigSet.h
- * Configuration Set for MakerDialog.
+ * @file MkdgConfigSet.h
+ * Configuration Set for Mkdg.
  *
  * A configuration set is a mandatory unit of MakerDialog configuration mechanism,
  * it manages pages of properties and configuration files
  * for storing the values of those properties.
  *
- * Same properties can reside in different configuration files in MakerDialog.
+ * Same properties can reside in different configuration files in Mkdg.
  * So applications can have system-wide configuration as default,
  * yet users are able to override the default with their own configuration file.
  *
@@ -34,11 +34,11 @@
  * Latter is recommend, as it is not only easier to read,
  * but also consistent should API changed.
  *
- * @since 0.3; was included in MakerDialogConfig.h prior 0.2.
+ * @since 0.3; was included in MkdgConfig.h prior 0.2.
  */
 #ifndef MAKER_DIALOG_CONFIG_SET_H_
 #define MAKER_DIALOG_CONFIG_SET_H_
-#include "MakerDialogConfigDef.h"
+#include "MkdgConfigDef.h"
 
 /**
  * @cond
@@ -62,7 +62,7 @@ typedef enum{
  * and flags to fine tune the configuration set.
  *
  * If \a flags are not explicitly defined,
- * it copies parent MakerDialogConfig's flags for its own setting.
+ * it copies parent MkdgConfig's flags for its own setting.
  *
  * The member writeIndex is pointing to last writable file if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is not set;
  * or pointing to first writable file if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is set;
@@ -74,21 +74,21 @@ typedef enum{
  *
  * These members are listed here for convenience for configuration interface developers.
  */
-struct _MakerDialogConfigSet{
+struct _MkdgConfigSet{
     const gchar 			**pageNames;		//!< Page names that this configuration set stores.
     const gchar 			*filePattern;		//!< Glob-formated file pattern. Or just the filename.
     const gchar 			**searchDirs;		//!< Directories to be searched.
     const gchar 			*defaultFilename;	//!< Default filename to use if filePattern cannot match any files in search directories.
     gint 				maxFileCount;		//!< Maximum number of configuration files. -1 for find all matched.
     gint 				writeIndex;		//!< Index of writable file. -1 if all read-only.
-    GPtrArray 				*fileArray;		//!< Array of MakerDialogConfigFile.
-    MakerDialogConfigFlags	 	flags; 			//!< Set specific configuration flags.
-    MakerDialogConfigFileInterface	*configInterface;	//!< Set specific configure file interface.
+    GPtrArray 				*fileArray;		//!< Array of MkdgConfigFile.
+    MkdgConfigFlags	 	flags; 			//!< Set specific configuration flags.
+    MkdgConfigFileInterface	*configInterface;	//!< Set specific configure file interface.
     gpointer				userData;		//!< Pass user data.
     /// @cond
     guint32				status;			//!< Current set status.
-    MakerDialogConfig			*config;		//!< Parent MakerDialog config.
- //   MakerDialogConfigBuffer		*configBuf;		//!< Configure buffer.
+    MkdgConfig			*config;		//!< Parent MakerDialog config.
+ //   MkdgConfigBuffer		*configBuf;		//!< Configure buffer.
     /// @endcond
 };
 
@@ -99,9 +99,9 @@ struct _MakerDialogConfigSet{
  *
  * @return A newly allocated MakerDialog configuration set; NULL if failed.
  * @see maker_dialog_config_set_close(), maker_dialog_config_add_config_set().
- * @see ::MakerDialogConfigErrorCode.
+ * @see ::MkdgConfigErrorCode.
  */
-MakerDialogConfigSet *maker_dialog_config_set_new();
+MkdgConfigSet *maker_dialog_config_set_new();
 
 /**
  * New a configuration set with all available arguments.
@@ -119,12 +119,12 @@ MakerDialogConfigSet *maker_dialog_config_set_new();
  *
  * @return A newly allocated MakerDialog configuration set; NULL if failed.
  * @see maker_dialog_config_set_close(), maker_dialog_config_add_config_set().
- * @see ::MakerDialogConfigErrorCode.
+ * @see ::MkdgConfigErrorCode.
  */
-MakerDialogConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
+MkdgConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
 	const gchar *filePattern, const gchar **searchDirs,
 	const gchar *defaultFilename, gint maxFileCount,
-	MakerDialogConfigFlags flags, MakerDialogConfigFileInterface *configInterface,
+	MkdgConfigFlags flags, MkdgConfigFileInterface *configInterface,
 	gpointer userData);
 
 /**
@@ -133,7 +133,7 @@ MakerDialogConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
  * This function free the allocated memory of configuration set.
  * @param configSet A MakerDialog configuration set.
  */
-void maker_dialog_config_set_free(MakerDialogConfigSet *configSet);
+void maker_dialog_config_set_free(MkdgConfigSet *configSet);
 
 /**
  * Prepare files for a configuration set.
@@ -149,7 +149,7 @@ void maker_dialog_config_set_free(MakerDialogConfigSet *configSet);
  * @return \c TRUE if succeed; \c FALSE otherwise.
  * @since 0.3
  */
-gboolean maker_dialog_config_set_prepare_files(MakerDialogConfigSet *configSet, MakerDialogError **error);
+gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgError **error);
 
 /**
  * Prototype of callback function for configuration set for-each page
@@ -163,7 +163,7 @@ gboolean maker_dialog_config_set_prepare_files(MakerDialogConfigSet *configSet, 
  * @param error		Error return location, or \c NULL.
  * @return TRUE to continue iteration; FALSE to stop.
  */
-typedef gboolean (* MakerDialogConfigSetEachPageFunc)(MakerDialogConfigSet *configSet, const gchar *page, gpointer userData, GError **error);
+typedef gboolean (* MkdgConfigSetEachPageFunc)(MkdgConfigSet *configSet, const gchar *page, gpointer userData, GError **error);
 
 /**
  * Run a callback for each page in a configure set.
@@ -179,7 +179,7 @@ typedef gboolean (* MakerDialogConfigSetEachPageFunc)(MakerDialogConfigSet *conf
  * @return TURE if all callback returns TRUE; FALSE if one or more callback
  * return FALSE.
  */
-gboolean maker_dialog_config_set_foreach_page(MakerDialogConfigSet *configSet,
-	MakerDialogConfigSetEachPageFunc func,  gpointer userData, GError **error);
+gboolean maker_dialog_config_set_foreach_page(MkdgConfigSet *configSet,
+	MkdgConfigSetEachPageFunc func,  gpointer userData, GError **error);
 
 #endif /* MAKER_DIALOG_CONFIG_SET_H_ */

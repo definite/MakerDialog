@@ -2,8 +2,16 @@
 #include "MakerDialog.h"
 #include "MakerDialogSpecParser.h"
 
+const gchar *MAKER_DIALOG_SPEC_SECTION_NAMES[]={
+    "_MAIN_",
+    "_CONFIG_",
+    "_CONFIG_SET_",
+    "_UI_",
+    NULL
+};
+
 /*=== Start Spec data prototype ===*/
-typedef struct _MakerDialogSpecData MakerDialogSpecData;
+typedef struct _MkdgSpecData MkdgSpecData;
 
 /*
  * @param specData	Spec data
@@ -14,7 +22,7 @@ typedef struct _MakerDialogSpecData MakerDialogSpecData;
  * for essential attr.
  *
  */
-typedef gboolean (* MakerDialogSpecAttrParser)(MakerDialogSpecData *specData, gpointer attr, const gchar *value);
+typedef gboolean (* MkdgSpecAttrParser)(MkdgSpecData *specData, gpointer attr, const gchar *value);
 
 /*
  * Essential attr
@@ -28,19 +36,20 @@ typedef gboolean (* MakerDialogSpecAttrParser)(MakerDialogSpecData *specData, gp
  */
 #define MAKER_DIALOG_SPEC_NO_DEFAULT			0x2
 
-struct _MakerDialogSpecData{
+struct _MkdgSpecData{
+    MAKER_
     const gchar			*page;
     const gchar			*attr;
     const gchar			*defaultValue;		//<! Only for optional attribute.
     MkdgType			type;
-    MakerDialogFlags		flags;
-    MakerDialogSpecAttrParser	parser;
+    MkdgFlags		flags;
+    MkdgSpecAttrParser	parser;
 };
 
 #define MKDG_SPEC_DATA_END { NULL, NULL, NULL, MKDG_TYPE_INVALID, 0, NULL, NULL}
-#define MAKER_DIALOG_SPEC_SECTION_PROPERTY	"_PROPERTY_"
+#define MAKER_DIALOG_SPEC_SECTION_PROPERTY_STRING	"_PROPERTY_"
 
-static gboolean maker_dialog_spec_attr_parser_check_type(MakerDialogSpecData *specData){
+static gboolean maker_dialog_spec_attr_parser_check_type(MkdgSpecData *specData){
     if (specData->type<=MKDG_TYPE_INVALID){
 	return FALSE;
     }if (specData->type>=MKDG_TYPE_NONE){
@@ -49,7 +58,7 @@ static gboolean maker_dialog_spec_attr_parser_check_type(MakerDialogSpecData *sp
     return TRUE;
 }
 
-static gboolean maker_dialog_spec_attr_parser_default(MakerDialogSpecData *specData, gpointer attr_ptr, const gchar *value){
+static gboolean maker_dialog_spec_attr_parser_default(MkdgSpecData *specData, gpointer attr_ptr, const gchar *value){
     if (!maker_dialog_spec_attr_parser_check_type(specData)){
 	return FALSE;
     }
@@ -68,31 +77,31 @@ static gboolean maker_dialog_spec_attr_parser_default(MakerDialogSpecData *specD
     return TRUE;
 }
 
-static gboolean maker_dialog_spec_attr_parser_flags(MakerDialogSpecData *specData, gpointer attr_ptr, const gchar *value){
+static gboolean maker_dialog_spec_attr_parser_flags(MkdgSpecData *specData, gpointer attr_ptr, const gchar *value){
     if (!maker_dialog_spec_attr_parser_check_type(specData)){
 	return FALSE;
     }
     g_assert(specData->type==MKDG_TYPE_UINT32);
-    MakerDialogConfigFlags ret=0;
-    if (strcmp(MAKER_DIALOG_SPEC_SECTION_UI, specData->page)==0){
-    } else if (strcmp(MAKER_DIALOG_SPEC_SECTION_CONFIG, specData->page)==0){
+    MkdgConfigFlags ret=0;
+    if (strcmp(MAKER_DIALOG_SPEC_SECTION_UI_STRING, specData->page)==0){
+    } else if (strcmp(MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING, specData->page)==0){
 	ret=maker_dialog_config_flags_parse(value);
-    } else if (strcmp(MAKER_DIALOG_SPEC_SECTION_CONFIG_SET, specData->page)==0){
+    } else if (strcmp(MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING, specData->page)==0){
 	ret=maker_dialog_config_set_flags_parse(value);
     }else{
 	return FALSE;
     }
-    MakerDialogConfigFlags *attr_ptr_casted = (MakerDialogConfigFlags *) attr_ptr;
-    *attr_ptr_casted_ptr=ret;
+    MkdgConfigFlags *attr_ptr_casted = (MkdgConfigFlags *) attr_ptr;
+    *attr_ptr_casted=ret;
     return TRUE;
 }
 
-static gboolean maker_dialog_spec_attr_parser_widget_control(MakerDialogSpecData *specData, gpointer attr_ptr, const gchar *value){
+static gboolean maker_dialog_spec_attr_parser_widget_control(MkdgSpecData *specData, gpointer attr_ptr, const gchar *value){
     if (!maker_dialog_spec_attr_parser_check_type(specData)){
 	return FALSE;
     }
-    MakerDialogWidgetControl ret=maker_dialog_widget_control_parse(value);
-    MakerDialogWidgetControl *attr_ptr_casted = (MakerDialogWidgetControl *) attr_ptr;
+    MkdgWidgetControl ret=maker_dialog_widget_control_parse(value);
+    MkdgWidgetControl *attr_ptr_casted = (MkdgWidgetControl *) attr_ptr;
     *attr_ptr_casted=ret;
     return TRUE;
 }
@@ -105,83 +114,83 @@ static gboolean maker_dialog_spec_attr_parser_widget_control(MakerDialogSpecData
 #define PREFERRED_CONFIG_INTERFACE	"GKEYFILE"
 #endif
 
-MakerDialogSpecData specDatas_main[]={
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"title",		"Properties",
+MkdgSpecData specDatas_main[]={
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"title",		"Properties",
 	MKDG_TYPE_STRING,	0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"buttonSpec",		"",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"buttonSpec",		"",
 	MKDG_TYPE_STRING,	0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"maxSizeInPixelX",	"-1",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"maxSizeInPixelX",	"-1",
 	MKDG_TYPE_INT,		0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"maxSizeInPixelY",	"-1",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"maxSizeInPixelY",	"-1",
 	MKDG_TYPE_INT,		0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"maxSizeInCharX",	"-1",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"maxSizeInCharX",	"-1",
 	MKDG_TYPE_INT,		0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"maxSizeInCharY",	"-1",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"maxSizeInCharY",	"-1",
 	MKDG_TYPE_INT,		0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"maxSizeInCharY",	"-1",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"maxSizeInCharY",	"-1",
 	MKDG_TYPE_INT,		0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"labelAlignmentX",	"0.5f",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"labelAlignmentX",	"0.5f",
 	MKDG_TYPE_FLOAT,	0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"labelAlignmentY",	"0.5f",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"labelAlignmentY",	"0.5f",
 	MKDG_TYPE_FLOAT,	0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"componentAlignmentX",	"0.5f",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"componentAlignmentX",	"0.5f",
 	MKDG_TYPE_FLOAT,	0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_MAIN,		"componentAlignmentY",	"0.5f",
+    {MAKER_DIALOG_SPEC_SECTION_MAIN_STRING,		"componentAlignmentY",	"0.5f",
 	MKDG_TYPE_FLOAT,	0,
 	maker_dialog_spec_attr_parser_default},
 
-    {MAKER_DIALOG_SPEC_SECTION_UI,		"interfaces",		PREFERRED_UI_INTERFACE,
+    {MAKER_DIALOG_SPEC_SECTION_UI_STRING,		"interfaces",		PREFERRED_UI_INTERFACE,
 	MKDG_TYPE_STRING_LIST,	0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_UI,		"flags",		"0",
+    {MAKER_DIALOG_SPEC_SECTION_UI_STRING,		"flags",		"0",
 	MKDG_TYPE_UINT32,		0,
 	maker_dialog_spec_attr_parser_flags},
 
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG,		"interfaces",		PREFERRED_CONFIG_INTERFACE,
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING,		"interfaces",		PREFERRED_CONFIG_INTERFACE,
 	MKDG_TYPE_STRING_LIST,	0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG,		"flags",		"0",
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING,		"flags",		"0",
 	MKDG_TYPE_UINT,		0,
 	maker_dialog_spec_attr_parser_flags},
     MKDG_SPEC_DATA_END
 };
 
-MakerDialogSpecData specDatas_configSet[]={
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET,	"interfaces",		PREFERRED_CONFIG_INTERFACE,
+MkdgSpecData specDatas_configSet[]={
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING,	"interfaces",		PREFERRED_CONFIG_INTERFACE,
 	MKDG_TYPE_STRING_LIST,	MAKER_DIALOG_SPEC_NO_DEFAULT,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET,	"pageName",		NULL,
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING,	"pageName",		NULL,
 	MKDG_TYPE_STRING_LIST,	MAKER_DIALOG_SPEC_NO_DEFAULT,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET,	"filePattern",		NULL,
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING,	"filePattern",		NULL,
 	MKDG_TYPE_STRING,	MAKER_DIALOG_SPEC_NO_DEFAULT,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET,	"searchDirs",		NULL,
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING,	"searchDirs",		NULL,
 	MKDG_TYPE_STRING_LIST,	MAKER_DIALOG_SPEC_NO_DEFAULT,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET,	"defaultFilename",	NULL,
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING,	"defaultFilename",	NULL,
 	MKDG_TYPE_STRING,	MAKER_DIALOG_SPEC_NO_DEFAULT,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET,	"maxFileCount",		"-1",
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING,	"maxFileCount",		"-1",
 	MKDG_TYPE_INT,		0,
 	maker_dialog_spec_attr_parser_default},
-    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET,	"flags",		"0",
+    {MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING,	"flags",		"0",
        MKDG_TYPE_UINT32,		0,
        maker_dialog_spec_attr_parser_flags},
    MKDG_SPEC_DATA_END
 };
 
-MakerDialogSpecData specDatas_prop[]={
+MkdgSpecData specDatas_prop[]={
     {MAKER_DIALOG_SECTION_PROPERITY,	"valueType",		"-1",
 	MKDG_TYPE_INT,		MAKER_DIALOG_SPEC_ESSENTIAL | MAKER_DIALOG_SPEC_NO_DEFAULT,
 	maker_dialog_spec_attr_parser_default},
@@ -239,12 +248,12 @@ MakerDialogSpecData specDatas_prop[]={
     MKDG_SPEC_DATA_END
 };
 
-typedef void (* MakerDialogSetSpecFunc)(MakerDialogPropertySpec *spec, const gchar *attr, MkdgValue *mValue);
+typedef void (* MkdgSetSpecFunc)(MkdgPropertySpec *spec, const gchar *attr, MkdgValue *mValue);
 typedef struct{
     const gchar *attr;
     MkdgType mType;
-    MakerDialogSetSpecFunc func;
-} MakerDialogSetSpecData;
+    MkdgSetSpecFunc func;
+} MkdgSetSpecData;
 
 /*
  * Silence the error if the key is not found.
@@ -265,9 +274,9 @@ static gchar *maker_dialog_g_keyfile_has_key_then_get_string(GKeyFile *keyFile, 
  * @retval TRUE if essential attr has value or reading an optional attr.
  * @retval FALSE if essential attr has no value.
  */
-//static gboolean maker_dialog_spec_parser_load_attr(gpointer attr, MkdgType mType, GKeyFile *keyFile, const gchar *keyFileGroup, const gchar *keyFileKey,  MakerDialogError **error){
+//static gboolean maker_dialog_spec_parser_load_attr(gpointer attr, MkdgType mType, GKeyFile *keyFile, const gchar *keyFileGroup, const gchar *keyFileKey,  MkdgError **error){
 //    gboolean essential=(error) ? TRUE : FALSE;
-//    MakerDialogError *cfgErr=NULL;
+//    MkdgError *cfgErr=NULL;
 //    if (!g_key_file_has_group(keyFile,keyFileGroup)){
 //        if (essential)
 //            cfgErr=
@@ -279,38 +288,38 @@ static gchar *maker_dialog_g_keyfile_has_key_then_get_string(GKeyFile *keyFile, 
 //        return !essential;
 //}
 
-static void mkdg_set_widget_control(MakerDialogPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
+static void mkdg_set_widget_control(MkdgPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
     gchar **ctrlList=maker_dialog_string_split_set(maker_dialog_value_get_string(mValue), ";", '\\', FALSE, -1);
     gint i;
-    GArray *ctrlArray=g_array_new(FALSE, FALSE, sizeof(MakerDialogControlRule));
-    MakerDialogControlRule *rule=NULL;
+    GArray *ctrlArray=g_array_new(FALSE, FALSE, sizeof(MkdgControlRule));
+    MkdgControlRule *rule=NULL;
     for(i=0;ctrlList[i]!=NULL;i++){
 	gchar **strList=maker_dialog_string_split_set(ctrlList[i], ",", '\\', FALSE, 5);
 	/* StrList[0] is relation */
-	MakerDialogRelation relation=maker_dialog_relation_parse(strList[0]);
+	MkdgRelation relation=maker_dialog_relation_parse(strList[0]);
 	if (relation<=0){
 	    goto END_WIDGET_CONTROL_RULE;
 	}
 	g_array_set_size(ctrlArray, ctrlArray->len+1);
-	rule=&g_array_index(ctrlArray, MakerDialogControlRule, ctrlArray->len-1);
-	MakerDialogWidgetControl match=maker_dialog_widget_control_parse(strList[3]);
-	MakerDialogWidgetControl notMatch=maker_dialog_widget_control_parse(strList[4]);
+	rule=&g_array_index(ctrlArray, MkdgControlRule, ctrlArray->len-1);
+	MkdgWidgetControl match=maker_dialog_widget_control_parse(strList[3]);
+	MkdgWidgetControl notMatch=maker_dialog_widget_control_parse(strList[4]);
 	maker_dialog_control_rule_set(rule, relation,strList[1],strList[2],match,notMatch);
 END_WIDGET_CONTROL_RULE:
 	g_strfreev(strList);
     }
     g_array_set_size(ctrlArray, ctrlArray->len+1);
-    rule=&g_array_index(ctrlArray, MakerDialogControlRule, ctrlArray->len-1);
+    rule=&g_array_index(ctrlArray, MkdgControlRule, ctrlArray->len-1);
     maker_dialog_control_rule_set(rule, MAKER_DIALOG_RELATION_NIL, NULL, NULL, 0, 0);
-    spec->rules=(MakerDialogControlRule *) g_array_free(ctrlArray, FALSE);
+    spec->rules=(MkdgControlRule *) g_array_free(ctrlArray, FALSE);
     g_strfreev(ctrlList);
 }
 
-static void mkdg_set_flags(MakerDialogPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
+static void mkdg_set_flags(MkdgPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
     spec->flags=maker_dialog_property_flags_parse(maker_dialog_value_get_string(mValue));
 }
 
-static void mkdg_set_string(MakerDialogPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
+static void mkdg_set_string(MkdgPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
     if (g_ascii_strcasecmp(attr, "defaultValue")==0){
 	g_free((gchar *) spec->defaultValue);
 	spec->defaultValue=g_strdup(maker_dialog_value_get_string(mValue));
@@ -341,7 +350,7 @@ static void mkdg_set_string(MakerDialogPropertySpec *spec, const gchar *attr, Mk
     }
 }
 
-static void mkdg_set_number(MakerDialogPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
+static void mkdg_set_number(MkdgPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
     if (g_ascii_strcasecmp(attr, "min")==0){
 	spec->min=maker_dialog_value_get_double(mValue);
     }else if (g_ascii_strcasecmp(attr, "max")==0){
@@ -353,7 +362,7 @@ static void mkdg_set_number(MakerDialogPropertySpec *spec, const gchar *attr, Mk
     }
 }
 
-static void mkdg_set_string_list(MakerDialogPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
+static void mkdg_set_string_list(MkdgPropertySpec *spec, const gchar *attr, MkdgValue *mValue){
     gchar **strList=maker_dialog_string_split_set(maker_dialog_value_get_string(mValue), ";", '\\', FALSE, -1);
     if (g_ascii_strcasecmp(attr, "validValues")==0){
 	if (spec->validValues){
@@ -371,7 +380,7 @@ static void mkdg_set_string_list(MakerDialogPropertySpec *spec, const gchar *att
     g_strfreev(strList);
 }
 
-static MakerDialogSetSpecData setSpecDatas[]={
+static MkdgSetSpecData setSpecDatas[]={
     {"flags", 			MKDG_TYPE_STRING, mkdg_set_flags},
     {"defaultValue", 		MKDG_TYPE_STRING, mkdg_set_string},
     {"validValues", 		MKDG_TYPE_STRING, mkdg_set_string_list},
@@ -392,7 +401,7 @@ static MakerDialogSetSpecData setSpecDatas[]={
     {NULL, MKDG_TYPE_INVALID, NULL},
 };
 
-static MakerDialogSetSpecData *find_set_spec_data(const gchar *attr){
+static MkdgSetSpecData *find_set_spec_data(const gchar *attr){
     gint i;
     for(i=0; setSpecDatas[i].mType!=MKDG_TYPE_INVALID; i++){
 	if (strcmp(attr, setSpecDatas[i].attr)==0)
@@ -402,14 +411,14 @@ static MakerDialogSetSpecData *find_set_spec_data(const gchar *attr){
 }
 
 /*== End set spec ===*/
-static void maker_dialog_new_from_key_file_section_keys(MakerDialog *mDialog, GKeyFile *keyFile, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
+static void maker_dialog_new_from_key_file_section_keys(Mkdg *mDialog, GKeyFile *keyFile, MkdgError **error){
+    MkdgError *cfgErr=NULL;
     gsize groupLen;
     gchar **groupList=g_key_file_get_groups(keyFile, &groupLen);
     gint i;
     for(i=0; groupList[i]!=NULL; i++){
 	MAKER_DIALOG_DEBUG_MSG(4, "[I4] load_from_keyfile_section_keys() spec key=%s", groupList[i]);
-	if (strcmp(groupList[i],MAKER_DIALOG_SPEC_SECTION_MAIN)==0)
+	if (strcmp(groupList[i],MAKER_DIALOG_SPEC_SECTION_MAIN_STRING)==0)
 	    continue;
 	if (!g_key_file_has_key(keyFile, groupList[i], "valueType", &cfgErr)){
 	    maker_dialog_error_handle(cfgErr,error);
@@ -426,7 +435,7 @@ static void maker_dialog_new_from_key_file_section_keys(MakerDialog *mDialog, GK
 	g_free(valueTypeStr);
 	if (mType==MKDG_TYPE_INVALID)
 	    continue;
-	MakerDialogPropertySpec *spec=maker_dialog_property_spec_new(g_strdup(groupList[i]),mType);
+	MkdgPropertySpec *spec=maker_dialog_property_spec_new(g_strdup(groupList[i]),mType);
 	gchar **keyList=g_key_file_get_keys(keyFile, groupList[i], NULL,  &cfgErr);
 	if (cfgErr){
 	    maker_dialog_error_handle(cfgErr,error);
@@ -434,7 +443,7 @@ static void maker_dialog_new_from_key_file_section_keys(MakerDialog *mDialog, GK
 	}
 	gint j;
 	for (j=0; keyList[j]!=NULL; j++){
-	    MakerDialogSetSpecData *setSpecData=find_set_spec_data(keyList[j]);
+	    MkdgSetSpecData *setSpecData=find_set_spec_data(keyList[j]);
 	    if (!setSpecData)
 		continue;
 	    MkdgValue *mValue=maker_dialog_value_new(setSpecData->mType,  &cfgErr);
@@ -471,35 +480,35 @@ static void maker_dialog_new_from_key_file_section_keys(MakerDialog *mDialog, GK
 }
 
 
-static void maker_dialog_new_from_key_file_section_main(MakerDialog *mDialog, GKeyFile *keyFile, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
-    if (!g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN))
+static void maker_dialog_new_from_key_file_section_main(Mkdg *mDialog, GKeyFile *keyFile, MkdgError **error){
+    MkdgError *cfgErr=NULL;
+    if (!g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN_STRING))
 	return;
-    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "title", &cfgErr)){
-	mDialog->title=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "title", &cfgErr);
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN_STRING, "title", &cfgErr)){
+	mDialog->title=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN_STRING, "title", &cfgErr);
     }else{
 	mDialog->title=g_strdup("Preference");
     }
     maker_dialog_error_handle(cfgErr, error);
-    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonResponseIds", &cfgErr)){
-	gchar *idBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonResponseIds", &cfgErr);
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN_STRING, "buttonResponseIds", &cfgErr)){
+	gchar *idBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN_STRING, "buttonResponseIds", &cfgErr);
 	gchar **idStrs=maker_dialog_string_split_set(idBuf, ";", '\\', TRUE, -1);
 	gchar *buttonBuf=NULL;
 	gchar **buttonTexts=NULL;
-	if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonTexts", &cfgErr)){
-	    buttonBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN, "buttonTexts", &cfgErr);
+	if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN_STRING, "buttonTexts", &cfgErr)){
+	    buttonBuf=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_MAIN_STRING, "buttonTexts", &cfgErr);
 	    buttonTexts=maker_dialog_string_split_set(buttonBuf, ";", '\\', TRUE, -1);
 	}
 	maker_dialog_error_handle(cfgErr, error);
 
 	gint i;
-	MakerDialogButtonSpec *spec=NULL;
-	GArray *specArray=g_array_new(FALSE, FALSE, sizeof(MakerDialogButtonSpec));
+	MkdgButtonSpec *spec=NULL;
+	GArray *specArray=g_array_new(FALSE, FALSE, sizeof(MkdgButtonSpec));
 	for(i=0;idStrs[i]!=NULL;i++){
 	    gint responseId=maker_dialog_parse_button_response_id(idStrs[i]);
 	    if (responseId!=MAKER_DIALOG_RESPONSE_NIL){
 		g_array_set_size(specArray, specArray->len+1);
-		spec=&g_array_index(specArray, MakerDialogButtonSpec, specArray->len-1);
+		spec=&g_array_index(specArray, MkdgButtonSpec, specArray->len-1);
 		spec->responseId=responseId;
 		if (buttonTexts && !maker_dialog_string_is_empty(buttonTexts[i])){
 		    spec->buttonText=g_strdup(buttonTexts[i]);
@@ -509,10 +518,10 @@ static void maker_dialog_new_from_key_file_section_main(MakerDialog *mDialog, GK
 	    }
 	}
 	g_array_set_size(specArray, specArray->len+1);
-	spec=&g_array_index(specArray, MakerDialogButtonSpec, specArray->len-1);
+	spec=&g_array_index(specArray, MkdgButtonSpec, specArray->len-1);
 	spec->responseId=MAKER_DIALOG_RESPONSE_NIL;
 	spec->buttonText=NULL;
-	mDialog->buttonSpecs=(MakerDialogButtonSpec *) g_array_free(specArray, FALSE);
+	mDialog->buttonSpecs=(MkdgButtonSpec *) g_array_free(specArray, FALSE);
 	g_free(idBuf);
 	g_strfreev(idStrs);
 	g_free(buttonBuf);
@@ -521,20 +530,20 @@ static void maker_dialog_new_from_key_file_section_main(MakerDialog *mDialog, GK
     }
 }
 
-static void maker_dialog_new_from_key_file_section_config(MakerDialog *mDialog, GKeyFile *keyFile, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
-    if (!g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG))
+static void maker_dialog_new_from_key_file_section_config(Mkdg *mDialog, GKeyFile *keyFile, MkdgError **error){
+    MkdgError *cfgErr=NULL;
+    if (!g_key_file_has_group(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING))
 	return;
-    MakerDialogConfig *config=maker_dialog_config_new(mDialog);
-    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "flags", &cfgErr)){
-	gchar *flagsStr=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "flags", &cfgErr);
+    MkdgConfig *config=maker_dialog_config_new(mDialog);
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING, "flags", &cfgErr)){
+	gchar *flagsStr=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING, "flags", &cfgErr);
 	config->flags=maker_dialog_config_flags_parse(flagsStr);
 	g_free(flagsStr);
     }
 
     gboolean loaded=FALSE;
-    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "configInterface", &cfgErr)){
-	gchar *configInterfaceStr=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG, "configInterface", &cfgErr);
+    if (g_key_file_has_key(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING, "configInterface", &cfgErr)){
+	gchar *configInterfaceStr=g_key_file_get_string(keyFile, MAKER_DIALOG_SPEC_SECTION_CONFIG_STRING, "configInterface", &cfgErr);
 	if (cfgErr==NULL){
 	    gchar **configInterfaceStrList=g_strsplit(configInterfaceStr,";",-1);
 	    gint i;
@@ -567,17 +576,17 @@ static void maker_dialog_new_from_key_file_section_config(MakerDialog *mDialog, 
 
 //static gboolean maker_dialog_spec_parser_config_set_load_attr(GKeyFile *keyFile,
 
-static void maker_dialog_new_from_key_file_section_config_set(MakerDialog *mDialog, GKeyFile *keyFile, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
+static void maker_dialog_new_from_key_file_section_config_set(Mkdg *mDialog, GKeyFile *keyFile, MkdgError **error){
+    MkdgError *cfgErr=NULL;
     gsize groupLen;
     gchar **groupList=g_key_file_get_groups(keyFile, &groupLen);
     gsize i;
     for(i=0; groupList[i]!=NULL && i < groupLen ; i++){
-	if (!g_str_has_prefix(groupList[i], MAKER_DIALOG_SPEC_SECTION_CONFIG_SET)){
+	if (!g_str_has_prefix(groupList[i], MAKER_DIALOG_SPEC_SECTION_CONFIG_SET_STRING)){
 	    continue;
 	}
 	MAKER_DIALOG_DEBUG_MSG(4, "[I4] new_from_key_file_section_config_set() keyfileGroupName=%s", groupList[i]);
-	MakerDialogConfigSet *configSet=maker_dialog_config_set_new();
+	MkdgConfigSet *configSet=maker_dialog_config_set_new();
 
 	gchar *valueStr=NULL;
 	if ((valueStr=maker_dialog_g_keyfile_has_key_then_get_string(keyFile, groupList[i], "pageNames"))!=NULL){
@@ -588,10 +597,10 @@ static void maker_dialog_new_from_key_file_section_config_set(MakerDialog *mDial
     }
 }
 
-MakerDialog *maker_dialog_new_from_key_file(const gchar *filename, MakerDialogError **error){
+Mkdg *maker_dialog_new_from_key_file(const gchar *filename, MkdgError **error){
     GKeyFile *keyFile=g_key_file_new();
-    MakerDialogError *cfgErr=NULL;
-    MakerDialog *mDialog=NULL;
+    MkdgError *cfgErr=NULL;
+    Mkdg *mDialog=NULL;
     if (!g_key_file_load_from_file(keyFile, filename, G_KEY_FILE_NONE, &cfgErr)){
 	maker_dialog_error_handle(cfgErr, error);
 	goto FINAL_LOAD_FROM_KEYFILE;

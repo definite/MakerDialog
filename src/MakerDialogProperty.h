@@ -2,27 +2,27 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
- *  MakerDialog is free software: you can redistribute it and/or modify
+ *  Mkdg is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  MakerDialog is distributed in the hope that it will be useful,
+ *  Mkdg is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogProperty.h
+ * @file MkdgProperty.h
  * Property Specification and Manipulation.
  *
- * In MakerDialog, a property is a configuration option which associate with a
- * value. According to property specification, MakerDialog generates
+ * In Mkdg, a property is a configuration option which associate with a
+ * value. According to property specification, Mkdg generates
  * corresponding UI component to manipulate the property value.
  */
 #ifndef MAKER_DIALOG_PROPERTY_H_
@@ -37,7 +37,7 @@
  * This defines an empty property spec, which can be put in property spec arrays
  * as a terminator for following code:
  * @code
- * MakerDialogPropertySpec specList[]={
+ * MkdgPropertySpec specList[]={
  *     {....},
  *     {....}.
  *     ......,
@@ -57,7 +57,7 @@
     NULL, NULL, NULL}\
 
 /**
- * Enumeration of MakerDialog flags.
+ * Enumeration of Mkdg flags.
  *
  * Flags for a configuration property. These flags, along with the property
  * type, determine how the UI is represented.
@@ -77,10 +77,10 @@ typedef enum {
 /**
  * Data structure for storing property flags.
  */
-typedef MakerDialogFlags MakerDialogPropertyFlags;
+typedef MkdgFlags MkdgPropertyFlags;
 
 /**
- * The relational operators used in MakerDialog.
+ * The relational operators used in Mkdg.
  *
  * The relation is used to test property value and test value.
  */
@@ -98,7 +98,7 @@ typedef enum {
 /**
  * Data structure for storing relations.
  */
-typedef gint MakerDialogRelation;
+typedef gint MkdgRelation;
 
 /**
  * Flags of widget control.
@@ -114,30 +114,30 @@ typedef enum {
 /**
  * Data structure for storing widget control.
  */
-typedef guint MakerDialogWidgetControl;
+typedef guint MkdgWidgetControl;
 
 /**
  * Control rule that associated with the property.
  *
  */
 typedef struct{
-    MakerDialogRelation relation;		//!< Relational operator.
+    MkdgRelation relation;		//!< Relational operator.
     const gchar *testValue;			//!< Test value for property value to be compared with.
     const gchar *key;				//!< The key of property to be affect with.
-    MakerDialogWidgetControl match;		//!< Control to be perform if property value matches this rule. Put 0 to do nothing,
-    MakerDialogWidgetControl notMatch;		//!< Control to be perform if property value does not match this rule. Put 0 to do nothing,
-} MakerDialogControlRule;
+    MkdgWidgetControl match;		//!< Control to be perform if property value matches this rule. Put 0 to do nothing,
+    MkdgWidgetControl notMatch;		//!< Control to be perform if property value does not match this rule. Put 0 to do nothing,
+} MkdgControlRule;
 
 /**
- * A MakerDialogPropertySpec determine how UI components be generated.
+ * A MkdgPropertySpec determine how UI components be generated.
  *
  * As the name suggests, this data structure stores the specification of a
  * configuration property.
  */
-typedef struct _MakerDialogPropertySpec{
+typedef struct _MkdgPropertySpec{
     const gchar *key;			//!< String that identify the property.
     MkdgType valueType;			//!< Data type of the property value.
-    MakerDialogPropertyFlags flags; 	//!< Flags for a configuration property.
+    MkdgPropertyFlags flags; 	//!< Flags for a configuration property.
     const gchar *defaultValue;		//!< Default value represent in string. Can be \c NULL.
     gchar **validValues;		//!< Valid values represent in strings. Can be \c NULL.
     /**
@@ -160,16 +160,16 @@ typedef struct _MakerDialogPropertySpec{
     const gchar *tooltip;		//!< Tooltip to be shown when mouse hover over the property. Can be \c NULL.
     gchar **imagePaths;		//!< Path to associated images file, the last should be NULL-terminated. Can be \c NULL.
 
-    MakerDialogControlRule *rules;	//!< Rules that involved with other
+    MkdgControlRule *rules;	//!< Rules that involved with other
 
     gpointer userData;			//!< For storing custom data structure. Can be \c NULL.
-} MakerDialogPropertySpec;
+} MkdgPropertySpec;
 
 /**
- * A MakerDialogPropertyContext is a property context which associates property specification,
+ * A MkdgPropertyContext is a property context which associates property specification,
  * a value, user data, verification and apply functions.
  */
-typedef struct _MakerDialogPropertyContext MakerDialogPropertyContext;
+typedef struct _MkdgPropertyContext MkdgPropertyContext;
 
 /**
  * Prototype of callback function for validating value.
@@ -177,12 +177,12 @@ typedef struct _MakerDialogPropertyContext MakerDialogPropertyContext;
  * This callback function will be called when value validation is required.
  * TRUE should be returned is value is valid, FALSE otherwise.
  *
- * @param ctx A context of a MakerDialog context.
+ * @param ctx A context of a Mkdg context.
  * @param value Value to be set of the property.
  * @return TRUE for pass; FALSE for fail.
- * @see MakerDialogApplyCallbackFunc(), ::MakerDialogPropertySpec .
+ * @see MkdgApplyCallbackFunc(), ::MkdgPropertySpec .
  */
-typedef gboolean (* MakerDialogValidateCallbackFunc)(MakerDialogPropertySpec *spec, MkdgValue *value);
+typedef gboolean (* MkdgValidateCallbackFunc)(MkdgPropertySpec *spec, MkdgValue *value);
 
 /**
  * Prototype of callback function for applying value.
@@ -190,18 +190,18 @@ typedef gboolean (* MakerDialogValidateCallbackFunc)(MakerDialogPropertySpec *sp
  * This callback function will be called when applying the current value of
  * property to the system.
  *
- * @param ctx A context of a MakerDialog context.
+ * @param ctx A context of a Mkdg context.
  * @param value Value to be set of the property.
  *
- * @see MakerDialogValidateCallbackFunc(), ::MakerDialogPropertySpec .
+ * @see MkdgValidateCallbackFunc(), ::MkdgPropertySpec .
  */
-typedef void (* MakerDialogApplyCallbackFunc)(MakerDialogPropertyContext *ctx, MkdgValue *value);
+typedef void (* MkdgApplyCallbackFunc)(MkdgPropertyContext *ctx, MkdgValue *value);
 
 /**
  * Property context flags.
  *
  * These are enumeration of property context flags.
- * Note these flags are automatically set by MakerDialog. Do not manually modify them.
+ * Note these flags are automatically set by Mkdg. Do not manually modify them.
  */
 typedef enum{
     MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE	=0x1, //!< Whether the value is set.
@@ -209,63 +209,63 @@ typedef enum{
     MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED	=0x4, //!< The value has not been applied. i.e. value has not passed to property context applyFunc().
     MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HIDDEN		=0x8, //!< The UI widget of the property is hided.
     MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_INSENSITIVE	=0x10, //!< The UI widget of the property is insensitive.
-} MakerDialogPropertyContextFlag;
+} MkdgPropertyContextFlag;
 
 /**
  * Data structure that holds property context flags.
  */
-typedef guint MakerDialogPropertyContextFlags;
+typedef guint MkdgPropertyContextFlags;
 
 /**
- * A MakerDialogPropertyContext is a property context which associates property specification,
+ * A MkdgPropertyContext is a property context which associates property specification,
  * a value, and a referencing object.
  *
  * When a value is changed though UI, validateFunc() will be invoked to validate whether the values is acceptable.
  * If it passes, then the value will be set and the referencing object can be
  * tuned by calling the setFunc().
  */
-struct _MakerDialogPropertyContext{
-    MakerDialogPropertySpec 	*spec;		//!< Corresponding property spec.
+struct _MkdgPropertyContext{
+    MkdgPropertySpec 	*spec;		//!< Corresponding property spec.
     MkdgValue 			*value;		//!< Current value of the property.
     gint			valueIndex;	//!< Index of the value in validValues. -1 if value is not in validValues, or validValues does not exist.
     gpointer 			userData;	//!< For storing user data
-    MakerDialogValidateCallbackFunc 	validateFunc;	//!< Function to be called for value validation.
-    MakerDialogApplyCallbackFunc 	applyFunc;	//!< Function to be called for applying value.
-    MakerDialogPropertyContextFlags	flags;	//!< Property context flags.
+    MkdgValidateCallbackFunc 	validateFunc;	//!< Function to be called for value validation.
+    MkdgApplyCallbackFunc 	applyFunc;	//!< Function to be called for applying value.
+    MkdgPropertyContextFlags	flags;	//!< Property context flags.
     /// @cond
-    MakerDialog				*mDialog; //!< "Parent" MakerDialog.
+    Mkdg				*mDialog; //!< "Parent" Mkdg.
     /// @endcond
 };
 
 /**
- * A hash table that use property key as key, a and MakerDialogPropertyContext
+ * A hash table that use property key as key, a and MkdgPropertyContext
  * as value.
  *
  * It is essentially a GHashTable, so g_hash_table functions can be use with
  * it.
  */
-typedef GHashTable MakerDialogPropertyTable;
+typedef GHashTable MkdgPropertyTable;
 
 /*=== Start Function Definition  ===*/
 /**
- * New a MakerDialogPropertySpec.
+ * New a MkdgPropertySpec.
  *
- * New a MakerDialogPropertySpec.
+ * New a MkdgPropertySpec.
  * Note that the key is not duplicated during the construction,
  * nor it will be freed by maker_dialog_property_spec_free().
  *
  * @param key String that identify the property.
  * @param valueType Data type of the property value.
- * @return A newly allocated MakerDialogPropertyContext.
+ * @return A newly allocated MkdgPropertyContext.
  * @see maker_dialog_property_spec_new_full()
  */
-MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, MkdgType valueType);
+MkdgPropertySpec *maker_dialog_property_spec_new(const gchar *key, MkdgType valueType);
 
 
 /**
- * New a MakerDialogPropertySpec with all information.
+ * New a MkdgPropertySpec with all information.
  *
- * New a MakerDialogPropertySpec.
+ * New a MkdgPropertySpec.
  * Note that the key is not duplicated during the construction,
  * nor it will be freed by maker_dialog_property_spec_free().
  *
@@ -289,74 +289,74 @@ MakerDialogPropertySpec *maker_dialog_property_spec_new(const gchar *key, MkdgTy
  * @param imagePaths		Associated image files.  Can be \c NULL.
  * @param rules			Control rules.  Can be \c NULL.
  * @param userData		For storing custom data structure. Can be \c NULL.
- * @return A newly allocated MakerDialogPropertyContext.
+ * @return A newly allocated MkdgPropertyContext.
  * @see maker_dialog_property_spec_new()
  */
-MakerDialogPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
+MkdgPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
 	MkdgType valueType,
 	const gchar *defaultValue, gchar **validValues,
 	const gchar *parseOption, const char *toStringFormat, const gchar *compareOption,
 	gdouble min, gdouble max, gdouble step, gint decimalDigits,
-	MakerDialogPropertyFlags propertyFlags,
+	MkdgPropertyFlags propertyFlags,
 	const gchar *pageName, const gchar *groupName, const gchar *label, const gchar *translationContext,
-	const gchar *tooltip, gchar **imagePaths, MakerDialogControlRule *rules, gpointer userData);
+	const gchar *tooltip, gchar **imagePaths, MkdgControlRule *rules, gpointer userData);
 
 /**
- * Free a MakerDialogPropertySpec.
+ * Free a MkdgPropertySpec.
  *
- * Free a MakerDialogPropertySpec.
+ * Free a MkdgPropertySpec.
  * Note that this function only free itself, but not strings associated with it.
  *
  * @param spec Property specification.
  */
-void maker_dialog_property_spec_free(MakerDialogPropertySpec *spec);
+void maker_dialog_property_spec_free(MkdgPropertySpec *spec);
 
 /**
- * New a MakerDialogPropertyContext.
+ * New a MkdgPropertyContext.
  *
- * New a MakerDialogPropertyContext, according to the initValue.
+ * New a MkdgPropertyContext, according to the initValue.
  *
  *
  * @param spec Property specification.
  * @param userData	For storing custom data structure.
- * @return A newly allocated MakerDialogPropertyContext.
+ * @return A newly allocated MkdgPropertyContext.
  * @see maker_dialog_property_context_new_full()
  */
-MakerDialogPropertyContext *maker_dialog_property_context_new(MakerDialogPropertySpec *spec, gpointer userData);
+MkdgPropertyContext *maker_dialog_property_context_new(MkdgPropertySpec *spec, gpointer userData);
 
 /**
- * New a MakerDialogPropertyContext with callback functions.
+ * New a MkdgPropertyContext with callback functions.
  *
- * New a MakerDialogPropertyContext, according to the initValue
+ * New a MkdgPropertyContext, according to the initValue
  * and set and validate callback functions.
  *
  * @param spec Property specification.
  * @param userData	For storing custom data structure.
  * @param validateFunc Callback function call for value validation.
  * @param applyFunc Callback function for applying value.
- * @return A newly allocated MakerDialogPropertyContext.
+ * @return A newly allocated MkdgPropertyContext.
  * @see maker_dialog_property_context_new()
  */
-MakerDialogPropertyContext *maker_dialog_property_context_new_full(MakerDialogPropertySpec *spec,
+MkdgPropertyContext *maker_dialog_property_context_new_full(MkdgPropertySpec *spec,
 	gpointer userData,
-	MakerDialogValidateCallbackFunc	validateFunc,
-	MakerDialogApplyCallbackFunc applyFunc);
+	MkdgValidateCallbackFunc	validateFunc,
+	MkdgApplyCallbackFunc applyFunc);
 
 /**
- * Free a MakerDialogPropertyContext.
+ * Free a MkdgPropertyContext.
  *
- * Free a MakerDialog property context.
+ * Free a Mkdg property context.
  * Note that the value under the property context will be unset by g_value_unset().
  *
- * @param ctx A MakerDialog property context.
+ * @param ctx A Mkdg property context.
  */
-void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx);
+void maker_dialog_property_context_free(MkdgPropertyContext *ctx);
 
 /**
  * Whether the property value is default value.
  *
  * Whether the property value is default value.
- * @param ctx A MakerDialog property context.
+ * @param ctx A Mkdg property context.
  * @return TRUE if the property value is default value; FALSE otherwise.
  * @see maker_dialog_set_value()
  * @see maker_dialog_property_get_default_string()
@@ -364,7 +364,7 @@ void maker_dialog_property_context_free(MakerDialogPropertyContext *ctx);
  * @see maker_dialog_property_set_default()
  * @see maker_dialog_property_set_value_fast()
  */
-gboolean maker_dialog_property_is_default(MakerDialogPropertyContext *ctx);
+gboolean maker_dialog_property_is_default(MkdgPropertyContext *ctx);
 
 /**
  * Get the "true" default value of a property.
@@ -390,7 +390,7 @@ gboolean maker_dialog_property_is_default(MakerDialogPropertyContext *ctx);
  * @see maker_dialog_property_set_default()
  * @see maker_dialog_property_set_value_fast()
  */
-const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *spec);
+const gchar *maker_dialog_property_get_default_string(MkdgPropertySpec *spec);
 
 /**
  * Return the "true" default value.
@@ -410,7 +410,7 @@ const gchar *maker_dialog_property_get_default_string(MakerDialogPropertySpec *s
  * @see maker_dialog_property_from_string()
  * @see maker_dialog_property_to_string()
  */
-MkdgValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec);
+MkdgValue *maker_dialog_property_get_default(MkdgPropertySpec *spec);
 
 /**
  * Set a property to default value.
@@ -427,7 +427,7 @@ MkdgValue *maker_dialog_property_get_default(MakerDialogPropertySpec *spec);
  * @see maker_dialog_property_from_string()
  * @see maker_dialog_property_to_string()
  */
-gboolean maker_dialog_property_set_default(MakerDialogPropertyContext *ctx);
+gboolean maker_dialog_property_set_default(MkdgPropertyContext *ctx);
 
 /**
  * Set value to property without validation and UI widget update.
@@ -438,7 +438,7 @@ gboolean maker_dialog_property_set_default(MakerDialogPropertyContext *ctx);
  *  - if valueIndexCtl ==-2, then \a valueIndex is updated by finding the value in \a validValues.
  *  - if valueIndexCtl >=-1, then \a valueIndex is set as the \a valueIndexCtl.
  *
- * @param ctx 		A MakerDialog property context.
+ * @param ctx 		A Mkdg property context.
  * @param valueIndexCtl Number which indicates how should \a valueIndex be updated.
  * @param value 	Value to be check.
  * @see maker_dialog_set_value()
@@ -449,13 +449,13 @@ gboolean maker_dialog_property_set_default(MakerDialogPropertyContext *ctx);
  * @see maker_dialog_property_from_string()
  * @see maker_dialog_property_to_string()
  */
-void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, MkdgValue *value, gint valueIndexCtl);
+void maker_dialog_property_set_value_fast(MkdgPropertyContext *ctx, MkdgValue *value, gint valueIndexCtl);
 
 /**
  * Set a property value from a string.
  *
  * Set a property value from a string.
- * @param ctx 		A MakerDialog property context.
+ * @param ctx 		A Mkdg property context.
  * @param str		The string to be parsed.
  * @return TRUE if succeed; FALSE if the string cannot be parsed.
  * @see maker_dialog_set_value()
@@ -466,13 +466,13 @@ void maker_dialog_property_set_value_fast(MakerDialogPropertyContext *ctx, MkdgV
  * @see maker_dialog_property_set_value_fast()
  * @see maker_dialog_property_to_string()
  */
-gboolean maker_dialog_property_from_string(MakerDialogPropertyContext *ctx, const gchar *str);
+gboolean maker_dialog_property_from_string(MkdgPropertyContext *ctx, const gchar *str);
 
 /**
  * Output a property value to a string.
  *
  * Output a property value to a string.
- * @param ctx 		A MakerDialog property context.
+ * @param ctx 		A Mkdg property context.
  * @return A newly allocated string which shows the value of the property.
  * @see maker_dialog_set_value()
  * @see maker_dialog_property_is_default()
@@ -482,34 +482,34 @@ gboolean maker_dialog_property_from_string(MakerDialogPropertyContext *ctx, cons
  * @see maker_dialog_property_set_value_fast()
  * @see maker_dialog_property_from_string()
  */
-gchar *maker_dialog_property_to_string(MakerDialogPropertyContext *ctx);
+gchar *maker_dialog_property_to_string(MkdgPropertyContext *ctx);
 
 /**
  * Prototype of callback function for each control rule in a property.
  *
  * This function will be called by maker_dialog_property_foreach_control_rule().
- * @param ctx 		A MakerDialog property context.
+ * @param ctx 		A Mkdg property context.
  * @param control	Flags of widget control.
  * @param userData	Custom user data.
  */
-typedef void (* MakerDialogPropertyEachControlRule)(MakerDialogPropertyContext *ctx, MakerDialogWidgetControl control, gpointer userData);
+typedef void (* MkdgPropertyEachControlRule)(MkdgPropertyContext *ctx, MkdgWidgetControl control, gpointer userData);
 
 /**
  * Call callback for each widget control rules in a property.
  *
  * Call callback for each widget control rules in a property.
- * @param ctx 		A MakerDialog property context.
+ * @param ctx 		A Mkdg property context.
  * @param func		The callback function.
  * @param userData	Custom user data to be passed to callback function.
  */
-void maker_dialog_property_foreach_control_rule(MakerDialogPropertyContext *ctx, MakerDialogPropertyEachControlRule func, gpointer userData);
+void maker_dialog_property_foreach_control_rule(MkdgPropertyContext *ctx, MkdgPropertyEachControlRule func, gpointer userData);
 
 /**
  * New a maker dialog property table.
  *
- * @return A newly allocated MakerDialogPropertyTable.
+ * @return A newly allocated MkdgPropertyTable.
  */
-MakerDialogPropertyTable* maker_dialog_property_table_new();
+MkdgPropertyTable* maker_dialog_property_table_new();
 
 /**
  * Insert the property context to the table.
@@ -517,10 +517,10 @@ MakerDialogPropertyTable* maker_dialog_property_table_new();
  * Key of property context is from ctx-&gt;spec-&gt;key.
  * This key is served as hash search key as well.
  *
- * @param hTable A MakerDialogPropertyTable.
- * @param ctx A MakerDialog property context.
+ * @param hTable A MkdgPropertyTable.
+ * @param ctx A Mkdg property context.
  */
-void maker_dialog_property_table_insert(MakerDialogPropertyTable *hTable, const MakerDialogPropertyContext *ctx);
+void maker_dialog_property_table_insert(MkdgPropertyTable *hTable, const MkdgPropertyContext *ctx);
 
 /**
  * Lookup the property context by key.
@@ -528,11 +528,11 @@ void maker_dialog_property_table_insert(MakerDialogPropertyTable *hTable, const 
  * Note that returned property context should not be freed at the point,
  * because the hash table is still referencing it.
 
- * @param hTable A MakerDialogPropertyTable.
+ * @param hTable A MkdgPropertyTable.
  * @param key Key of property context.
  * @return Corresponding property context; or %NULL if no such property context.
  */
-MakerDialogPropertyContext *maker_dialog_property_table_lookup(MakerDialogPropertyTable *hTable, const gchar *key);
+MkdgPropertyContext *maker_dialog_property_table_lookup(MkdgPropertyTable *hTable, const gchar *key);
 
 /**
  * Lookup the property value by key.
@@ -540,18 +540,18 @@ MakerDialogPropertyContext *maker_dialog_property_table_lookup(MakerDialogProper
  * Note that returned property vlue should not be freed at the point,
  * because the hash table and property context are still referencing it.
  *
- * @param hTable A MakerDialogPropertyTable.
+ * @param hTable A MkdgPropertyTable.
  * @param key Key of property context.
  * @return Corresponding property context; or %NULL if no such property context.
  */
-MkdgValue *maker_dialog_property_table_lookup_value(MakerDialogPropertyTable *hTable, const gchar *key);
+MkdgValue *maker_dialog_property_table_lookup_value(MkdgPropertyTable *hTable, const gchar *key);
 
 /**
  * Destroys all keys and values in the GHashTable and decrements its reference count by 1.
  *
- * @param hTable A MakerDialogPropertyTable.
+ * @param hTable A MkdgPropertyTable.
  */
-void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
+void maker_dialog_property_table_destroy (MkdgPropertyTable *hTable);
 
 /**
  * Call callback for each property.
@@ -563,31 +563,31 @@ void maker_dialog_property_table_destroy (MakerDialogPropertyTable *hTable);
  * This function does not guarantee the order of keys and pages.
  * Use maker_dialog_foreach_page_foreach_property() for ordered pages and keys.
  *
- * @param mDialog 	A MakerDialog.
+ * @param mDialog 	A Mkdg.
  * @param func 		The callback function to be called for each key/value pair.
  * @param userData 	User data to pass to the callback function.
  */
-void maker_dialog_foreach_property(MakerDialog* mDialog, GHFunc func, gpointer userData);
+void maker_dialog_foreach_property(Mkdg* mDialog, GHFunc func, gpointer userData);
 
 /**
- * Parse a MakerDialog relation from string.
+ * Parse a Mkdg relation from string.
  *
- * Parse a MakerDialog relation from string.
+ * Parse a Mkdg relation from string.
  * @param str		String to be parsed.
- * @return Corresponding MakerDialogRelation; or \c MAKER_DIALOG_RELATION_INVALID if none matched.
+ * @return Corresponding MkdgRelation; or \c MAKER_DIALOG_RELATION_INVALID if none matched.
  */
-MakerDialogRelation maker_dialog_relation_parse(const gchar *str);
+MkdgRelation maker_dialog_relation_parse(const gchar *str);
 
 /**
- * Parse a MakerDialog property flags from string.
+ * Parse a Mkdg property flags from string.
  *
- * This function parse a MakerDialog property flags from string,
+ * This function parse a Mkdg property flags from string,
  * which use '|' to delimit among flags.
  *
  * @param str		String to be parsed. '|' is used to separate flags.
- * @return Corresponding MakerDialogPropertyFlags; or \c 0 if none matched.
+ * @return Corresponding MkdgPropertyFlags; or \c 0 if none matched.
  */
-MakerDialogPropertyFlags maker_dialog_property_flags_parse(const gchar *str);
+MkdgPropertyFlags maker_dialog_property_flags_parse(const gchar *str);
 
 /**
  * Parse a widget control from a string.
@@ -596,17 +596,17 @@ MakerDialogPropertyFlags maker_dialog_property_flags_parse(const gchar *str);
  * @param str		The string to be parsed.
  * @return Corresponding widget control; or \c MAKER_DIALOG_WIDGET_CONTROL_NOTHING if none matched.
  */
-MakerDialogWidgetControl maker_dialog_widget_control_parse(const gchar *str);
+MkdgWidgetControl maker_dialog_widget_control_parse(const gchar *str);
 
 /**
  * Parse control rules from a string.
  *
  * Parse control rules from a string.
  * @param str		The string to be parsed.
- * @return A newly allocated array of MakerDialogControlRule, ending with the rule that
+ * @return A newly allocated array of MkdgControlRule, ending with the rule that
  * has the \c MAKER_DIALOG_RELATION_NIL.
  */
-MakerDialogControlRule  *maker_dialog_control_rules_parse(const gchar *str);
+MkdgControlRule  *maker_dialog_control_rules_parse(const gchar *str);
 /*=== End Function Definition  ===*/
 
 #endif /* MAKER_DIALOG_PROPERTY_H_ */

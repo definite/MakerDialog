@@ -3,8 +3,8 @@
 #include <glib/gprintf.h>
 #include <locale.h>
 #include <stdlib.h>
-#include "MakerDialog.h"
-#include "MakerDialogConfigGConf.h"
+#include "Mkdg.h"
+#include "MkdgConfigGConf.h"
 #include "../examples/md-example.c"
 
 static gchar *schemasFilename=NULL;
@@ -44,7 +44,7 @@ gint main (gint argc, gchar *argv[])
     textdomain(PROJECT_NAME);
     context = g_option_context_new("schemasFile");
 
-    g_option_context_add_main_entries (context, entries, "MakerDialogGConfSchemas");
+    g_option_context_add_main_entries (context, entries, "MkdgGConfSchemas");
 
     if (!g_option_context_parse (context, &argc, &argv, &error)) {
 	g_printf("Option parsing failed: %s\n", error->message);
@@ -67,7 +67,7 @@ gint main (gint argc, gchar *argv[])
 	fprintf(stderr,"Use -s to specify schemasHome!\n");
 	exit (-1);
     }
-    MakerDialog *mDialog=maker_dialog_init("Hello World!", NULL);
+    Mkdg *mDialog=maker_dialog_init("Hello World!", NULL);
     gint i=0;
     for(i=0; propSpecs[i].key!=NULL; i++){
 	maker_dialog_add_property(mDialog,

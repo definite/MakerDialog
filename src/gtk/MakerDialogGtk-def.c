@@ -1,42 +1,42 @@
 /*=== Start toolkit interface definitions ===*/
-static MkdgValue *maker_dialog_widget_get_value_gtk(MakerDialogUi *ui, const gchar *key){
+static MkdgValue *maker_dialog_widget_get_value_gtk(MkdgUi *ui, const gchar *key){
     return maker_dialog_gtk_get_widget_value(MAKER_DIALOG_GTK(ui->dlgObj),key);
 }
 
-static void maker_dialog_widget_set_value_gtk(MakerDialogUi *ui, const gchar *key, MkdgValue *value){
+static void maker_dialog_widget_set_value_gtk(MkdgUi *ui, const gchar *key, MkdgValue *value){
     maker_dialog_gtk_set_widget_value(MAKER_DIALOG_GTK(ui->dlgObj),key,value);
 }
 
-static void maker_dialog_widget_control_gtk(MakerDialogUi *ui, const gchar *key, MakerDialogWidgetControl control){
+static void maker_dialog_widget_control_gtk(MkdgUi *ui, const gchar *key, MkdgWidgetControl control){
     maker_dialog_gtk_widget_control(MAKER_DIALOG_GTK(ui->dlgObj),key,control);
 }
 
-static gpointer maker_dialog_construct_gtk(MakerDialogUi *ui, gpointer parentWindow, gboolean modal){
-    MakerDialogGtk *dlg_gtk=maker_dialog_gtk_new_full(ui,parentWindow,modal);
+static gpointer maker_dialog_construct_gtk(MkdgUi *ui, gpointer parentWindow, gboolean modal){
+    MkdgGtk *dlg_gtk=maker_dialog_gtk_new_full(ui,parentWindow,modal);
     return (gpointer) dlg_gtk;
 }
 
-static gint maker_dialog_run_gtk(MakerDialogUi *ui){
+static gint maker_dialog_run_gtk(MkdgUi *ui){
     return gtk_dialog_run(GTK_DIALOG (ui->dlgObj));
 }
 
-static void maker_dialog_show_gtk(MakerDialogUi *ui){
+static void maker_dialog_show_gtk(MkdgUi *ui){
     gtk_widget_show_all(GTK_WIDGET (ui->dlgObj));
 }
 
-static void maker_dialog_hide_gtk(MakerDialogUi *ui){
+static void maker_dialog_hide_gtk(MkdgUi *ui){
     gtk_widget_hide(GTK_WIDGET (ui->dlgObj));
 }
 
-static void maker_dialog_destroy_gtk(MakerDialogUi *ui){
+static void maker_dialog_destroy_gtk(MkdgUi *ui){
     maker_dialog_gtk_destroy(MAKER_DIALOG_GTK( ui->dlgObj));
 }
 
-static gpointer maker_dialog_get_widget_gtk(MakerDialogUi *ui, const gchar *key){
+static gpointer maker_dialog_get_widget_gtk(MkdgUi *ui, const gchar *key){
     return (gpointer) maker_dialog_gtk_get_widget(MAKER_DIALOG_GTK( ui->dlgObj), key);
 }
 
-static MakerDialogToolkitInterface makerDialogToolkitInterface_gtk={
+static MkdgToolkitInterface makerDialogToolkitInterface_gtk={
     maker_dialog_widget_get_value_gtk,
     maker_dialog_widget_set_value_gtk,
     maker_dialog_widget_control_gtk,
@@ -48,15 +48,15 @@ static MakerDialogToolkitInterface makerDialogToolkitInterface_gtk={
     maker_dialog_get_widget_gtk
 };
 
-MakerDialogUi *maker_dialog_ui_use_gtk(MakerDialog *mDialog, gint *argc, gchar ***argv){
+MkdgUi *maker_dialog_ui_use_gtk(Mkdg *mDialog, gint *argc, gchar ***argv){
     if (gtk_init_check(argc, argv)){
-	MakerDialogUi *ui=maker_dialog_ui_init(mDialog, &makerDialogToolkitInterface_gtk);
+	MkdgUi *ui=maker_dialog_ui_init(mDialog, &makerDialogToolkitInterface_gtk);
 	return ui;
     }
     return NULL;
 }
 
-gboolean maker_dialog_module_init(MakerDialog *mDialog){
+gboolean maker_dialog_module_init(Mkdg *mDialog){
     if (gtk_init_check(&mDialog->argc, &mDialog->argv)){
 	maker_dialog_ui_init(mDialog, &makerDialogToolkitInterface_gtk);
 	return TRUE;
@@ -69,8 +69,8 @@ gboolean maker_dialog_module_init(MakerDialog *mDialog){
 /*=== End toolkit interface definitions ===*/
 
 /*=== Start foreach functions ===*/
-static void maker_dialog_gtk_construct_ui_groupFunc(MakerDialog *mDialog, GNode *pageNode, GNode *groupNode, gpointer userData){
-    MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(userData);
+static void maker_dialog_gtk_construct_ui_groupFunc(Mkdg *mDialog, GNode *pageNode, GNode *groupNode, gpointer userData){
+    MkdgGtk *dlg_gtk=MAKER_DIALOG_GTK(userData);
     gchar *pageName=(gchar *) pageNode->data;
     gchar *groupName=(gchar *) groupNode->data;
     if (maker_dialog_group_name_is_empty(groupName) && g_node_n_children(pageNode)<=1){
@@ -92,18 +92,18 @@ static void maker_dialog_gtk_construct_ui_groupFunc(MakerDialog *mDialog, GNode 
     gtk_container_add(GTK_CONTAINER(pageBox), frame);
 }
 
-static void maker_dialog_gtk_construct_ui_propFunc(MakerDialog *mDialog, MakerDialogPropertyContext *ctx, gpointer userData){
-    MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(userData);
+static void maker_dialog_gtk_construct_ui_propFunc(Mkdg *mDialog, MkdgPropertyContext *ctx, gpointer userData){
+    MkdgGtk *dlg_gtk=MAKER_DIALOG_GTK(userData);
     maker_dialog_gtk_add_property_ui(dlg_gtk, ctx);
 }
 
-static void maker_dialog_gtk_property_each_control_rule(MakerDialogPropertyContext *ctx, MakerDialogWidgetControl control, gpointer userData){
-    MakerDialogGtk *dlg_gtk=MAKER_DIALOG_GTK(userData);
+static void maker_dialog_gtk_property_each_control_rule(MkdgPropertyContext *ctx, MkdgWidgetControl control, gpointer userData){
+    MkdgGtk *dlg_gtk=MAKER_DIALOG_GTK(userData);
     maker_dialog_gtk_widget_control(dlg_gtk, ctx->spec->key, control);
 }
 
 static void maker_dialog_gtk_each_property_apply_control(gpointer hashKey, gpointer hashValue, gpointer userData){
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) hashValue;
+    MkdgPropertyContext *ctx=(MkdgPropertyContext *) hashValue;
     maker_dialog_property_foreach_control_rule(ctx, maker_dialog_gtk_property_each_control_rule, userData);
 }
 
@@ -273,7 +273,7 @@ static gchar *widget_gen_id(const gchar *widget_label, const gchar *subLabel, co
     return g_string_free(strBuf, FALSE);
 }
 
-static const gchar *maker_dialog_gtk_get_translation_string(const gchar *str, MakerDialogPropertySpec *spec){
+static const gchar *maker_dialog_gtk_get_translation_string(const gchar *str, MkdgPropertySpec *spec){
     if (spec-> translationContext)
 	return g_dpgettext2(NULL,spec->translationContext,str);
     return _(str);
@@ -326,7 +326,7 @@ static void listStore_prepend(GtkListStore *listStore, const gchar *listKey, con
 	    -1);
 }
 
-static gint listStore_find_value(GtkListStore *listStore, MkdgValue *value, MakerDialogPropertySpec *spec){
+static gint listStore_find_value(GtkListStore *listStore, MkdgValue *value, MkdgPropertySpec *spec){
     int i=0,index=-1;
     GtkTreeIter iter;
     gchar *valueStr=maker_dialog_value_to_string(value, spec->toStringFormat);
@@ -356,7 +356,7 @@ static gint listStore_find_value(GtkListStore *listStore, MkdgValue *value, Make
 
 /*=== End listStore functions ===*/
 
-static gint combo_find_value_index(GtkComboBox *combo, MkdgValue *value, MakerDialogPropertySpec *spec){
+static gint combo_find_value_index(GtkComboBox *combo, MkdgValue *value, MkdgPropertySpec *spec){
     GtkListStore *listStore=GTK_LIST_STORE(gtk_combo_box_get_model(combo));
     return listStore_find_value(listStore, value, spec);
 }
@@ -380,7 +380,7 @@ static GValue *combo_get_active_value(GtkComboBox *combo,GValue *value){
 
 /*=== Start Widget Callback function wraps ===*/
 
-static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
+static gboolean validate_and_apply(MkdgPropertyContext *ctx){
     gboolean ret=TRUE;
     if (maker_dialog_ui_update(ctx->mDialog->ui, ctx)){
 	maker_dialog_apply_value(ctx->mDialog, ctx->spec->key);
@@ -400,7 +400,7 @@ static gboolean validate_and_apply(MakerDialogPropertyContext *ctx){
 
 static void widget_event_wrap(GtkWidget *widget, gpointer userData){
     MAKER_DIALOG_DEBUG_MSG(6,"[I6] widget_event_wrap()");
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)userData;
+    MkdgPropertyContext *ctx=(MkdgPropertyContext *)userData;
     validate_and_apply(ctx);
 }
 
@@ -410,7 +410,7 @@ static void on_combo_box_entry_change_wrap(GtkComboBox *comboBox, gpointer  user
 	/* Only Typing. Wait for active signal */
 	return;
     }
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *) userData;
+    MkdgPropertyContext *ctx=(MkdgPropertyContext *) userData;
     if (!ctx->mDialog->ui->dlgObj){
 	/* During initialization */
 	return;
@@ -420,7 +420,7 @@ static void on_combo_box_entry_change_wrap(GtkComboBox *comboBox, gpointer  user
 
 static void on_radioButton_toggled_wrap(GtkRadioButton *button, gpointer userData){
     MAKER_DIALOG_DEBUG_MSG(6,"[I6] on_radioButton_toggled_wrap()");
-    MakerDialogPropertyContext *ctx=(MakerDialogPropertyContext *)userData;
+    MkdgPropertyContext *ctx=(MkdgPropertyContext *)userData;
     /* Ignore the toggle-off event */
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
 	validate_and_apply(ctx);

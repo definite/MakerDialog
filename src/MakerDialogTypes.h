@@ -199,7 +199,7 @@ typedef struct{
 } MkdgTypeInterface;
 
 /**
- * Parse a MakerDialog type from a string.
+ * Parse a Mkdg type from a string.
  *
  * This function parses MakerDialog types defined in #MkdgType, without the "MKDG_TYPE_" prefix,
  * such as "INT", "BOOLEAN", "COLOR".
@@ -325,7 +325,7 @@ gboolean maker_dialog_type_is_number(MkdgType mType);
  * This function set the content of MakerDialog value from a double.
  * This function do nothing for non numerical data type.
  *
- * @param value		A MakerDialog value.
+ * @param value		A Mkdg value.
  * @param number	Number to set.
  * @see maker_dialog_value_to_double()
  */
@@ -482,7 +482,7 @@ gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gc
  * @retval 1 if \a mValue1 \> \a mValue2.
  * @see maker_dialog_value_compare()
  */
-gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2, MakerDialogCompareFunc compFunc);
+gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2, MkdgCompareFunc compFunc);
 
 /**
  * Get a pointer value from a MakerDialog value.

@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,11 +15,11 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogUi.h
- * UI interface for MakerDialog.
+ * @file MkdgUi.h
+ * UI interface for Mkdg.
  *
  * This interface bridges between  MakerDialog and UI toolkits
  * such as Gtk or Qt.
@@ -40,23 +40,23 @@
  *
  * Note that -1 in either width or height means it can expend indefinitely.
  */
-typedef struct _MakerDialogDimension{
+typedef struct _MkdgDimension{
     gint width;		//!< Width of a visible component.
     gint height;	//!< Height of a visible component.
-}MakerDialogDimension;
+}MkdgDimension;
 
 /**
  * Describe the alignment of a visible component.
  *
  * Alignment of a visible component.
  */
-typedef struct _MakerDialogAlignment{
+typedef struct _MkdgAlignment{
     gfloat x;	//!< Alignment in X axis. 0 for Left; 0.5 for Center; 1.0 for Right.
     gfloat y;	//!< Alignment in Y axis. 0 for Top; 0.5 for Center; 1.0 for Right.
-}MakerDialogAlignment;
+}MkdgAlignment;
 
 /**
- * Predefined values for use as response ids in MakerDialog.
+ * Predefined values for use as response ids in Mkdg.
  * All predefined values are negative, where application developer can uses positive
  * values for application-defined response ids.
  *
@@ -65,8 +65,8 @@ typedef struct _MakerDialogAlignment{
 typedef enum{
     MAKER_DIALOG_RESPONSE_INVALID=-1,		//!< The respond is invalid. Use in parser.
     MAKER_DIALOG_RESPONSE_NIL=-2,		//!< Returned if the dialog gets programmatically hidden or destroyed, or serves as button definition terminator.
-    MAKER_DIALOG_RESPONSE_REJECT=-3,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
-    MAKER_DIALOG_RESPONSE_ACCEPT=-4,		//!< Developers can use this id in their own application. Not internally used by MakerDialog.
+    MAKER_DIALOG_RESPONSE_REJECT=-3,		//!< Developers can use this id in their own application. Not internally used by Mkdg.
+    MAKER_DIALOG_RESPONSE_ACCEPT=-4,		//!< Developers can use this id in their own application. Not internally used by Mkdg.
     MAKER_DIALOG_RESPONSE_DELETE_EVENT=-5,	//!< Returned if the dialog is deleted.
     MAKER_DIALOG_RESPONSE_OK=-6,		//!< Returned when an "OK" button is pressed.
     MAKER_DIALOG_RESPONSE_CANCEL=-7,		//!< Returned when a "Cancel" button is pressed.
@@ -105,7 +105,7 @@ typedef enum{
 /**
  * Response id for UI widgets.
  */
-typedef gint MakerDialogResponse;
+typedef gint MkdgResponse;
 
 /**
  * Specification of buttons.
@@ -116,12 +116,12 @@ typedef gint MakerDialogResponse;
  * If using the predefined button, the button text can be set to NULL to
  * use the default text provide by the toolkit.
  */
-typedef struct _MakerDialogButtonSpec{
-    MakerDialogResponse responseId;	//!< Response Id when this button is pressed.
+typedef struct _MkdgButtonSpec{
+    MkdgResponse responseId;	//!< Response Id when this button is pressed.
     const char *buttonText;		//!< The text on the button. Can be NULL.
-} MakerDialogButtonSpec;
+} MkdgButtonSpec;
 
-typedef struct _MakerDialogUi MakerDialogUi;
+typedef struct _MkdgUi MkdgUi;
 
 /**
  * MakerDialog UI callback functions to be implemented.
@@ -140,7 +140,7 @@ typedef struct {
      * @param key		Key of a property.
      * @return The value held by UI.
      */
-    MkdgValue * (* widget_get_value)(MakerDialogUi *dlgUi, const gchar *key);
+    MkdgValue * (* widget_get_value)(MkdgUi *dlgUi, const gchar *key);
 
     /**
      * Callback function to set a value to an UI widget.
@@ -150,7 +150,7 @@ typedef struct {
      * @param key		Key of a property.
      * @param value		Value to be set to UI widget.
      */
-    void (* widget_set_value)(MakerDialogUi *dlgUi, const gchar *key, MkdgValue *value);
+    void (* widget_set_value)(MkdgUi *dlgUi, const gchar *key, MkdgValue *value);
 
     /**
      * Callback function to control the widget.
@@ -161,18 +161,18 @@ typedef struct {
      * @param key		Key of a property.
      * @param control		Widget control flag. See #MAKER_DIALOG_WIDGET_CONTROL
      */
-    void (* widget_control)(MakerDialogUi *dlgUi, const gchar *key, MakerDialogWidgetControl control);
+    void (* widget_control)(MkdgUi *dlgUi, const gchar *key, MkdgWidgetControl control);
 
     /**
      * Callback function to construct the actual toolkit dialog UI.
      * Called by maker_dialog_ui_construct().
      *
      * @param dlgUi		A MakerDialog UI instance.
-     * @param parentWindow	Parent window of the MakerDialog.
+     * @param parentWindow	Parent window of the Mkdg.
      * @param modal		Whether the dialog prevent interaction with other window in the same application.
      * @return The actual UI instance.
      */
-    gpointer (* dialog_construct)(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal);
+    gpointer (* dialog_construct)(MkdgUi *dlgUi, gpointer parentWindow, gboolean modal);
 
      /**
       * Callback function to execute a dialog UI until the dialog either emits
@@ -182,7 +182,7 @@ typedef struct {
       * @param dlgUi		A MakerDialog UI instance.
       * @return Respond Id.
       */
-    MakerDialogResponse (* dialog_run)(MakerDialogUi *dlgUi);
+    MkdgResponse (* dialog_run)(MkdgUi *dlgUi);
 
      /**
       * Callback function to show the dialog UI.
@@ -190,7 +190,7 @@ typedef struct {
       * Called by maker_dialog_ui_show().
       * @param dlgUi		A MakerDialog UI instance.
       */
-     void (* dialog_show)(MakerDialogUi *dlgUi);
+     void (* dialog_show)(MkdgUi *dlgUi);
 
      /**
       * Callback function to hide the dialog UI.
@@ -198,7 +198,7 @@ typedef struct {
       * Called by maker_dialog_ui_hide().
       * @param dlgUi		A MakerDialog UI instance.
       */
-    void (* dialog_hide)(MakerDialogUi *dlgUi);
+    void (* dialog_hide)(MkdgUi *dlgUi);
 
     /**
      * Callback function to destroy the dialog UI.
@@ -206,7 +206,7 @@ typedef struct {
      * Called by maker_dialog_ui_destroy().
      * @param dlgUi		A MakerDialog UI instance.
      */
-    void (* dialog_destroy)(MakerDialogUi *dlgUi);
+    void (* dialog_destroy)(MkdgUi *dlgUi);
 
     /**
      * Callback function to get the UI widget.
@@ -215,25 +215,25 @@ typedef struct {
      * @param dlgUi		A MakerDialog UI instance.
      * @param key		Key of a property.
      */
-    gpointer (* get_widget)(MakerDialogUi *dlgUi, const gchar *key);
-} MakerDialogToolkitInterface;
+    gpointer (* get_widget)(MkdgUi *dlgUi, const gchar *key);
+} MkdgToolkitInterface;
 
 /**
  * Data structure of MakerDialog UI.
  */
-struct _MakerDialogUi{
-    MakerDialog	*mDialog;		//!< "Parent" MakerDialog.
+struct _MkdgUi{
+    Mkdg	*mDialog;		//!< "Parent" Mkdg.
     gpointer dlgObj;			//!< The toolkit dialog object.
-    MakerDialogToolkitInterface *toolkitInterface; //!< The toolkit interface which connects to UI toolkit front-end.
+    MkdgToolkitInterface *toolkitInterface; //!< The toolkit interface which connects to UI toolkit front-end.
 };
 
 /**
- * Initialize a MakerDialogUi, the UI front-end of MakerDialog.
+ * Initialize a MkdgUi, the UI front-end of Mkdg.
  *
  * This function initializes an UI front-end using the given toolkit interface
- * for the MakerDialog.
- * During initialization, the new MakerDialogUi is associated to the \a mDialog.
- * Thus, maker_dialog_destroy() can free the associated MakerDialogUi as well.
+ * for the Mkdg.
+ * During initialization, the new MkdgUi is associated to the \a mDialog.
+ * Thus, maker_dialog_destroy() can free the associated MkdgUi as well.
  *
  * This function is meant for toolkit interface developers.
  * For Gtk or Qt users, it is more convenient to call
@@ -242,9 +242,9 @@ struct _MakerDialogUi{
  *
  * @param mDialog 		A MakeDialog.
  * @param toolkitInterface 	The toolkit interface for that front end.
- * @return A newly allocated MakerDialogUi instance; NULL if failed.
+ * @return A newly allocated MkdgUi instance; NULL if failed.
  */
-MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitInterface *toolkitInterface);
+MkdgUi *maker_dialog_ui_init(Mkdg *mDialog, MkdgToolkitInterface *toolkitInterface);
 
 /**
  * Construct an UI dialog object (such as GtkDialog or QDialog) for later use.
@@ -255,14 +255,14 @@ MakerDialogUi *maker_dialog_ui_init(MakerDialog *mDialog, MakerDialogToolkitInte
  * @param modal Whether the dialog is modal.
  * @return TRUE if succeeded; FALSE otherwise.
  */
-gboolean maker_dialog_ui_construct(MakerDialogUi *dlgUi, gpointer parentWindow, gboolean modal);
+gboolean maker_dialog_ui_construct(MkdgUi *dlgUi, gpointer parentWindow, gboolean modal);
 
 /**
  * Destroy and free the UI.
  *
  * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_destroy(MakerDialogUi *dlgUi);
+void maker_dialog_ui_destroy(MkdgUi *dlgUi);
 
 /**
  * Blocks in a recursive main loop until the dialog either emits the "response" signal, or is destroyed.
@@ -272,21 +272,21 @@ void maker_dialog_ui_destroy(MakerDialogUi *dlgUi);
  * @param dlgUi 	A MakerDialog UI instance.
  * @return The respond ID.
  */
-gint maker_dialog_ui_run(MakerDialogUi *dlgUi);
+gint maker_dialog_ui_run(MkdgUi *dlgUi);
 
 /**
  * Show the dialog by using dialog_show().
  *
  * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_show(MakerDialogUi *dlgUi);
+void maker_dialog_ui_show(MkdgUi *dlgUi);
 
 /**
  * Hide the dialog.
  *
  * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_hide(MakerDialogUi *dlgUi);
+void maker_dialog_ui_hide(MkdgUi *dlgUi);
 
 /**
  * Update the property value using the value in UI widget.
@@ -296,7 +296,7 @@ void maker_dialog_ui_hide(MakerDialogUi *dlgUi);
  * If validateFunc() is also defined, then the argument value will be checked with it,
  * if it does not pass, this function returns FALSE.
  *
- * If widget_get_value() in ::MakerDialogToolkitInterface is not defined,
+ * If widget_get_value() in ::MkdgToolkitInterface is not defined,
  * this function returns FALSE as well.
  *
  * @param dlgUi 	A MakerDialog UI instance.
@@ -306,7 +306,7 @@ void maker_dialog_ui_hide(MakerDialogUi *dlgUi);
  * @see maker_dialog_apply_value()
  * @see maker_dialog_set_value()
  */
-gboolean maker_dialog_ui_update(MakerDialogUi *dlgUi, MakerDialogPropertyContext *ctx);
+gboolean maker_dialog_ui_update(MkdgUi *dlgUi, MkdgPropertyContext *ctx);
 
 /**
  * Get the corresponding widget.
@@ -318,15 +318,15 @@ gboolean maker_dialog_ui_update(MakerDialogUi *dlgUi, MakerDialogPropertyContext
  * port to other toolkit, so use it with care.
  * @param dlgUi 	A MakerDialog UI instance.
  * @param key		Key of a MakerDialog property.
- * @return The corresponding UI widget; or \c NULL if get_widget() in MakerDialogToolkitInterface is not implemented.
+ * @return The corresponding UI widget; or \c NULL if get_widget() in MkdgToolkitInterface is not implemented.
  */
-gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key);
+gpointer maker_dialog_ui_get_widget(MkdgUi *dlgUi, const gchar *key);
 
 /**
  * Parse a button response ID from a string.
  *
  * This function parses two kinds of strings in to response ids.
- * - Pre-defined respond id in #MakerDialogResponsePredefined without the "MAKER_DIALOG_RESPONSE_" prefix, such as "OK", "CLOSE", "SAVE_AS"; or
+ * - Pre-defined respond id in #MkdgResponsePredefined without the "MAKER_DIALOG_RESPONSE_" prefix, such as "OK", "CLOSE", "SAVE_AS"; or
  * - string that can converted into positive integer.
  *
  * All others string will return \c MAKER_DIALOG_RESPONSE_INVALID.
@@ -334,7 +334,7 @@ gpointer maker_dialog_ui_get_widget(MakerDialogUi *dlgUi, const gchar *key);
  * @param idStr 	The string to be parsed.
  * @return Corresponding response id; or \c MAKER_DIALOG_RESPONSE_INVALID if parse failed.
  */
-MakerDialogResponse maker_dialog_parse_button_response_id(const gchar *idStr);
+MkdgResponse maker_dialog_parse_button_response_id(const gchar *idStr);
 
 #endif /* MAKER_DIALOG_UI_H_ */
 

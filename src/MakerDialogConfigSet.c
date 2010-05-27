@@ -2,30 +2,30 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
- *  MakerDialog is free software: you can redistribute it and/or modify
+ *  Mkdg is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  MakerDialog is distributed in the hope that it will be useful,
+ *  Mkdg is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <string.h>
 #include <unistd.h>
-#include "MakerDialog.h"
+#include "Mkdg.h"
 
 
-MakerDialogConfigSet *maker_dialog_config_set_new(){
-    MakerDialogConfigSet *configSet=maker_dialog_config_set_new_full(NULL,
+MkdgConfigSet *maker_dialog_config_set_new(){
+    MkdgConfigSet *configSet=maker_dialog_config_set_new_full(NULL,
 	    NULL, NULL,
 	    NULL, -1,
 	    0, NULL, NULL);
@@ -33,12 +33,12 @@ MakerDialogConfigSet *maker_dialog_config_set_new(){
     return configSet;
 }
 
-MakerDialogConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
+MkdgConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
 	const gchar *filePattern, const gchar **searchDirs,
 	const gchar *defaultFilename, gint maxFileCount,
-	MakerDialogConfigFlags flags, MakerDialogConfigFileInterface *configInterface,
+	MkdgConfigFlags flags, MkdgConfigFileInterface *configInterface,
 	gpointer userData){
-    MakerDialogConfigSet *configSet=g_new(MakerDialogConfigSet,1);
+    MkdgConfigSet *configSet=g_new(MkdgConfigSet,1);
     configSet->pageNames=pageNames;
     configSet->flags=flags;
     configSet->filePattern=filePattern;
@@ -54,21 +54,21 @@ MakerDialogConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
 }
 
 static void maker_dialog_config_set_free_config_file(gpointer data, gpointer userData){
-    maker_dialog_config_file_free((MakerDialogConfigFile *) data);
+    maker_dialog_config_file_free((MkdgConfigFile *) data);
 }
 
-void maker_dialog_config_set_free(MakerDialogConfigSet *configSet){
+void maker_dialog_config_set_free(MkdgConfigSet *configSet){
     g_ptr_array_foreach(configSet->fileArray,maker_dialog_config_set_free_config_file, NULL);
     g_ptr_array_free(configSet->fileArray,TRUE);
     configSet->configInterface->config_set_finalize(configSet);
     g_free(configSet);
 }
 
-gboolean maker_dialog_config_set_prepare_files(MakerDialogConfigSet *configSet, MakerDialogError **error){
+gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgError **error){
     g_assert(configSet->filePattern);
     GPatternSpec* pSpec=g_pattern_spec_new (configSet->filePattern);
     GDir *currDir=NULL;
-    MakerDialogError *cfgErr=NULL;
+    MkdgError *cfgErr=NULL;
     gchar *currName=NULL;
     gchar *currPath=NULL;
     gint counter=0;
@@ -98,7 +98,7 @@ gboolean maker_dialog_config_set_prepare_files(MakerDialogConfigSet *configSet, 
 			}
 		    }
 		    MAKER_DIALOG_DEBUG_MSG(6, "[I6] config_set_prepare_files(), writeIndex=%d", configSet->writeIndex );
-		    MakerDialogConfigFile *configFile=maker_dialog_config_file_new(currPath, configSet);
+		    MkdgConfigFile *configFile=maker_dialog_config_file_new(currPath, configSet);
 		    g_ptr_array_add(configSet->fileArray, configFile);
 		    counter++;
 		    g_free(currPath);
@@ -128,7 +128,7 @@ gboolean maker_dialog_config_set_prepare_files(MakerDialogConfigSet *configSet, 
 		continue;
 	    }
 	    /* Ready to write */
-	    MakerDialogConfigFile *configFile=maker_dialog_config_file_new(
+	    MkdgConfigFile *configFile=maker_dialog_config_file_new(
 		    g_build_filename(searchDirs[i], configSet->defaultFilename, NULL), configSet);
 	    g_ptr_array_add(configSet->fileArray, configFile);
 	    configSet->writeIndex=counter;
@@ -149,10 +149,10 @@ gboolean maker_dialog_config_set_prepare_files(MakerDialogConfigSet *configSet, 
     return TRUE;
 }
 
-gboolean maker_dialog_config_set_foreach_page(MakerDialogConfigSet *configSet,
-	MakerDialogConfigSetEachPageFunc func,  gpointer userData, MakerDialogError **error){
+gboolean maker_dialog_config_set_foreach_page(MkdgConfigSet *configSet,
+	MkdgConfigSetEachPageFunc func,  gpointer userData, MkdgError **error){
     gboolean clean=TRUE;
-    MakerDialogError *cfgErr=NULL;
+    MkdgError *cfgErr=NULL;
     const gchar *page=NULL;
     gboolean ret;
     if (configSet->pageNames){

@@ -2,27 +2,27 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
- *  MakerDialog is free software: you can redistribute it and/or modify
+ *  Mkdg is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  *
- *  MakerDialog is distributed in the hope that it will be useful,
+ *  Mkdg is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdio.h>
 #include <unistd.h>
 #include <glib/gstdio.h>
-#include "MakerDialog.h"
+#include "Mkdg.h"
 
-static MakerDialogError *convert_error_code(GError *error, const gchar *filename, const gchar *prefix){
+static MkdgError *convert_error_code(GError *error, const gchar *filename, const gchar *prefix){
     if (!error)
 	return NULL;
     if (error->domain==MAKER_DIALOG_ERROR)
@@ -54,7 +54,7 @@ static MakerDialogError *convert_error_code(GError *error, const gchar *filename
     }else{
 	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_OTHER, prefix);
     }
-    g_warning("MakerDialogConfigKeyFile: %s%s %s: domain=%s code=%d:%s",
+    g_warning("MkdgConfigKeyFile: %s%s %s: domain=%s code=%d:%s",
 	    (filename)? "On file: " : "",
 	    (filename)? filename : "",
 	    prefix, g_quark_to_string(error->domain), error->code, error->message);
@@ -63,27 +63,27 @@ static MakerDialogError *convert_error_code(GError *error, const gchar *filename
 }
 
 /*=== Start Config interface callbacks ===*/
-static gboolean maker_dialog_config_set_key_file_init(MakerDialogConfigSet *configSet, MakerDialogError **error){
+static gboolean maker_dialog_config_set_key_file_init(MkdgConfigSet *configSet, MkdgError **error){
     return maker_dialog_config_set_prepare_files(configSet, error);
 }
 
-static void maker_dialog_config_set_key_file_finalize(MakerDialogConfigSet *configSet){
+static void maker_dialog_config_set_key_file_finalize(MkdgConfigSet *configSet){
 }
 
-static gchar **maker_dialog_config_file_key_file_get_pages(MakerDialogConfigFile *configFile, MakerDialogError **error){
+static gchar **maker_dialog_config_file_key_file_get_pages(MkdgConfigFile *configFile, MkdgError **error){
     return g_key_file_get_groups (configFile->fileObj, NULL);
 }
 
-static gchar **maker_dialog_config_file_key_file_get_keys(MakerDialogConfigFile *configFile, const gchar *pageName, MakerDialogError **error){
+static gchar **maker_dialog_config_file_key_file_get_keys(MkdgConfigFile *configFile, const gchar *pageName, MkdgError **error){
     return g_key_file_get_keys (configFile->fileObj, pageName, NULL, error);
 }
 
-static MkdgValue *maker_dialog_config_file_key_file_get_value(MakerDialogConfigFile *configFile, const gchar *pageName, const gchar *key,
-       	MkdgType valueType, const gchar *parseOption, MakerDialogError **error){
-    MakerDialogError *cfgErr_prep=NULL;
+static MkdgValue *maker_dialog_config_file_key_file_get_value(MkdgConfigFile *configFile, const gchar *pageName, const gchar *key,
+       	MkdgType valueType, const gchar *parseOption, MkdgError **error){
+    MkdgError *cfgErr_prep=NULL;
     gchar *str=g_key_file_get_string(configFile->fileObj, pageName, key, &cfgErr_prep);
     if (cfgErr_prep!=NULL){
-	MakerDialogError *cfgErr=convert_error_code(cfgErr_prep, configFile->path, "config_file_key_file_get_value()");
+	MkdgError *cfgErr=convert_error_code(cfgErr_prep, configFile->path, "config_file_key_file_get_value()");
 	maker_dialog_error_handle(cfgErr,error);
 	return NULL;
     }
@@ -93,7 +93,7 @@ static MkdgValue *maker_dialog_config_file_key_file_get_value(MakerDialogConfigF
     return ret;
 }
 
-static gboolean maker_dialog_config_file_key_file_can_access(MakerDialogConfigFile *configFile, guint permission, MakerDialogError **error){
+static gboolean maker_dialog_config_file_key_file_can_access(MkdgConfigFile *configFile, guint permission, MkdgError **error){
     g_assert(configFile->path);
     guint perm=permission;
     if (perm & W_OK){
@@ -107,8 +107,8 @@ static gboolean maker_dialog_config_file_key_file_can_access(MakerDialogConfigFi
     return TRUE;
 }
 
-static gboolean maker_dialog_config_file_key_file_create(MakerDialogConfigFile *configFile, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
+static gboolean maker_dialog_config_file_key_file_create(MkdgConfigFile *configFile, MkdgError **error){
+    MkdgError *cfgErr=NULL;
     if (g_access(configFile->path, F_OK)==0){
 	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_ALREADY_EXIST, "File %s already exist!", configFile->path);
     }else if (maker_dialog_file_isWritable(configFile->path)){
@@ -122,8 +122,8 @@ static gboolean maker_dialog_config_file_key_file_create(MakerDialogConfigFile *
     return FALSE;
 }
 
-static gboolean maker_dialog_config_file_key_file_open(MakerDialogConfigFile *configFile, MakerDialogError **error){
-    MakerDialogError * cfgErr=NULL, *cfgErr_prep=NULL;
+static gboolean maker_dialog_config_file_key_file_open(MkdgConfigFile *configFile, MkdgError **error){
+    MkdgError * cfgErr=NULL, *cfgErr_prep=NULL;
     if (g_access(configFile->path,R_OK)==0){
 	GKeyFile *keyFile=g_key_file_new();
 	configFile->fileObj= (gpointer) keyFile;
@@ -153,7 +153,7 @@ static gboolean maker_dialog_config_file_key_file_open(MakerDialogConfigFile *co
     return FALSE;
 }
 
-static void key_file_reload(MakerDialogConfigFile *configFile, MakerDialogError **error){
+static void key_file_reload(MkdgConfigFile *configFile, MkdgError **error){
     if (configFile->fileObj){
 	g_key_file_free((GKeyFile *) configFile->fileObj);
     }
@@ -165,7 +165,7 @@ static void key_file_reload(MakerDialogConfigFile *configFile, MakerDialogError 
     configFile->fileObj= (gpointer) keyFile;
 }
 
-static gboolean maker_dialog_config_file_key_file_close(MakerDialogConfigFile *configFile, MakerDialogError **error){
+static gboolean maker_dialog_config_file_key_file_close(MkdgConfigFile *configFile, MkdgError **error){
     if (configFile->fileObj){
 	g_key_file_free((GKeyFile *) configFile->fileObj);
 	configFile->fileObj=NULL;
@@ -174,12 +174,12 @@ static gboolean maker_dialog_config_file_key_file_close(MakerDialogConfigFile *c
     return FALSE;
 }
 
-static gboolean key_file_preload_property(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, MakerDialogPropertyContext *ctx, MakerDialogError **error){
+static gboolean key_file_preload_property(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, MkdgPropertyContext *ctx, MkdgError **error){
     if (maker_dialog_config_buffer_lookup(configBuf, ctx->spec->key) && (configFile->configSet->config->flags & MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE)){
 	/* It is expected behavior if NO_OVERRIDE is set. */
 	return TRUE;
     }
-    MakerDialogError *cfgErr=NULL;
+    MkdgError *cfgErr=NULL;
     MkdgValue *mValue= maker_dialog_config_file_key_file_get_value(configFile, ctx->spec->pageName, ctx->spec->key,
 	    ctx->spec->valueType, ctx->spec->parseOption, &cfgErr);
     if (mValue==NULL){
@@ -190,8 +190,8 @@ static gboolean key_file_preload_property(MakerDialogConfigFile *configFile, Mak
     return TRUE;
 }
 
-static gboolean key_file_preload_page(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, const gchar * page, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
+static gboolean key_file_preload_page(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, const gchar * page, MkdgError **error){
+    MkdgError *cfgErr=NULL;
     gchar **keys=g_key_file_get_keys((GKeyFile *) configFile->fileObj , page, NULL, &cfgErr);
     if (cfgErr){
 	maker_dialog_error_handle(cfgErr, error);
@@ -199,7 +199,7 @@ static gboolean key_file_preload_page(MakerDialogConfigFile *configFile, MakerDi
     }
     gint i;
     for (i=0;keys[i]!=NULL;i++){
-	MakerDialogPropertyContext *ctx=maker_dialog_get_property_context(configFile->configSet->config->mDialog, keys[i]);
+	MkdgPropertyContext *ctx=maker_dialog_get_property_context(configFile->configSet->config->mDialog, keys[i]);
 	if (!key_file_preload_property(configFile, configBuf, ctx, &cfgErr)){
 	    maker_dialog_error_handle(cfgErr, error);
 	    if (configFile->configSet->config->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
@@ -212,8 +212,8 @@ static gboolean key_file_preload_page(MakerDialogConfigFile *configFile, MakerDi
     return TRUE;
 }
 
-static gboolean maker_dialog_config_file_key_file_preload(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, MakerDialogError **error){
-    MakerDialogError *cfgErr=NULL;
+static gboolean maker_dialog_config_file_key_file_preload(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, MkdgError **error){
+    MkdgError *cfgErr=NULL;
     key_file_reload(configFile, NULL);
     MAKER_DIALOG_DEBUG_MSG(3, "[I3] config_file_key_file_preload( %s, )", configFile->path);
     g_assert(configFile->fileObj);
@@ -242,10 +242,10 @@ static gboolean maker_dialog_config_file_key_file_preload(MakerDialogConfigFile 
  * This function just save the setting, without checking the duplication, and
  * so on.
  */
-static gboolean key_file_save_property(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf,
-	MakerDialogPropertyContext *ctx, MakerDialogError **error){
+static gboolean key_file_save_property(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf,
+	MkdgPropertyContext *ctx, MkdgError **error){
     MAKER_DIALOG_DEBUG_MSG(5, "[I5] key_file_save_property(%d, , , )",configFile->path);
-    MakerDialogError * cfgErr=NULL;
+    MkdgError * cfgErr=NULL;
     /* Check whether the line need to be saved */
     gboolean needSave=TRUE;
     MkdgValue *bufValue=maker_dialog_config_buffer_lookup(configBuf, ctx->spec->key);
@@ -282,10 +282,10 @@ static gboolean key_file_save_property(MakerDialogConfigFile *configFile, MakerD
     return TRUE;
 }
 
-static gboolean key_file_save_page(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf,
-	const gchar *pageName, MakerDialogError **error){
-    MakerDialogError * cfgErr=NULL;
-    MakerDialogNodeIter iter=maker_dialog_page_property_iter_init(configFile->configSet->config->mDialog, pageName);
+static gboolean key_file_save_page(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf,
+	const gchar *pageName, MkdgError **error){
+    MkdgError * cfgErr=NULL;
+    MkdgNodeIter iter=maker_dialog_page_property_iter_init(configFile->configSet->config->mDialog, pageName);
     if (fprintf((FILE *) configFile->userData,"[%s]\n",pageName)<0){
 	/* Write error */
 	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, "key_file_save_page() failed on page %s",pageName);
@@ -293,7 +293,7 @@ static gboolean key_file_save_page(MakerDialogConfigFile *configFile, MakerDialo
 	return FALSE;
     }
 
-    MakerDialogPropertyContext *ctx=NULL;
+    MkdgPropertyContext *ctx=NULL;
     while(maker_dialog_page_property_iter_has_next(iter)){
 	ctx=maker_dialog_page_property_iter_next(&iter);
 	g_assert(ctx);
@@ -307,8 +307,8 @@ static gboolean key_file_save_page(MakerDialogConfigFile *configFile, MakerDialo
     return TRUE;
 }
 
-static gboolean maker_dialog_config_file_key_file_save(MakerDialogConfigFile *configFile, MakerDialogConfigBuffer *configBuf, MakerDialogError **error){
-    MakerDialogError * cfgErr=NULL;
+static gboolean maker_dialog_config_file_key_file_save(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, MkdgError **error){
+    MkdgError * cfgErr=NULL;
     MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_file_key_file_save(%s, , )", configFile->path);
     if (!maker_dialog_config_file_key_file_can_access(configFile, W_OK, error)){
 	MAKER_DIALOG_DEBUG_MSG(4, "[I4] config_file_key_file_save(%s, , ) cannot write", configFile->path);
@@ -320,7 +320,7 @@ static gboolean maker_dialog_config_file_key_file_save(MakerDialogConfigFile *co
     gchar *parentDir=g_path_get_dirname(configFile->path);
     g_assert(g_mkdir_with_parents(parentDir, 0x755)==0);
     configFile->userData=(gpointer) g_fopen(configFile->path, "w");
-    MakerDialogNodeIter iter=maker_dialog_page_iter_init(configFile->configSet->config->mDialog);
+    MkdgNodeIter iter=maker_dialog_page_iter_init(configFile->configSet->config->mDialog);
     while(maker_dialog_page_iter_has_next(iter)){
 	GNode *pageNode=maker_dialog_page_iter_next(&iter);
 	g_assert(pageNode);
@@ -336,7 +336,7 @@ static gboolean maker_dialog_config_file_key_file_save(MakerDialogConfigFile *co
 }
 /*=== End Config interface callbacks ===*/
 
-MakerDialogConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE={
+MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE={
     maker_dialog_config_set_key_file_init,
     maker_dialog_config_set_key_file_finalize,
     maker_dialog_config_file_key_file_can_access,
@@ -350,13 +350,13 @@ MakerDialogConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE={
     maker_dialog_config_file_key_file_get_value,
 };
 
-MakerDialogConfig *maker_dialog_config_use_key_file(MakerDialog *mDialog){
-    MakerDialogConfig *config=maker_dialog_config_new_full(mDialog, 0, &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE);
+MkdgConfig *maker_dialog_config_use_key_file(Mkdg *mDialog){
+    MkdgConfig *config=maker_dialog_config_new_full(mDialog, 0, &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE);
     return config;
 }
 
 
-gboolean maker_dialog_module_init(MakerDialog *mDialog){
+gboolean maker_dialog_module_init(Mkdg *mDialog){
     maker_dialog_config_new_full(mDialog, 0, &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE);
     return TRUE;
 

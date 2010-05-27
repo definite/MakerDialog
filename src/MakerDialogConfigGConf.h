@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of MakerDialog.
+ *  This file is part of Mkdg.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,41 +15,41 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MakerDialogConfigGConf.h
+ * @file MkdgConfigGConf.h
  * GConf configuration back-end.
  *
- * This module implements the UI interface to bridge between GConf back-end and MakerDialog.
+ * This module implements the UI interface to bridge between GConf back-end and Mkdg.
  */
 #ifndef MAKER_DIALOG_CONFIG_G_CONF_H_
 #define MAKER_DIALOG_CONFIG_G_CONF_H_
 #include <glib.h>
 #include <glib-object.h>
-#include "MakerDialogConfig.h"
+#include "MkdgConfig.h"
 
 /**
  * The configure file interface for GConf.
  *
  * The configure file interface for GConf.
  */
-extern MakerDialogConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF;
+extern MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF;
 
 /**
- * New a MakerDialogConfig which use glib GConf back-end.
+ * New a MkdgConfig which use glib GConf back-end.
  *
- * This function returns a newly allocated MakerDialogConfig
+ * This function returns a newly allocated MkdgConfig
  * which use glib GConf back-end.
  *
- * During construction, the new MakerDialogConfig is associated to the \a mDialog.
- * Thus, maker_dialog_destroy() can free the associated MakerDialogConfig as well.
+ * During construction, the new MkdgConfig is associated to the \a mDialog.
+ * Thus, maker_dialog_destroy() can free the associated MkdgConfig as well.
  *
- * @param mDialog 	A MakerDialog.
- * @return A newly allocated MakerDialogConfig with glib GConf back-end.
+ * @param mDialog 	A Mkdg.
+ * @return A newly allocated MkdgConfig with glib GConf back-end.
  * @see maker_dialog_config_new().
  */
-MakerDialogConfig *maker_dialog_config_use_gconf(MakerDialog *mDialog);
+MkdgConfig *maker_dialog_config_use_gconf(Mkdg *mDialog);
 
 /**
  * Output the property as a GConf schemes file.
@@ -67,7 +67,7 @@ MakerDialogConfig *maker_dialog_config_use_gconf(MakerDialog *mDialog);
  * Output the parameters as GConf schemes file.
  */
 gboolean maker_dialog_config_gconf_write_schemas_file
-(MakerDialog *mDialog, const gchar *filename, gint indentSpace, const gchar *schemasHome, const gchar *owner, const gchar *locales, GError **error);
+(Mkdg *mDialog, const gchar *filename, gint indentSpace, const gchar *schemasHome, const gchar *owner, const gchar *locales, GError **error);
 
 #endif /* MAKER_DIALOG_CONFIG_G_CONF_H_ */
 
