@@ -2,7 +2,7 @@
  * Copyright © 2010  Red Hat, Inc. All rights reserved.
  * Copyright © 2010  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of Mkdg.
+ *  This file is part of MakerDailog.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -18,15 +18,15 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgConfigDef.h
+ * @file MakerDialogConfigDef.h
  * Data type definition of configuration module for Mkdg.
  *
  * Data type definition of configuration module for Mkdg.
  *
  * @since 0.3; was included in MkdgConfig.h prior 0.2.
  */
-#ifndef MAKER_DIALOG_CONFIG_DEF_H_
-#define MAKER_DIALOG_CONFIG_DEF_H_
+#ifndef MKDG_CONFIG_DEF_H_
+#define MKDG_CONFIG_DEF_H_
 
 /**
  * Enumeration of configuration flags.
@@ -39,7 +39,7 @@ typedef enum{
      *
      * Open all config files as read-only.
      */
-    MAKER_DIALOG_CONFIG_FLAG_READONLY=		0x2,
+    MKDG_CONFIG_FLAG_READONLY=		0x2,
 
     /**
      * Latter read value will not override the former.
@@ -52,7 +52,7 @@ typedef enum{
      * Note that this flags changes the behavior of open and save functions.
      * Use this flags with care.
      */
-    MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE=	0x4,
+    MKDG_CONFIG_FLAG_NO_OVERRIDE=	0x4,
 
     /**
      * Do not apply the loaded value.
@@ -62,7 +62,7 @@ typedef enum{
      *
      * This flag stops this behavior.
      */
-    MAKER_DIALOG_CONFIG_FLAG_NO_APPLY=		0x8,
+    MKDG_CONFIG_FLAG_NO_APPLY=		0x8,
 
     /**
      * Stop on error.
@@ -71,23 +71,23 @@ typedef enum{
      *
      * Set this flags to stop on error.
      */
-    MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR=	0x10,
+    MKDG_CONFIG_FLAG_STOP_ON_ERROR=	0x10,
 
     /**
      * Hide the default values in configure file.
      * This flag may be ignored if the configuration back-end does not support
      * it.
      */
-    MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT=	0x20,
+    MKDG_CONFIG_FLAG_HIDE_DEFAULT=	0x20,
 
     /**
      * Hide duplicated values in configure file.
      * This flag may be ignored if the configuration back-end does not support
      * it.
      */
-    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE=	0x40,
+    MKDG_CONFIG_FLAG_HIDE_DUPLICATE=	0x40,
 
-} MAKER_DIALOG_CONFIG_FLAG;
+} MKDG_CONFIG_FLAG;
 
 /**
  * Data structure for configuration flags.
@@ -106,10 +106,10 @@ typedef MkdgFlags MkdgConfigFlags;
  * These flags should be set and used inside the configuration back-end.
  */
 typedef enum{
-    MAKER_DIALOG_CONFIG_FILE_FLAG_HAS_CONTENT=	0x100,	//!< File object has content, so preload functions can proceed.
-    MAKER_DIALOG_CONFIG_FILE_FLAG_BUFFERED=	0x200,	//!< Property is loaded to MakerDialog config buffer.
-    MAKER_DIALOG_CONFIG_FILE_FLAG_CANT_WRITE=	0x400,	//!< File cannot be written.
-} MAKER_DIALOG_CONFIG_FILE_FLAG;
+    MKDG_CONFIG_FILE_FLAG_HAS_CONTENT=	0x100,	//!< File object has content, so preload functions can proceed.
+    MKDG_CONFIG_FILE_FLAG_BUFFERED=	0x200,	//!< Property is loaded to MakerDialog config buffer.
+    MKDG_CONFIG_FILE_FLAG_CANT_WRITE=	0x400,	//!< File cannot be written.
+} MKDG_CONFIG_FILE_FLAG;
 
 /**
  * Data structure for configuration file flags.
@@ -134,5 +134,5 @@ typedef struct _MkdgConfigFile		MkdgConfigFile;
 typedef struct _MkdgConfigFileInterface	MkdgConfigFileInterface;
 
 
-#endif /* MAKER_DIALOG_CONFIG_DEF_H_ */
+#endif /* MKDG_CONFIG_DEF_H_ */
 

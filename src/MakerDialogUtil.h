@@ -23,8 +23,8 @@
  *
  * This file lists the utility functions for general purpose.
  */
-#ifndef MAKER_DIALOG_UTIL_H_
-#define MAKER_DIALOG_UTIL_H_
+#ifndef MKDG_UTIL_H_
+#define MKDG_UTIL_H_
 #include <glib.h>
 #include <glib-object.h>
 /**
@@ -80,7 +80,7 @@ typedef struct{
 /**
  * Environment variable for Mkdg debug.
  */
-#define MAKER_DLALOG_VERBOSE_ENV "MAKER_DIALOG_VERBOSE"
+#define MAKER_DLALOG_VERBOSE_ENV "MKDG_VERBOSE"
 
 /**
  * Flags data structure.
@@ -113,7 +113,7 @@ typedef gint (* MkdgCompareFunc)(gpointer value1, gpointer value2);
  *
  * This function can be used to insert debug logic, such as:
  * @code
- * if (MAKER_DIALOG_DEBUG_RUN(2)){
+ * if (MKDG_DEBUG_RUN(2)){
  *  statement_to_be_run_when_debug_level >=2
  * }
  * @endcode
@@ -121,7 +121,7 @@ typedef gint (* MkdgCompareFunc)(gpointer value1, gpointer value2);
  * @param level		Verbose level of the debug.
  * @return TRUE if \a level <= current verbose level; FALSE otherwise.
  */
-gboolean MAKER_DIALOG_DEBUG_RUN(gint level);
+gboolean MKDG_DEBUG_RUN(gint level);
 
 /**
  * Print debug message.
@@ -130,7 +130,7 @@ gboolean MAKER_DIALOG_DEBUG_RUN(gint level);
  * @param format 	Printf-like format string.
  * @param ... Parameter of format.
  */
-void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...);
+void MKDG_DEBUG_MSG(gint level, const gchar *format, ...);
 
 /**
  * String to boolean.
@@ -145,7 +145,7 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...);
  * @param str 	A string.
  * @return Boolean value represented by the string.
  */
-gboolean maker_dialog_atob(const gchar *str);
+gboolean mkdg_atob(const gchar *str);
 
 /**
  * Enumeration of error code enumeration.
@@ -153,27 +153,27 @@ gboolean maker_dialog_atob(const gchar *str);
  * This enumeration lists all error codes for configuration file operation.
  */
 typedef enum{
-    MAKER_DIALOG_OK=0, 				//!< No error.
-    MAKER_DIALOG_ERROR_CONFIG_ALREADY_EXIST=1, 	//!< File already exists.
-    MAKER_DIALOG_ERROR_CONFIG_CANT_READ,	//!< File cannot be read.
-    MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, 	//!< File cannot be written.
-    MAKER_DIALOG_ERROR_CONFIG_INVALID_FORMAT, 	//!< File format is invalid.
-    MAKER_DIALOG_ERROR_CONFIG_INVALID_KEY, 	//!< Key is invalid (no such key).
-    MAKER_DIALOG_ERROR_CONFIG_INVALID_PAGE, 	//!< Page is invalid (no such page).
-    MAKER_DIALOG_ERROR_CONFIG_INVALID_VALUE, 	//!< Value is invalid.
-    MAKER_DIALOG_ERROR_CONFIG_NO_CONFIG_SET, 	//!< No configuration set is added.
-    MAKER_DIALOG_ERROR_CONFIG_NO_FILE, 		//!< File does not exists.
-    MAKER_DIALOG_ERROR_CONFIG_NOT_FOUND, 	//!< File not found.
-    MAKER_DIALOG_ERROR_CONFIG_NOT_READY, 	//!< Configuration back-end is not ready.
-    MAKER_DIALOG_ERROR_CONFIG_PERMISSION_DENY,	//!< Permission denied; the file permissions do not allow the attempted operation.
-    MAKER_DIALOG_ERROR_CONFIG_OTHER, 		//!< Other error.
-    MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_LIB=50,	//!< Can't load library.
-    MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_SYM,	//!< Can't load such symbol.
-    MAKER_DIALOG_ERROR_SPEC_CANT_READ=100,	//!< Spec file cannot be read.
-    MAKER_DIALOG_ERROR_SPEC_INVALID_FORMAT, 	//!< Spec file format is invalid.
-    MAKER_DIALOG_ERROR_SPEC_INVALID_KEY, 	//!< Spec file is invalid (no such key).
-    MAKER_DIALOG_ERROR_SPEC_INVALID_PAGE, 	//!< Spec file is invalid (no such page).
-    MAKER_DIALOG_ERROR_SPEC_INVALID_VALUE, 	//!< Spec attribute value is invalid.
+    MKDG_OK=0, 				//!< No error.
+    MKDG_ERROR_CONFIG_ALREADY_EXIST=1, 	//!< File already exists.
+    MKDG_ERROR_CONFIG_CANT_READ,	//!< File cannot be read.
+    MKDG_ERROR_CONFIG_CANT_WRITE, 	//!< File cannot be written.
+    MKDG_ERROR_CONFIG_INVALID_FORMAT, 	//!< File format is invalid.
+    MKDG_ERROR_CONFIG_INVALID_KEY, 	//!< Key is invalid (no such key).
+    MKDG_ERROR_CONFIG_INVALID_PAGE, 	//!< Page is invalid (no such page).
+    MKDG_ERROR_CONFIG_INVALID_VALUE, 	//!< Value is invalid.
+    MKDG_ERROR_CONFIG_NO_CONFIG_SET, 	//!< No configuration set is added.
+    MKDG_ERROR_CONFIG_NO_FILE, 		//!< File does not exists.
+    MKDG_ERROR_CONFIG_NOT_FOUND, 	//!< File not found.
+    MKDG_ERROR_CONFIG_NOT_READY, 	//!< Configuration back-end is not ready.
+    MKDG_ERROR_CONFIG_PERMISSION_DENY,	//!< Permission denied; the file permissions do not allow the attempted operation.
+    MKDG_ERROR_CONFIG_OTHER, 		//!< Other error.
+    MKDG_ERROR_LOADER_CANT_LOAD_LIB=50,	//!< Can't load library.
+    MKDG_ERROR_LOADER_CANT_LOAD_SYM,	//!< Can't load such symbol.
+    MKDG_ERROR_SPEC_CANT_READ=100,	//!< Spec file cannot be read.
+    MKDG_ERROR_SPEC_INVALID_FORMAT, 	//!< Spec file format is invalid.
+    MKDG_ERROR_SPEC_INVALID_KEY, 	//!< Spec file is invalid (no such key).
+    MKDG_ERROR_SPEC_INVALID_PAGE, 	//!< Spec file is invalid (no such page).
+    MKDG_ERROR_SPEC_INVALID_VALUE, 	//!< Spec attribute value is invalid.
 } MkdgErrorCode;
 
 /**
@@ -182,7 +182,7 @@ typedef enum{
  * Errors in this domain will be from the ::MkdgErrorCode enumeration.
  * See GError for information on error domains.
  */
-#define MAKER_DIALOG_ERROR maker_dialog_error_quark()
+#define MKDG_ERROR mkdg_error_quark()
 
 /**
  * GQuark of Mkdg domain for error reporting.
@@ -190,7 +190,7 @@ typedef enum{
  * GQuark of Mkdg domain for error reporting.
  * @returns GQuark of Mkdg domain for error reporting.
  */
-GQuark maker_dialog_error_quark (void);
+GQuark mkdg_error_quark (void);
 
 /**
  * New a Mkdg error.
@@ -202,7 +202,7 @@ GQuark maker_dialog_error_quark (void);
  * @return A newly allocated Mkdg error instance.
  * @since 0.3
  */
-MkdgError *maker_dialog_error_new(MkdgErrorCode code, const gchar *formatStr, ...);
+MkdgError *mkdg_error_new(MkdgErrorCode code, const gchar *formatStr, ...);
 
 /**
  * Return corresponding error message, given error code.
@@ -215,7 +215,7 @@ MkdgError *maker_dialog_error_new(MkdgErrorCode code, const gchar *formatStr, ..
  * match any error message.
  * @since 0.3
  */
-const gchar *maker_dialog_get_error_message(MkdgErrorCode code);
+const gchar *mkdg_get_error_message(MkdgErrorCode code);
 
 /**
  * Print a Mkdg configuration error message.
@@ -225,12 +225,12 @@ const gchar *maker_dialog_get_error_message(MkdgErrorCode code);
  * [WW] domain:\<domain\> [\<code\>] \<error message\>, \<extra message\>
  * @endcode
  *
- * To suppress the error message, set environment variable \c MAKER_DIALOG_VERBOSE to a negative number.
+ * To suppress the error message, set environment variable \c MKDG_VERBOSE to a negative number.
  *
  * @param error 	Error to be printed.
  * @since 0.2
  */
-void maker_dialog_error_print(MkdgError *error);
+void mkdg_error_print(MkdgError *error);
 
 /**
  * Handle the error by keeping the latest error and print out the old error.
@@ -252,7 +252,7 @@ void maker_dialog_error_print(MkdgError *error);
  * @return TRUE if error input is not NULL (has error); FALSE otherwise.
  * @since 0.2
  */
-gboolean maker_dialog_error_handle(MkdgError *errIn, MkdgError **errOut);
+gboolean mkdg_error_handle(MkdgError *errIn, MkdgError **errOut);
 
 /**
  * Parse a numerical Id from a string.
@@ -268,7 +268,7 @@ gboolean maker_dialog_error_handle(MkdgError *errIn, MkdgError **errOut);
  * @return Matched intId, or the last intId if none matched.
  * @since 0.3
  */
-gint maker_dialog_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive);
+gint mkdg_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive);
 
 /**
  * Return the associated string Id from a numerical id.
@@ -281,7 +281,7 @@ gint maker_dialog_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean ca
  * @return Associated string Id; or NULL if none matches.
  * @since 0.3
  */
-const gchar *maker_dialog_id_to_string(MkdgIdPair *pairedData, gint intId);
+const gchar *mkdg_id_to_string(MkdgIdPair *pairedData, gint intId);
 
 /**
  * Parse flags from a string.
@@ -295,7 +295,7 @@ const gchar *maker_dialog_id_to_string(MkdgIdPair *pairedData, gint intId);
  * @return Flags value; or 0 if none matched.
  * @since 0.2
  */
-guint32 maker_dialog_flag_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive);
+guint32 mkdg_flag_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive);
 
 /**
  * Return the index of a string in a string list.
@@ -306,7 +306,7 @@ guint32 maker_dialog_flag_parse(MkdgIdPair *pairedData, const gchar *str, gboole
  * @param max_find 	Max strings to find. -1 for find until NULL.
  * @return Index of the string if str is in strlist before max_find; or -1 if on such string.
  */
-gint maker_dialog_find_string(const gchar *str, gchar **strlist, gint max_find);
+gint mkdg_find_string(const gchar *str, gchar **strlist, gint max_find);
 
 /**
  * Whether the string is empty.
@@ -315,7 +315,7 @@ gint maker_dialog_find_string(const gchar *str, gchar **strlist, gint max_find);
  * @param str 	The string to be tested.
  * @return Whether the string is empty.
  */
-gboolean maker_dialog_string_is_empty(const gchar *str);
+gboolean mkdg_string_is_empty(const gchar *str);
 
 /**
  * Splits string on unescaped delimiter characters.
@@ -328,11 +328,11 @@ gboolean maker_dialog_string_is_empty(const gchar *str);
  * The characters right after the escape character are appended to token
  * unconditionally, so delimiters can be escaped this way.
  *
- * For example the result of maker_dialog_string_split_set("abc:;d\;ef:/ghi;", ":;", '\\', FALSE, -1)
+ * For example the result of mkdg_string_split_set("abc:;d\;ef:/ghi;", ":;", '\\', FALSE, -1)
  * is a NULL-terminated vector containing the three strings "abc", "d;ef", and "/ghi".
  * However if \a emptyToken is \c TRUE, then empty string "" will be generated
  * between two adjacent delimiters.
- * So the result of maker_dialog_string_split_set("abc:;d\;ef:/ghi;", ":;", '\\', TRUE, -1)
+ * So the result of mkdg_string_split_set("abc:;d\;ef:/ghi;", ":;", '\\', TRUE, -1)
  * becomes five strings "abc", "", "d;ef", "/ghi", "".
  *
  * This function is aware of UTF-8 encoding,
@@ -347,10 +347,10 @@ gboolean maker_dialog_string_is_empty(const gchar *str);
  * @param emptyToken	Allow empty token.
  * @param maxTokens	The maximum number of tokens to split string into. If this is less than 1, the string is split completely.
  * @return A newly-allocated NULL-terminated array of strings; or NULL if either \a str or \a delimiters is \c NULL.
- * @see maker_dialog_string_combine_with_escape_char()
+ * @see mkdg_string_combine_with_escape_char()
  * @since 0.2
  */
-gchar **maker_dialog_string_split_set
+gchar **mkdg_string_split_set
 (const gchar *str, const gchar *delimiters, gchar escapeChar, gboolean emptyToken, gint maxTokens);
 
 /**
@@ -371,7 +371,7 @@ gchar **maker_dialog_string_split_set
  * @return A newly-allocated string, containing result; or NULL if either \a strList or \a delimiters is \c NULL.
  * @since 0.2
  */
-gchar *maker_dialog_string_list_combine
+gchar *mkdg_string_list_combine
 (gchar **strList, const gchar *delimiters, gchar escapeChar, gboolean emptyToken);
 
 /**
@@ -383,7 +383,7 @@ gchar *maker_dialog_string_list_combine
  * @param specFlags Must-have flags.
  * @return TRUE if \a flagSet  contains ALL the flags specified in \a specFlags; FALSE otherwise.
  */
-gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags);
+gboolean mkdg_has_all_flags(guint flagSet, guint specFlags);
 
 /**
  * Whether the file is writable or can be created.
@@ -395,7 +395,7 @@ gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags);
  * @param filename Filename to be tested.
  * @return TRUE for the file is writable or can be created; FALSE otherwise.
  */
-gboolean maker_dialog_file_isWritable(const gchar *filename);
+gboolean mkdg_file_isWritable(const gchar *filename);
 
 /**
  * Return the canonicalized absolute pathname.
@@ -407,7 +407,7 @@ gboolean maker_dialog_file_isWritable(const gchar *filename);
  * @param resolved_path Buffer for holding the resolved_path.
  * @return resolved path, NULL is the resolution is not sucessful.
  */
-gchar *maker_dialog_truepath(const gchar *path, gchar *resolved_path);
+gchar *mkdg_truepath(const gchar *path, gchar *resolved_path);
 
-#endif /* MAKER_DIALOG_UTIL_H_ */
+#endif /* MKDG_UTIL_H_ */
 

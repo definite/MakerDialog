@@ -67,14 +67,14 @@ gint main (gint argc, gchar *argv[])
 	fprintf(stderr,"Use -s to specify schemasHome!\n");
 	exit (-1);
     }
-    Mkdg *mDialog=maker_dialog_init("Hello World!", NULL);
+    Mkdg *mDialog=mkdg_init("Hello World!", NULL);
     gint i=0;
     for(i=0; propSpecs[i].key!=NULL; i++){
-	maker_dialog_add_property(mDialog,
-		maker_dialog_property_context_new_full( &propSpecs[i], NULL, NULL, NULL));
+	mkdg_add_property(mDialog,
+		mkdg_property_context_new_full( &propSpecs[i], NULL, NULL, NULL));
     }
 
-    if (maker_dialog_config_gconf_write_schemas_file(mDialog, schemasFilename, indentSpace, schemasHome, owner, localeStr, NULL)){
+    if (mkdg_config_gconf_write_schemas_file(mDialog, schemasFilename, indentSpace, schemasHome, owner, localeStr, NULL)){
 	exit(0);
     }
     return 1;

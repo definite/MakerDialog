@@ -6,11 +6,11 @@
 #include "md-example.c"
 
 int main(int argc,char *argv[]){
-    MakerDialog *mDialog=maker_dialog_init("md-example", buttonSpecs);
+    MakerDialog *mDialog=mkdg_init("md-example", buttonSpecs);
     gint i=0;
     for(i=0; propSpecs[i].key!=NULL; i++){
-	maker_dialog_add_property(mDialog,
-		maker_dialog_property_context_new_full( &propSpecs[i], NULL, NULL, applyFunc));
+	mkdg_add_property(mDialog,
+		mkdg_property_context_new_full( &propSpecs[i], NULL, NULL, applyFunc));
     }
 
     /* Configure */
@@ -18,40 +18,40 @@ int main(int argc,char *argv[]){
     const gchar *editingOptions[]={"Editing" , NULL};
     const gchar *keyOptions[]={"Keyboard" , NULL};
 
-    MakerDialogConfig *config=maker_dialog_config_use_key_file(mDialog);
+    MakerDialogConfig *config=mkdg_config_use_key_file(mDialog);
     if (!config){
 	exit(1);
     }
-    MakerDialogConfigSet *dlgCfgSet_editing=maker_dialog_config_set_new_full(editingOptions,
+    MakerDialogConfigSet *dlgCfgSet_editing=mkdg_config_set_new_full(editingOptions,
 	    "md-example-editing.cfg", searchDirs, "md-example-editing.cfg", 2,
-	    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE | MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT,
-	    &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE, NULL);
-    MakerDialogConfigSet *dlgCfgSet_key=maker_dialog_config_set_new_full(keyOptions,
+	    MKDG_CONFIG_FLAG_HIDE_DUPLICATE | MKDG_CONFIG_FLAG_HIDE_DEFAULT,
+	    &MKDG_CONFIG_FILE_INTERFACE_KEY_FILE, NULL);
+    MakerDialogConfigSet *dlgCfgSet_key=mkdg_config_set_new_full(keyOptions,
 	    "md-example-key.cfg", searchDirs, "md-example-key.cfg", 2,
-	    MAKER_DIALOG_CONFIG_FLAG_HIDE_DUPLICATE | MAKER_DIALOG_CONFIG_FLAG_HIDE_DEFAULT,
-	    &MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE, NULL);
-    maker_dialog_config_add_config_set(config, dlgCfgSet_editing, NULL);
-    maker_dialog_config_add_config_set(config, dlgCfgSet_key, NULL);
-    maker_dialog_config_open_all(config, NULL);
-    if (!maker_dialog_config_load_all(config, NULL)){
+	    MKDG_CONFIG_FLAG_HIDE_DUPLICATE | MKDG_CONFIG_FLAG_HIDE_DEFAULT,
+	    &MKDG_CONFIG_FILE_INTERFACE_KEY_FILE, NULL);
+    mkdg_config_add_config_set(config, dlgCfgSet_editing, NULL);
+    mkdg_config_add_config_set(config, dlgCfgSet_key, NULL);
+    mkdg_config_open_all(config, NULL);
+    if (!mkdg_config_load_all(config, NULL)){
 	exit(1);
     }
 
     /* Set UI */
-    MakerDialogUi *ui=maker_dialog_ui_use_gtk(mDialog, &argc, &argv);
+    MakerDialogUi *ui=mkdg_ui_use_gtk(mDialog, &argc, &argv);
     if (!ui){
 	exit(1);
     }
 
-    maker_dialog_ui_construct(ui,NULL,TRUE);
+    mkdg_ui_construct(ui,NULL,TRUE);
     gint ret=0;
     do{
-        ret=maker_dialog_ui_run(ui);
-    }while(ret!=MAKER_DIALOG_RESPONSE_DELETE_EVENT && ret!=MAKER_DIALOG_RESPONSE_CLOSE);
+        ret=mkdg_ui_run(ui);
+    }while(ret!=MKDG_RESPONSE_DELETE_EVENT && ret!=MKDG_RESPONSE_CLOSE);
 
-    maker_dialog_config_save_all(config, NULL);
-    maker_dialog_config_close_all(config, NULL);
-    maker_dialog_destroy(mDialog);
+    mkdg_config_save_all(config, NULL);
+    mkdg_config_close_all(config, NULL);
+    mkdg_destroy(mDialog);
     exit(0);
 }
 

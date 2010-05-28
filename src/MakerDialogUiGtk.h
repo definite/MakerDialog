@@ -23,8 +23,8 @@
  *
  * This module implements the UI interface to bridge between Gtk and Mkdg.
  */
-#ifndef MAKER_DIALOG_UI_GTK_H_
-#define MAKER_DIALOG_UI_GTK_H_
+#ifndef MKDG_UI_GTK_H_
+#define MKDG_UI_GTK_H_
 #include <glib.h>
 #include <glib-object.h>
 #include "gtk/maker-dialog-gtk.h"
@@ -32,7 +32,7 @@
 /**
  * Use Gtk as UI front-end.
  *
- * It calls maker_dialog_ui_init() and gtk_init_check(),
+ * It calls mkdg_ui_init() and gtk_init_check(),
  * so no need to initialize gtk again.
  *
  * @param mDialog A MakeDialog.
@@ -40,7 +40,7 @@
  * @param argv Pointer to arguments from command-line.
  * @return A newly allocated MkdgUi instance; NULL if failed.
  */
-MkdgUi *maker_dialog_ui_use_gtk(Mkdg *mDialog, gint *argc, gchar ***argv);
+MkdgUi *mkdg_ui_use_gtk(Mkdg *mDialog, gint *argc, gchar ***argv);
 
-#endif /* MAKER_DIALOG_UI_GTK_H_ */
+#endif /* MKDG_UI_GTK_H_ */
 

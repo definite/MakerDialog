@@ -23,8 +23,8 @@
  *
  * This module implements the UI interface to bridge between GConf back-end and Mkdg.
  */
-#ifndef MAKER_DIALOG_CONFIG_G_CONF_H_
-#define MAKER_DIALOG_CONFIG_G_CONF_H_
+#ifndef MKDG_CONFIG_G_CONF_H_
+#define MKDG_CONFIG_G_CONF_H_
 #include <glib.h>
 #include <glib-object.h>
 #include "MkdgConfig.h"
@@ -34,7 +34,7 @@
  *
  * The configure file interface for GConf.
  */
-extern MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF;
+extern MkdgConfigFileInterface MKDG_CONFIG_FILE_INTERFACE_GCONF;
 
 /**
  * New a MkdgConfig which use glib GConf back-end.
@@ -43,13 +43,13 @@ extern MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF;
  * which use glib GConf back-end.
  *
  * During construction, the new MkdgConfig is associated to the \a mDialog.
- * Thus, maker_dialog_destroy() can free the associated MkdgConfig as well.
+ * Thus, mkdg_destroy() can free the associated MkdgConfig as well.
  *
  * @param mDialog 	A Mkdg.
  * @return A newly allocated MkdgConfig with glib GConf back-end.
- * @see maker_dialog_config_new().
+ * @see mkdg_config_new().
  */
-MkdgConfig *maker_dialog_config_use_gconf(Mkdg *mDialog);
+MkdgConfig *mkdg_config_use_gconf(Mkdg *mDialog);
 
 /**
  * Output the property as a GConf schemes file.
@@ -66,8 +66,8 @@ MkdgConfig *maker_dialog_config_use_gconf(Mkdg *mDialog);
  *
  * Output the parameters as GConf schemes file.
  */
-gboolean maker_dialog_config_gconf_write_schemas_file
+gboolean mkdg_config_gconf_write_schemas_file
 (Mkdg *mDialog, const gchar *filename, gint indentSpace, const gchar *schemasHome, const gchar *owner, const gchar *locales, GError **error);
 
-#endif /* MAKER_DIALOG_CONFIG_G_CONF_H_ */
+#endif /* MKDG_CONFIG_G_CONF_H_ */
 

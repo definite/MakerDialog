@@ -25,8 +25,8 @@
  *
  * @since 0.3
  */
-#ifndef MAKER_DIALOG_MODULE_H_
-#define MAKER_DIALOG_MODULE_H_
+#ifndef MKDG_MODULE_H_
+#define MKDG_MODULE_H_
 #include "Mkdg.h"
 
 typedef gboolean (* MkdgModuleInitFunc)(Mkdg *mDialog);
@@ -39,22 +39,22 @@ typedef gboolean (* MkdgModuleInitFunc)(Mkdg *mDialog);
  * @since 0.3
  */
 typedef enum{
-    MAKER_DIALOG_MODULE_INVALID=-1,	//!< Invalid module.
-    MAKER_DIALOG_MODULE_GCONF2,		//!< GConf2 module for configuration interface.
-    MAKER_DIALOG_MODULE_GKEYFILE,	//!< GKeyFile module for configuration interface.
-    MAKER_DIALOG_MODULE_GTK2,		//!< Gtk2 module for UI interface.
-} MAKER_DIALOG_MODULE;
+    MKDG_MODULE_INVALID=-1,	//!< Invalid module.
+    MKDG_MODULE_GCONF2,		//!< GConf2 module for configuration interface.
+    MKDG_MODULE_GKEYFILE,	//!< GKeyFile module for configuration interface.
+    MKDG_MODULE_GTK2,		//!< Gtk2 module for UI interface.
+} MKDG_MODULE;
 
 /**
  * Parse module name from a string.
  *
  * This function parses module name from a string.
  * @param moduleName The module name to be parsed.
- * @return Corresponding module; or \c MAKER_DIALOG_MODULE_INVALID if none
+ * @return Corresponding module; or \c MKDG_MODULE_INVALID if none
  * matched.
  * @since 0.3
  */
-MAKER_DIALOG_MODULE maker_dialog_module_parse(const gchar *moduleName);
+MKDG_MODULE mkdg_module_parse(const gchar *moduleName);
 
 /**
  * Load a Mkdg module.
@@ -66,6 +66,6 @@ MAKER_DIALOG_MODULE maker_dialog_module_parse(const gchar *moduleName);
  * @return \c TRUE if the module is loaded successfully, \c FALSE otherwise.
  * @since 0.3
  */
-gboolean maker_dialog_module_load(Mkdg *mDialog, MAKER_DIALOG_MODULE module, MkdgError **error);
+gboolean mkdg_module_load(Mkdg *mDialog, MKDG_MODULE module, MkdgError **error);
 
-#endif /* MAKER_DIALOG_MODULE_H_ */
+#endif /* MKDG_MODULE_H_ */

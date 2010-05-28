@@ -27,8 +27,8 @@
  * there are some extra types like MKDG_TYPE_COLOR,
  * which is useful for dialogs but not included in GType.
  */
-#ifndef MAKER_DIALOG_TYPES_H_
-#define MAKER_DIALOG_TYPES_H_
+#ifndef MKDG_TYPES_H_
+#define MKDG_TYPES_H_
 #include <glib.h>
 #include <glib-object.h>
 #include "MakerDialogUtil.h"
@@ -102,7 +102,7 @@ typedef struct{
  * - set(): Set a value to MkdgValue.
  * - from_string() : parse value from string.
  * - to_string(): output value as a string.
- * - compare(): compare 2 values. See maker_dialog_value_compare() for details of return values.
+ * - compare(): compare 2 values. See mkdg_value_compare() for details of return values.
  */
 typedef struct{
     /**
@@ -184,7 +184,7 @@ typedef struct{
      * @retval -1 if \a value1 \< \a value2.
      * @retval 0 if \a value1 = \a value2.
      * @retval 1 if \a value1 \> \a value2.
-     * @see maker_dialog_value_compare()
+     * @see mkdg_value_compare()
      */
     gint (* compare) (MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption);
 
@@ -209,7 +209,7 @@ typedef struct{
  * @param str		String to be parsed.
  * @return Corresponding MakerDialog type.
  */
-MkdgType maker_dialog_type_parse(const gchar *str);
+MkdgType mkdg_type_parse(const gchar *str);
 
 /**
  * Output a MakerDialog type as a string.
@@ -218,7 +218,7 @@ MkdgType maker_dialog_type_parse(const gchar *str);
  * @param mType		A MakerDialog type.
  * @return A static string that represents the MakerDialog type.
  */
-const gchar *maker_dialog_type_to_string(MkdgType mType);
+const gchar *mkdg_type_to_string(MkdgType mType);
 
 /**
  * New a MakerDialog value.
@@ -228,7 +228,7 @@ const gchar *maker_dialog_type_to_string(MkdgType mType);
  * @param setValue	Value to be set. \c NULL for default value of each type.
  * @return A newly allocated MakerDialog value instance.
  */
-MkdgValue *maker_dialog_value_new(MkdgType mType, gpointer setValue);
+MkdgValue *mkdg_value_new(MkdgType mType, gpointer setValue);
 
 /**
  * New a MakerDialog value from a static content.
@@ -240,7 +240,7 @@ MkdgValue *maker_dialog_value_new(MkdgType mType, gpointer setValue);
  * @param setValue	Value to be set. \c NULL for default value of each type.
  * @return A newly allocated MakerDialog value instance.
  */
-MkdgValue *maker_dialog_value_new_static(MkdgType mType, gpointer setValue);
+MkdgValue *mkdg_value_new_static(MkdgType mType, gpointer setValue);
 
 /**
  * Copy a MakerDialog value to another.
@@ -252,7 +252,7 @@ MkdgValue *maker_dialog_value_new_static(MkdgType mType, gpointer setValue);
  * @param destValue	A MakerDialog value to be copied to.
  * @return \c TRUE if succeed; \c FALSE if types of these values are not identical.
  */
-gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue);
+gboolean mkdg_value_copy(MkdgValue *srcValue, MkdgValue *destValue);
 
 /**
  * Extract the content of a MkdgValue to an appointed pointer.
@@ -262,12 +262,12 @@ gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue);
  * a MKDG_TYPE_INT type MkdgValue.
  * @code
  * int i;
- * maker_dialog_value_extract(mValue, &i);
+ * mkdg_value_extract(mValue, &i);
  * @endcode
  * and for string (MKDG_TYPE_STRING) type:
  * @code
  * char *s;
- * maker_dialog_value_extract(mValue, &s);
+ * mkdg_value_extract(mValue, &s);
  * @endcode
  *
  * @note
@@ -278,7 +278,7 @@ gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue);
  * @param ptr		The appointed pointer.
  * @since 0.3
  */
-void maker_dialog_value_extract(MkdgValue *mValue, gpointer ptr);
+void mkdg_value_extract(MkdgValue *mValue, gpointer ptr);
 
 /**
  * Set a MakerDialog value.
@@ -287,7 +287,7 @@ void maker_dialog_value_extract(MkdgValue *mValue, gpointer ptr);
  * @param mValue	A MakerDialog value.
  * @param setValue	Value to be set. \c NULL for default value of each type.
  */
-void maker_dialog_value_set(MkdgValue *mValue, gpointer setValue);
+void mkdg_value_set(MkdgValue *mValue, gpointer setValue);
 
 /**
  * Free a MakerDialog value.
@@ -295,7 +295,7 @@ void maker_dialog_value_set(MkdgValue *mValue, gpointer setValue);
  * Free a MakerDialog value.
  * @param mValue	The MakerDialog value to be freed.
  */
-void maker_dialog_value_free(gpointer mValue);
+void mkdg_value_free(gpointer mValue);
 
 /**
  * Whether a MakerDialog type is a pointer type.
@@ -303,9 +303,9 @@ void maker_dialog_value_free(gpointer mValue);
  * Whether a MakerDialog type is a pointer type such as #MKDG_TYPE_STRING.
  * @param mType		A MakerDialog type.
  * @return TRUE if the type is a numeric type; FALSE otherwise.
- * @see maker_dialog_value_get_double().
+ * @see mkdg_value_get_double().
  */
-gboolean maker_dialog_type_is_pointer(MkdgType mType);
+gboolean mkdg_type_is_pointer(MkdgType mType);
 
 /**
  * Whether a MakerDialog type is a numeric type.
@@ -315,9 +315,9 @@ gboolean maker_dialog_type_is_pointer(MkdgType mType);
  * since it stores number.
  * @param mType		A MakerDialog type.
  * @return TRUE if the type is a numbe holds number; FALSE otherwise.
- * @see maker_dialog_value_to_double().
+ * @see mkdg_value_to_double().
  */
-gboolean maker_dialog_type_is_number(MkdgType mType);
+gboolean mkdg_type_is_number(MkdgType mType);
 
 /**
  * Set the content of MakerDialog value from a double.
@@ -327,9 +327,9 @@ gboolean maker_dialog_type_is_number(MkdgType mType);
  *
  * @param value		A Mkdg value.
  * @param number	Number to set.
- * @see maker_dialog_value_to_double()
+ * @see mkdg_value_to_double()
  */
-void maker_dialog_value_from_double(MkdgValue *value, gdouble number);
+void mkdg_value_from_double(MkdgValue *value, gdouble number);
 
 /**
  * Output a MakerDialog value as a double.
@@ -337,14 +337,14 @@ void maker_dialog_value_from_double(MkdgValue *value, gdouble number);
  * This function gets a double from a numeric MakerDialog Value.
  * It returns \c 0.0 if the value is non-numeric.
  * If that is undesirable,
- * use maker_dialog_type_is_number() to check before using this function.
+ * use mkdg_type_is_number() to check before using this function.
  *
  * @param value	A MakerDialog value.
  * @return A double that represent the value, or 0.0 for non-numeric type.
- * @see maker_dialog_type_is_number().
- * @see maker_dialog_value_from_double()
+ * @see mkdg_type_is_number().
+ * @see mkdg_value_from_double()
  */
-gdouble maker_dialog_value_to_double(MkdgValue *value);
+gdouble mkdg_value_to_double(MkdgValue *value);
 
 /**
  * Set the content of MakerDialog value from a given string.
@@ -367,9 +367,9 @@ gdouble maker_dialog_value_to_double(MkdgValue *value);
  * @param str 		The string to be converted from.
  * @param parseOption	Additional parse control. Can be \c NULL.
  * @return The argument \a mValue if setting is successful; or \c NULL if type is not supported.
- * @see maker_dialog_value_to_string()
+ * @see mkdg_value_to_string()
  */
-MkdgValue *maker_dialog_value_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption);
+MkdgValue *mkdg_value_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption);
 
 /**
  * Output a MakerDialog value to a string.
@@ -383,9 +383,9 @@ MkdgValue *maker_dialog_value_from_string(MkdgValue *mValue, const gchar *str, c
  * @param mValue		A MakerDialog value.
  * @param toStringFormat	Custom printf()-like format string. Pass \c NULL for using default format for that type.
  * @return The string representation of value; or \c NULL if the type is not supported.
- * @see maker_dialog_value_from_string()
+ * @see mkdg_value_from_string()
  */
-gchar *maker_dialog_value_to_string(MkdgValue *mValue, const gchar *toStringFormat);
+gchar *mkdg_value_to_string(MkdgValue *mValue, const gchar *toStringFormat);
 
 /**
  * Convert a string to a given format.
@@ -397,7 +397,7 @@ gchar *maker_dialog_value_to_string(MkdgValue *mValue, const gchar *toStringForm
  * @param toStringFormat	Custom printf()-like format string. Pass \c NULL for using default format for that type.
  * @return A newly allocated converted string as result.
  */
-gchar *maker_dialog_string_convert(const gchar *str, MkdgType mType, const gchar *parseOption, const gchar *toStringFormat);
+gchar *mkdg_string_convert(const gchar *str, MkdgType mType, const gchar *parseOption, const gchar *toStringFormat);
 
 /**
  * Return a normalized string-representation.
@@ -410,7 +410,7 @@ gchar *maker_dialog_string_convert(const gchar *str, MkdgType mType, const gchar
  * @param mType	Type that \a str to be parsed as.
  * @return A newly allocated string which stores normalized result.
  */
-gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType);
+gchar *mkdg_string_normalized(const gchar *str, MkdgType mType);
 
 /**
  * Compare value of two MakerDialog values.
@@ -443,7 +443,7 @@ gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType);
  * @retval 0 if \a mValue1 = \a mValue2.
  * @retval 1 if \a mValue1 \> \a mValue2.
  */
-gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption);
+gint mkdg_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption);
 
 /**
  * Compare value of two MakerDialog values.
@@ -480,9 +480,9 @@ gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gc
  * @retval -1 if \a mValue1 \< \a mValue2.
  * @retval 0 if \a mValue1 = \a mValue2.
  * @retval 1 if \a mValue1 \> \a mValue2.
- * @see maker_dialog_value_compare()
+ * @see mkdg_value_compare()
  */
-gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2, MkdgCompareFunc compFunc);
+gint mkdg_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2, MkdgCompareFunc compFunc);
 
 /**
  * Get a pointer value from a MakerDialog value.
@@ -491,7 +491,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The pointer value.
  */
-#define maker_dialog_value_get_pointer(mValue)		mValue->data[0].v_pointer
+#define mkdg_value_get_pointer(mValue)		mValue->data[0].v_pointer
 
 /**
  * Set a pointer value to a MakerDialog value.
@@ -500,7 +500,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_pointer(mValue, setValue)	mValue->data[0].v_pointer = setValue
+#define mkdg_value_set_pointer(mValue, setValue)	mValue->data[0].v_pointer = setValue
 
 /**
  * Get a boolean value from a MakerDialog value.
@@ -509,7 +509,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The boolean value.
  */
-#define maker_dialog_value_get_boolean(mValue)		mValue->data[0].v_boolean
+#define mkdg_value_get_boolean(mValue)		mValue->data[0].v_boolean
 
 /**
  * Set a boolean value to a MakerDialog value.
@@ -518,7 +518,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_boolean(mValue, setValue)	mValue->data[0].v_boolean = setValue
+#define mkdg_value_set_boolean(mValue, setValue)	mValue->data[0].v_boolean = setValue
 
 /**
  * Get an integer value from a MakerDialog value.
@@ -527,7 +527,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The integer value.
  */
-#define maker_dialog_value_get_int(mValue) 		mValue->data[0].v_int
+#define mkdg_value_get_int(mValue) 		mValue->data[0].v_int
 
 /**
  * Set an integer value to a MakerDialog value.
@@ -536,7 +536,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_int(mValue, setValue)	mValue->data[0].v_int = setValue
+#define mkdg_value_set_int(mValue, setValue)	mValue->data[0].v_int = setValue
 
 /**
  * Get an unsigned integer value from a MakerDialog value.
@@ -545,7 +545,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The integer value.
  */
-#define maker_dialog_value_get_uint(mValue) 		mValue->data[0].v_uint
+#define mkdg_value_get_uint(mValue) 		mValue->data[0].v_uint
 
 /**
  * Set an unsigned integer value to a MakerDialog value.
@@ -554,7 +554,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_uint(mValue, setValue)	mValue->data[0].v_uint = setValue
+#define mkdg_value_set_uint(mValue, setValue)	mValue->data[0].v_uint = setValue
 
 
 /**
@@ -564,7 +564,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The integer value.
  */
-#define maker_dialog_value_get_int32(mValue) 		mValue->data[0].v_int32
+#define mkdg_value_get_int32(mValue) 		mValue->data[0].v_int32
 
 /**
  * Set a 32-bit integer value to a MakerDialog value.
@@ -573,7 +573,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_int32(mValue, setValue)	mValue->data[0].v_int32 = setValue
+#define mkdg_value_set_int32(mValue, setValue)	mValue->data[0].v_int32 = setValue
 
 /**
  * Get a 32-bit unsigned integer value from a MakerDialog value.
@@ -582,7 +582,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The integer value.
  */
-#define maker_dialog_value_get_uint32(mValue) 		mValue->data[0].v_uint32
+#define mkdg_value_get_uint32(mValue) 		mValue->data[0].v_uint32
 
 /**
  * Set a 32-bit unsigned integer value to a MakerDialog value.
@@ -591,7 +591,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_uint32(mValue, setValue)	mValue->data[0].v_uint32 = setValue
+#define mkdg_value_set_uint32(mValue, setValue)	mValue->data[0].v_uint32 = setValue
 
 /**
  * Get a 64-bit integer value from a MakerDialog value.
@@ -600,7 +600,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The integer value.
  */
-#define maker_dialog_value_get_int64(mValue) 		mValue->data[0].v_int64
+#define mkdg_value_get_int64(mValue) 		mValue->data[0].v_int64
 
 /**
  * Set a 64-bit integer value to a MakerDialog value.
@@ -609,7 +609,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_int64(mValue, setValue)	mValue->data[0].v_int64 = setValue
+#define mkdg_value_set_int64(mValue, setValue)	mValue->data[0].v_int64 = setValue
 
 /**
  * Get a 64-bit unsigned integer value from a MakerDialog value.
@@ -618,7 +618,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The integer value.
  */
-#define maker_dialog_value_get_uint64(mValue) 		mValue->data[0].v_uint64
+#define mkdg_value_get_uint64(mValue) 		mValue->data[0].v_uint64
 
 /**
  * Set a 64-bit unsigned integer value to a MakerDialog value.
@@ -627,7 +627,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_uint64(mValue, setValue)	mValue->data[0].v_uint64 = setValue
+#define mkdg_value_set_uint64(mValue, setValue)	mValue->data[0].v_uint64 = setValue
 
 /**
  * Get a long integer value from a MakerDialog value.
@@ -636,7 +636,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The long integer value.
  */
-#define maker_dialog_value_get_long(mValue) 		mValue->data[0].v_long
+#define mkdg_value_get_long(mValue) 		mValue->data[0].v_long
 
 /**
  * Set a long integer value to a MakerDialog value.
@@ -645,7 +645,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_long(mValue, setValue)	mValue->data[0].v_long = setValue
+#define mkdg_value_set_long(mValue, setValue)	mValue->data[0].v_long = setValue
 
 /**
  * Get an unsigned long integer value from a MakerDialog value.
@@ -654,7 +654,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return The unsigned long integer value.
  */
-#define maker_dialog_value_get_ulong(mValue) 		mValue->data[0].v_ulong
+#define mkdg_value_get_ulong(mValue) 		mValue->data[0].v_ulong
 
 /**
  * Set an unsigned long integer value to a MakerDialog value.
@@ -663,7 +663,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_ulong(mValue, setValue)	mValue->data[0].v_ulong = setValue
+#define mkdg_value_set_ulong(mValue, setValue)	mValue->data[0].v_ulong = setValue
 
 /**
  * Get a floating-point value from a MakerDialog value.
@@ -672,7 +672,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return the floating-point value.
  */
-#define maker_dialog_value_get_float(mValue) 		mValue->data[0].v_float
+#define mkdg_value_get_float(mValue) 		mValue->data[0].v_float
 
 /**
  * Set a floating-point value to a MakerDialog value.
@@ -681,7 +681,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_float(mValue, setValue)	mValue->data[0].v_float = setValue
+#define mkdg_value_set_float(mValue, setValue)	mValue->data[0].v_float = setValue
 
 /**
  * Get a double precision floating-point value from a MakerDialog value.
@@ -690,7 +690,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return the double precision floating-point value.
  */
-#define maker_dialog_value_get_double(mValue) 		mValue->data[0].v_double
+#define mkdg_value_get_double(mValue) 		mValue->data[0].v_double
 
 /**
  * Set a double precision floating-point value to a MakerDialog value.
@@ -699,7 +699,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_double(mValue, setValue)	mValue->data[0].v_double = setValue
+#define mkdg_value_set_double(mValue, setValue)	mValue->data[0].v_double = setValue
 
 /**
  * Get a string value from a MakerDialog value.
@@ -708,7 +708,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return the string value.
  */
-#define maker_dialog_value_get_string(mValue) 		mValue->data[0].v_string
+#define mkdg_value_get_string(mValue) 		mValue->data[0].v_string
 
 /**
  * Set a string value to a MakerDialog value.
@@ -717,7 +717,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_string(mValue, setValue)	mValue->data[0].v_string = setValue
+#define mkdg_value_set_string(mValue, setValue)	mValue->data[0].v_string = setValue
 
 /**
  * Get a string list value from a MakerDialog value.
@@ -726,7 +726,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return the string list value.
  */
-#define maker_dialog_value_get_string_list(mValue) 	mValue->data[0].v_string_list
+#define mkdg_value_get_string_list(mValue) 	mValue->data[0].v_string_list
 
 /**
  * Set a string list value to a MakerDialog value.
@@ -735,7 +735,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_string_list(mValue, setValue)	mValue->data[0].v_string_list = setValue
+#define mkdg_value_set_string_list(mValue, setValue)	mValue->data[0].v_string_list = setValue
 
 /**
  * Get a color value from a MakerDialog value.
@@ -744,7 +744,7 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @return the color value.
  */
-#define maker_dialog_value_get_color(mValue) 		mValue->data[0].v_uint32
+#define mkdg_value_get_color(mValue) 		mValue->data[0].v_uint32
 
 /**
  * Set a color value to a MakerDialog value.
@@ -753,6 +753,6 @@ gint maker_dialog_value_compare_with_func(MkdgValue *mValue1, MkdgValue *mValue2
  * @param mValue A MakerDailog value.
  * @param setValue The value to be set.
  */
-#define maker_dialog_value_set_color(mValue, setValue)	mValue->data[0].v_uint32 = setValue
+#define mkdg_value_set_color(mValue, setValue)	mValue->data[0].v_uint32 = setValue
 
-#endif /* MAKER_DIALOG_TYPES_H_ */
+#endif /* MKDG_TYPES_H_ */

@@ -81,8 +81,8 @@
  * with the same name; they are merged together. Another difference is that keys and group names
  * in key files are not restricted to ASCII characters.
  */
-#ifndef MAKER_DIALOG_CONFIG_KEY_FILE_H_
-#define MAKER_DIALOG_CONFIG_KEY_FILE_H_
+#ifndef MKDG_CONFIG_KEY_FILE_H_
+#define MKDG_CONFIG_KEY_FILE_H_
 #include <glib.h>
 #include <glib-object.h>
 #include "MkdgConfig.h"
@@ -92,7 +92,7 @@
  *
  * The configure file interface for GKeyFile.
  */
-extern MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE;
+extern MkdgConfigFileInterface MKDG_CONFIG_FILE_INTERFACE_KEY_FILE;
 
 /**
  * New a MkdgConfig which use glib GKeyFile back-end.
@@ -101,12 +101,12 @@ extern MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_KEY_FILE;
  * which use glib GKeyFile back-end.
  *
  * During construction, the new MkdgConfig is associated to the \a mDialog.
- * Thus, maker_dialog_destroy() can free the associated MkdgConfig as well.
+ * Thus, mkdg_destroy() can free the associated MkdgConfig as well.
  *
  * @param mDialog 	A Mkdg.
  * @return A newly allocated MkdgConfig with glib GKeyFile back-end.
- * @see maker_dialog_config_new().
+ * @see mkdg_config_new().
  */
-MkdgConfig *maker_dialog_config_use_key_file(Mkdg *mDialog);
+MkdgConfig *mkdg_config_use_key_file(Mkdg *mDialog);
 
-#endif /* MAKER_DIALOG_CONFIG_KEY_FILE_H_ */
+#endif /* MKDG_CONFIG_KEY_FILE_H_ */

@@ -24,8 +24,8 @@
 #include "Mkdg.h"
 
 
-MkdgConfigSet *maker_dialog_config_set_new(){
-    MkdgConfigSet *configSet=maker_dialog_config_set_new_full(NULL,
+MkdgConfigSet *mkdg_config_set_new(){
+    MkdgConfigSet *configSet=mkdg_config_set_new_full(NULL,
 	    NULL, NULL,
 	    NULL, -1,
 	    0, NULL, NULL);
@@ -33,7 +33,7 @@ MkdgConfigSet *maker_dialog_config_set_new(){
     return configSet;
 }
 
-MkdgConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
+MkdgConfigSet *mkdg_config_set_new_full(const gchar **pageNames,
 	const gchar *filePattern, const gchar **searchDirs,
 	const gchar *defaultFilename, gint maxFileCount,
 	MkdgConfigFlags flags, MkdgConfigFileInterface *configInterface,
@@ -49,22 +49,22 @@ MkdgConfigSet *maker_dialog_config_set_new_full(const gchar **pageNames,
     configSet->fileArray=g_ptr_array_new();
     configSet->configInterface=configInterface;
     configSet->userData=userData;
-    configSet->status= MAKER_DIALOG_CONFIG_SET_STATUS_HAS_LOCAL_SETTING;
+    configSet->status= MKDG_CONFIG_SET_STATUS_HAS_LOCAL_SETTING;
     return configSet;
 }
 
-static void maker_dialog_config_set_free_config_file(gpointer data, gpointer userData){
-    maker_dialog_config_file_free((MkdgConfigFile *) data);
+static void mkdg_config_set_free_config_file(gpointer data, gpointer userData){
+    mkdg_config_file_free((MkdgConfigFile *) data);
 }
 
-void maker_dialog_config_set_free(MkdgConfigSet *configSet){
-    g_ptr_array_foreach(configSet->fileArray,maker_dialog_config_set_free_config_file, NULL);
+void mkdg_config_set_free(MkdgConfigSet *configSet){
+    g_ptr_array_foreach(configSet->fileArray,mkdg_config_set_free_config_file, NULL);
     g_ptr_array_free(configSet->fileArray,TRUE);
     configSet->configInterface->config_set_finalize(configSet);
     g_free(configSet);
 }
 
-gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgError **error){
+gboolean mkdg_config_set_prepare_files(MkdgConfigSet *configSet, MkdgError **error){
     g_assert(configSet->filePattern);
     GPatternSpec* pSpec=g_pattern_spec_new (configSet->filePattern);
     GDir *currDir=NULL;
@@ -76,9 +76,9 @@ gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgErr
     const gchar *currentDirs[]={".", NULL};
     const gchar **searchDirs=(configSet->searchDirs)? configSet->searchDirs: currentDirs;
     for(i=0;searchDirs[i]!=NULL;i++){
-	MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_set_prepare_files(), searchDir=%s", searchDirs[i]);
+	MKDG_DEBUG_MSG(5, "[I5] config_set_prepare_files(), searchDir=%s", searchDirs[i]);
 	currDir=g_dir_open(searchDirs[i], 0, &cfgErr);
-	if (maker_dialog_error_handle(cfgErr, error)){
+	if (mkdg_error_handle(cfgErr, error)){
 	    continue;
 	}
 	if (!currDir)
@@ -86,19 +86,19 @@ gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgErr
 	while((currName=(gchar *) g_dir_read_name(currDir))!=NULL){
 	    if (g_pattern_match(pSpec,strlen(currName),currName,NULL)){
 		currPath=g_build_filename(searchDirs[i], currName, NULL);
-		MAKER_DIALOG_DEBUG_MSG(6, "[I6] config_set_prepare_files(), currPath=%s",  currPath);
+		MKDG_DEBUG_MSG(6, "[I6] config_set_prepare_files(), currPath=%s",  currPath);
 		if (g_access(currPath, R_OK)==0){
-		    if (!(configSet->flags & MAKER_DIALOG_CONFIG_FLAG_READONLY)){
+		    if (!(configSet->flags & MKDG_CONFIG_FLAG_READONLY)){
 			if (g_access(currPath, W_OK)==0){
-			    if (!(configSet->flags & MAKER_DIALOG_CONFIG_FLAG_NO_OVERRIDE)){
+			    if (!(configSet->flags & MKDG_CONFIG_FLAG_NO_OVERRIDE)){
 				configSet->writeIndex=counter;
 			    }else if (configSet->writeIndex < 0){
 				configSet->writeIndex=counter;
 			    }
 			}
 		    }
-		    MAKER_DIALOG_DEBUG_MSG(6, "[I6] config_set_prepare_files(), writeIndex=%d", configSet->writeIndex );
-		    MkdgConfigFile *configFile=maker_dialog_config_file_new(currPath, configSet);
+		    MKDG_DEBUG_MSG(6, "[I6] config_set_prepare_files(), writeIndex=%d", configSet->writeIndex );
+		    MkdgConfigFile *configFile=mkdg_config_file_new(currPath, configSet);
 		    g_ptr_array_add(configSet->fileArray, configFile);
 		    counter++;
 		    g_free(currPath);
@@ -115,7 +115,7 @@ gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgErr
 
     /* Whether to add writable file */
     if (configSet->writeIndex<0
-	    && !(configSet->flags & MAKER_DIALOG_CONFIG_FLAG_READONLY)
+	    && !(configSet->flags & MKDG_CONFIG_FLAG_READONLY)
 	    && (configSet->maxFileCount<0 || configSet->maxFileCount>counter)){
 	for(i=0;searchDirs[i]!=NULL;i++){
 	    if (g_access(searchDirs[i],F_OK)!=0){
@@ -128,7 +128,7 @@ gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgErr
 		continue;
 	    }
 	    /* Ready to write */
-	    MkdgConfigFile *configFile=maker_dialog_config_file_new(
+	    MkdgConfigFile *configFile=mkdg_config_file_new(
 		    g_build_filename(searchDirs[i], configSet->defaultFilename, NULL), configSet);
 	    g_ptr_array_add(configSet->fileArray, configFile);
 	    configSet->writeIndex=counter;
@@ -137,19 +137,19 @@ gboolean maker_dialog_config_set_prepare_files(MkdgConfigSet *configSet, MkdgErr
     }
 
     if (counter==0){
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_READ,"config_set_prepare_files()");
-	maker_dialog_error_handle(cfgErr, error);
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_CANT_READ,"config_set_prepare_files()");
+	mkdg_error_handle(cfgErr, error);
 	return FALSE;
     }
-    if (configSet->writeIndex<0 && !(configSet->flags & MAKER_DIALOG_CONFIG_FLAG_READONLY)){
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE,"config_set_prepare_files()");
-	maker_dialog_error_handle(cfgErr, error);
+    if (configSet->writeIndex<0 && !(configSet->flags & MKDG_CONFIG_FLAG_READONLY)){
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_CANT_WRITE,"config_set_prepare_files()");
+	mkdg_error_handle(cfgErr, error);
 	return FALSE;
     }
     return TRUE;
 }
 
-gboolean maker_dialog_config_set_foreach_page(MkdgConfigSet *configSet,
+gboolean mkdg_config_set_foreach_page(MkdgConfigSet *configSet,
 	MkdgConfigSetEachPageFunc func,  gpointer userData, MkdgError **error){
     gboolean clean=TRUE;
     MkdgError *cfgErr=NULL;
@@ -162,8 +162,8 @@ gboolean maker_dialog_config_set_foreach_page(MkdgConfigSet *configSet,
 	    ret=func(configSet,page, userData, &cfgErr);
 	    if (!ret){
 		clean=FALSE;
-		maker_dialog_error_handle(cfgErr, error);
-		if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
+		mkdg_error_handle(cfgErr, error);
+		if (configSet->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR){
 		    return FALSE;
 		}
 	    }
@@ -176,8 +176,8 @@ gboolean maker_dialog_config_set_foreach_page(MkdgConfigSet *configSet,
 	    ret=func(configSet,page, userData, &cfgErr);
 	    if (!ret){
 		clean=FALSE;
-		maker_dialog_error_handle(cfgErr, error);
-		if (configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
+		mkdg_error_handle(cfgErr, error);
+		if (configSet->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR){
 		    return clean;
 		}
 	    }

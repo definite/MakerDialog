@@ -25,16 +25,16 @@
 #include <locale.h>
 #include "Mkdg.h"
 
-MkdgPropertySpec *maker_dialog_property_spec_new(const gchar *key, MkdgType valueType){
-    return maker_dialog_property_spec_new_full(key, valueType,
+MkdgPropertySpec *mkdg_property_spec_new(const gchar *key, MkdgType valueType){
+    return mkdg_property_spec_new_full(key, valueType,
 	    NULL, NULL,
 	    NULL, NULL, NULL,
 	    0.0, 0.0, 0.0, 0,
-	    MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE,  NULL, NULL, NULL, NULL,
+	    MKDG_PROPERTY_FLAG_CAN_FREE,  NULL, NULL, NULL, NULL,
 	    NULL, NULL, NULL, NULL);
 }
 
-MkdgPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
+MkdgPropertySpec *mkdg_property_spec_new_full(const gchar *key,
 	MkdgType valueType,
 	const gchar *defaultValue, gchar **validValues,
 	const gchar *parseOption, const char *toStringFormat, const gchar *compareOption,
@@ -57,7 +57,7 @@ MkdgPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
 	spec->step=step;
 	spec->decimalDigits=decimalDigits;
 
-	spec->flags=propertyFlags | MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE;
+	spec->flags=propertyFlags | MKDG_PROPERTY_FLAG_CAN_FREE;
 	spec->pageName=pageName;
 	spec->groupName=groupName;
 	spec->label=label;
@@ -71,7 +71,7 @@ MkdgPropertySpec *maker_dialog_property_spec_new_full(const gchar *key,
     return spec;
 }
 
-static void maker_dialog_control_rule_set
+static void mkdg_control_rule_set
 (MkdgControlRule *rule, MkdgRelation relation, const gchar *testValue, const gchar *key, MkdgWidgetControl match, MkdgWidgetControl notMatch){
     rule->relation=relation;
     rule->testValue=g_strdup(testValue);
@@ -80,24 +80,24 @@ static void maker_dialog_control_rule_set
     rule->notMatch=notMatch;
 }
 
-void maker_dialog_control_rule_free(MkdgControlRule *rule){
+void mkdg_control_rule_free(MkdgControlRule *rule){
     g_free((gchar *) rule->testValue);
     g_free((gchar *) rule->key);
 }
 
-static void maker_dialog_control_rules_free(MkdgControlRule *rules){
+static void mkdg_control_rules_free(MkdgControlRule *rules){
     if (!rules)
 	return;
     while(rules->key!=NULL){
 	MkdgControlRule *rulesTmp=rules;
-	maker_dialog_control_rule_free(rulesTmp);
+	mkdg_control_rule_free(rulesTmp);
 	rules++;
     }
     g_free(rules);
 }
 
-void maker_dialog_property_spec_free(MkdgPropertySpec *spec){
-    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
+void mkdg_property_spec_free(MkdgPropertySpec *spec){
+    if (spec->flags & MKDG_PROPERTY_FLAG_CAN_FREE){
 	g_free((gchar *)spec->key);
 	g_free((gchar *)spec->defaultValue);
 	g_strfreev((gchar **)spec->validValues);
@@ -109,18 +109,18 @@ void maker_dialog_property_spec_free(MkdgPropertySpec *spec){
 	g_free((gchar *) spec->translationContext);
 	g_free((gchar *) spec->tooltip);
 	g_free(spec->imagePaths);
-	maker_dialog_control_rules_free(spec->rules);
+	mkdg_control_rules_free(spec->rules);
 	g_free(spec->userData);
     }
     g_free(spec);
 }
 
-MkdgPropertyContext *maker_dialog_property_context_new(
+MkdgPropertyContext *mkdg_property_context_new(
 	MkdgPropertySpec *spec,gpointer userData){
-    return maker_dialog_property_context_new_full(spec, userData, NULL, NULL);
+    return mkdg_property_context_new_full(spec, userData, NULL, NULL);
 }
 
-MkdgPropertyContext *maker_dialog_property_context_new_full(
+MkdgPropertyContext *mkdg_property_context_new_full(
 	MkdgPropertySpec *spec,	gpointer userData,
 	MkdgValidateCallbackFunc validateFunc,
 	MkdgApplyCallbackFunc applyFunc){
@@ -130,7 +130,7 @@ MkdgPropertyContext *maker_dialog_property_context_new_full(
 	ctx->spec=spec;
 	ctx->userData=userData;
 	ctx->valueIndex=-1;
-	ctx->value=maker_dialog_value_new(ctx->spec->valueType, NULL);
+	ctx->value=mkdg_value_new(ctx->spec->valueType, NULL);
 	ctx->validateFunc=validateFunc;
 	ctx->applyFunc=applyFunc;
 	ctx->mDialog=NULL;
@@ -138,25 +138,25 @@ MkdgPropertyContext *maker_dialog_property_context_new_full(
     return ctx;
 }
 
-void maker_dialog_property_context_free(MkdgPropertyContext *ctx){
-    maker_dialog_value_free(ctx->value);
-    if (ctx->spec->flags & MAKER_DIALOG_PROPERTY_FLAG_CAN_FREE){
-	maker_dialog_property_spec_free(ctx->spec);
+void mkdg_property_context_free(MkdgPropertyContext *ctx){
+    mkdg_value_free(ctx->value);
+    if (ctx->spec->flags & MKDG_PROPERTY_FLAG_CAN_FREE){
+	mkdg_property_spec_free(ctx->spec);
     }
     g_free(ctx);
 }
 
-static void  _maker_dialog_property_context_free_wrap(gpointer obj){
-    maker_dialog_property_context_free((MkdgPropertyContext *) obj);
+static void  _mkdg_property_context_free_wrap(gpointer obj){
+    mkdg_property_context_free((MkdgPropertyContext *) obj);
 }
 
-const gchar *maker_dialog_property_get_default_string(MkdgPropertySpec *spec){
+const gchar *mkdg_property_get_default_string(MkdgPropertySpec *spec){
     if (spec->defaultValue){
 	if (spec->validValues){
-	    if (spec->flags & MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET){
+	    if (spec->flags & MKDG_PROPERTY_FLAG_FIXED_SET){
 		gint index=-1;
 		/* Make sure default value is in valid values */
-		index=maker_dialog_find_string(spec->defaultValue, spec->validValues,-1);
+		index=mkdg_find_string(spec->defaultValue, spec->validValues,-1);
 		if (index<0){
 		    /* Force to set on 1-st validValue */
 		    index=0;
@@ -180,36 +180,36 @@ const gchar *maker_dialog_property_get_default_string(MkdgPropertySpec *spec){
     return NULL;
 }
 
-gboolean maker_dialog_property_is_default(MkdgPropertyContext *ctx){
-    MkdgValue *mValue=maker_dialog_property_get_default(ctx->spec);
-    gboolean result=(maker_dialog_value_compare(ctx->value, mValue, NULL)==0)? TRUE: FALSE;
-    maker_dialog_value_free(mValue);
+gboolean mkdg_property_is_default(MkdgPropertyContext *ctx){
+    MkdgValue *mValue=mkdg_property_get_default(ctx->spec);
+    gboolean result=(mkdg_value_compare(ctx->value, mValue, NULL)==0)? TRUE: FALSE;
+    mkdg_value_free(mValue);
     return result;
 }
 
-MkdgValue *maker_dialog_property_get_default(MkdgPropertySpec *spec){
-    MkdgValue *mValue=maker_dialog_value_new(spec->valueType, NULL);
-    return maker_dialog_value_from_string(mValue, maker_dialog_property_get_default_string(spec), spec->parseOption);
+MkdgValue *mkdg_property_get_default(MkdgPropertySpec *spec){
+    MkdgValue *mValue=mkdg_value_new(spec->valueType, NULL);
+    return mkdg_value_from_string(mValue, mkdg_property_get_default_string(spec), spec->parseOption);
 }
 
-gboolean maker_dialog_property_set_default(MkdgPropertyContext *ctx){
-    MkdgValue *mValue=maker_dialog_property_get_default(ctx->spec);
+gboolean mkdg_property_set_default(MkdgPropertyContext *ctx){
+    MkdgValue *mValue=mkdg_property_get_default(ctx->spec);
     gboolean result=FALSE;
     if (mValue){
-	maker_dialog_property_set_value_fast(ctx, mValue, -2);
+	mkdg_property_set_value_fast(ctx, mValue, -2);
 	result=TRUE;
     }
-    maker_dialog_value_free(mValue);
+    mkdg_value_free(mValue);
     return result;
 }
 
-static void maker_dialog_property_context_update_index(MkdgPropertyContext *ctx){
+static void mkdg_property_context_update_index(MkdgPropertyContext *ctx){
     gint i;
-    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
+    MkdgValue *mValue=mkdg_value_new(ctx->spec->valueType, NULL);
     for (i=0;ctx->spec->validValues[i]!=NULL;i++){
-	maker_dialog_value_from_string(mValue, ctx->spec->validValues[i], ctx->spec->parseOption);
-	if (maker_dialog_value_compare(ctx->value, mValue, NULL)==0){
-	    maker_dialog_value_free(mValue);
+	mkdg_value_from_string(mValue, ctx->spec->validValues[i], ctx->spec->parseOption);
+	if (mkdg_value_compare(ctx->value, mValue, NULL)==0){
+	    mkdg_value_free(mValue);
 	    ctx->valueIndex=i;
 	    return;
 	}
@@ -217,75 +217,75 @@ static void maker_dialog_property_context_update_index(MkdgPropertyContext *ctx)
     ctx->valueIndex=-1;
 }
 
-void maker_dialog_property_set_value_fast(MkdgPropertyContext *ctx, MkdgValue *value, gint valueIndexCtl){
-    maker_dialog_value_copy(value,ctx->value);
-    ctx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HAS_VALUE | MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_UNAPPLIED;
+void mkdg_property_set_value_fast(MkdgPropertyContext *ctx, MkdgValue *value, gint valueIndexCtl){
+    mkdg_value_copy(value,ctx->value);
+    ctx->flags |= MKDG_PROPERTY_CONTEXT_FLAG_HAS_VALUE | MKDG_PROPERTY_CONTEXT_FLAG_UNAPPLIED;
     if (ctx->spec->validValues && valueIndexCtl!=-3){
 	if (valueIndexCtl==-2){
-	    maker_dialog_property_context_update_index(ctx);
+	    mkdg_property_context_update_index(ctx);
 	}else{
 	    ctx->valueIndex=valueIndexCtl;
 	}
     }
 }
 
-gboolean maker_dialog_property_from_string(MkdgPropertyContext *ctx, const gchar *str){
-    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
-    if ( maker_dialog_value_from_string(mValue, str, ctx->spec->parseOption)){
-	maker_dialog_property_set_value_fast(ctx, mValue, -2);
-	maker_dialog_value_free(mValue);
+gboolean mkdg_property_from_string(MkdgPropertyContext *ctx, const gchar *str){
+    MkdgValue *mValue=mkdg_value_new(ctx->spec->valueType, NULL);
+    if ( mkdg_value_from_string(mValue, str, ctx->spec->parseOption)){
+	mkdg_property_set_value_fast(ctx, mValue, -2);
+	mkdg_value_free(mValue);
 	return TRUE;
     }
-    maker_dialog_value_free(mValue);
+    mkdg_value_free(mValue);
     return FALSE;
 }
 
-gchar *maker_dialog_property_to_string(MkdgPropertyContext *ctx){
-    gchar *str=maker_dialog_value_to_string(ctx->value, ctx->spec->toStringFormat);
+gchar *mkdg_property_to_string(MkdgPropertyContext *ctx){
+    gchar *str=mkdg_value_to_string(ctx->value, ctx->spec->toStringFormat);
     return str;
 }
 
-static gboolean maker_dialog_eval_control_rule(MkdgPropertyContext *ctx, MkdgControlRule *rule){
-    MkdgValue *mTestValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
-    maker_dialog_value_from_string(mTestValue, rule->testValue, ctx->spec->parseOption);
+static gboolean mkdg_eval_control_rule(MkdgPropertyContext *ctx, MkdgControlRule *rule){
+    MkdgValue *mTestValue=mkdg_value_new(ctx->spec->valueType, NULL);
+    mkdg_value_from_string(mTestValue, rule->testValue, ctx->spec->parseOption);
 
     gint ret=0;
     gboolean result=FALSE;
-    ret=maker_dialog_value_compare(ctx->value, mTestValue, NULL);
+    ret=mkdg_value_compare(ctx->value, mTestValue, NULL);
     switch(rule->relation){
-	case MAKER_DIALOG_RELATION_EQUAL:
+	case MKDG_RELATION_EQUAL:
 	    result=(ret==0)? TRUE: FALSE;
 	    break;
-	case MAKER_DIALOG_RELATION_NOT_EQUAL:
+	case MKDG_RELATION_NOT_EQUAL:
 	    result=(ret!=0)? TRUE: FALSE;
 	    break;
-	case MAKER_DIALOG_RELATION_LESS:
+	case MKDG_RELATION_LESS:
 	    result=(ret==-1)? TRUE: FALSE;
 	    break;
-	case MAKER_DIALOG_RELATION_LESS_OR_EQUAL:
+	case MKDG_RELATION_LESS_OR_EQUAL:
 	    result=(ret==-1 || ret==0)? TRUE: FALSE;
 	    break;
-	case MAKER_DIALOG_RELATION_GREATER:
+	case MKDG_RELATION_GREATER:
 	    result=(ret==1)? TRUE: FALSE;
 	    break;
-	case MAKER_DIALOG_RELATION_GREATER_OR_EQUAL:
+	case MKDG_RELATION_GREATER_OR_EQUAL:
 	    result=(ret==1 || ret==0)? TRUE: FALSE;
 	    break;
 	default:
 	    break;
     }
     if (mTestValue)
-	maker_dialog_value_free(mTestValue);
+	mkdg_value_free(mTestValue);
     return result;
 }
 
-void maker_dialog_property_foreach_control_rule(MkdgPropertyContext *ctx, MkdgPropertyEachControlRule func, gpointer userData){
+void mkdg_property_foreach_control_rule(MkdgPropertyContext *ctx, MkdgPropertyEachControlRule func, gpointer userData){
     if (ctx->spec->rules){
 	MkdgControlRule *rule=ctx->spec->rules;
 	while (rule->key!=NULL){
-	    gboolean ret=maker_dialog_eval_control_rule(ctx, rule);
-	    MkdgPropertyContext *refCtx=maker_dialog_get_property_context(ctx->mDialog, rule->key);
-	    MkdgWidgetControl control=MAKER_DIALOG_WIDGET_CONTROL_NOTHING;
+	    gboolean ret=mkdg_eval_control_rule(ctx, rule);
+	    MkdgPropertyContext *refCtx=mkdg_get_property_context(ctx->mDialog, rule->key);
+	    MkdgWidgetControl control=MKDG_WIDGET_CONTROL_NOTHING;
 	    if (ret && rule->match){
 		func(refCtx, rule->match, userData);
 		control=rule->match;
@@ -293,113 +293,113 @@ void maker_dialog_property_foreach_control_rule(MkdgPropertyContext *ctx, MkdgPr
 		func(refCtx, rule->notMatch, userData);
 		control=rule->notMatch;
 	    }
-	    if (control & MAKER_DIALOG_WIDGET_CONTROL_SHOW){
-		refCtx->flags &= ~MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HIDDEN;
-	    }else if (control & MAKER_DIALOG_WIDGET_CONTROL_HIDE){
-		refCtx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_HIDDEN;
+	    if (control & MKDG_WIDGET_CONTROL_SHOW){
+		refCtx->flags &= ~MKDG_PROPERTY_CONTEXT_FLAG_HIDDEN;
+	    }else if (control & MKDG_WIDGET_CONTROL_HIDE){
+		refCtx->flags |= MKDG_PROPERTY_CONTEXT_FLAG_HIDDEN;
 	    }
-	    if (control & MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE){
-		refCtx->flags &= ~MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_INSENSITIVE;
-	    }else if (control & MAKER_DIALOG_WIDGET_CONTROL_HIDE){
-		refCtx->flags |= MAKER_DIALOG_PROPERTY_CONTEXT_FLAG_INSENSITIVE;
+	    if (control & MKDG_WIDGET_CONTROL_SENSITIVE){
+		refCtx->flags &= ~MKDG_PROPERTY_CONTEXT_FLAG_INSENSITIVE;
+	    }else if (control & MKDG_WIDGET_CONTROL_HIDE){
+		refCtx->flags |= MKDG_PROPERTY_CONTEXT_FLAG_INSENSITIVE;
 	    }
 	    rule++;
 	}
     }
 }
 
-MkdgPropertyTable* maker_dialog_property_table_new(){
-    return g_hash_table_new_full(g_str_hash,g_str_equal,NULL, _maker_dialog_property_context_free_wrap);
+MkdgPropertyTable* mkdg_property_table_new(){
+    return g_hash_table_new_full(g_str_hash,g_str_equal,NULL, _mkdg_property_context_free_wrap);
 }
 
-void maker_dialog_property_table_insert(MkdgPropertyTable *hTable, const MkdgPropertyContext *ctx){
+void mkdg_property_table_insert(MkdgPropertyTable *hTable, const MkdgPropertyContext *ctx){
     g_hash_table_insert(hTable, (gpointer) ctx->spec->key, (gpointer) ctx);
 }
 
-MkdgPropertyContext *maker_dialog_property_table_lookup(MkdgPropertyTable *hTable, const gchar *key){
+MkdgPropertyContext *mkdg_property_table_lookup(MkdgPropertyTable *hTable, const gchar *key){
     return (MkdgPropertyContext *) g_hash_table_lookup((gpointer) hTable,(gpointer) key);
 }
 
-MkdgValue *maker_dialog_property_table_lookup_value(MkdgPropertyTable *hTable, const gchar *key){
-    MkdgPropertyContext *ctx=maker_dialog_property_table_lookup(hTable, key);
+MkdgValue *mkdg_property_table_lookup_value(MkdgPropertyTable *hTable, const gchar *key){
+    MkdgPropertyContext *ctx=mkdg_property_table_lookup(hTable, key);
     return  ctx->value;
 }
 
-void maker_dialog_property_table_destroy (MkdgPropertyTable *hTable){
+void mkdg_property_table_destroy (MkdgPropertyTable *hTable){
     g_hash_table_destroy(hTable);
 }
 
-void maker_dialog_foreach_property(Mkdg* mDialog, GHFunc func, gpointer userData){
+void mkdg_foreach_property(Mkdg* mDialog, GHFunc func, gpointer userData){
     g_hash_table_foreach(mDialog->propertyTable, func, userData);
 }
 
 /*=== Start enumeration and flags ===*/
 static MkdgIdPair mkdgRelationData[]={
-    {"==",	MAKER_DIALOG_RELATION_EQUAL},
-    {"!=",	MAKER_DIALOG_RELATION_NOT_EQUAL},
-    {"<",	MAKER_DIALOG_RELATION_LESS},
-    {"<=",	MAKER_DIALOG_RELATION_LESS_OR_EQUAL},
-    {">",	MAKER_DIALOG_RELATION_GREATER},
-    {">=",	MAKER_DIALOG_RELATION_GREATER_OR_EQUAL},
-    {"EQ",	MAKER_DIALOG_RELATION_EQUAL},
-    {"NE",	MAKER_DIALOG_RELATION_NOT_EQUAL},
-    {"LT",	MAKER_DIALOG_RELATION_LESS},
-    {"LE",	MAKER_DIALOG_RELATION_LESS_OR_EQUAL},
-    {"GT",	MAKER_DIALOG_RELATION_GREATER},
-    {"GE",	MAKER_DIALOG_RELATION_GREATER_OR_EQUAL},
-    {NULL,	MAKER_DIALOG_RELATION_INVALID},
+    {"==",	MKDG_RELATION_EQUAL},
+    {"!=",	MKDG_RELATION_NOT_EQUAL},
+    {"<",	MKDG_RELATION_LESS},
+    {"<=",	MKDG_RELATION_LESS_OR_EQUAL},
+    {">",	MKDG_RELATION_GREATER},
+    {">=",	MKDG_RELATION_GREATER_OR_EQUAL},
+    {"EQ",	MKDG_RELATION_EQUAL},
+    {"NE",	MKDG_RELATION_NOT_EQUAL},
+    {"LT",	MKDG_RELATION_LESS},
+    {"LE",	MKDG_RELATION_LESS_OR_EQUAL},
+    {"GT",	MKDG_RELATION_GREATER},
+    {"GE",	MKDG_RELATION_GREATER_OR_EQUAL},
+    {NULL,	MKDG_RELATION_INVALID},
 };
 
-MkdgRelation maker_dialog_relation_parse(const gchar *str){
-    return maker_dialog_id_parse(mkdgRelationData, str, FALSE);
+MkdgRelation mkdg_relation_parse(const gchar *str){
+    return mkdg_id_parse(mkdgRelationData, str, FALSE);
 }
 
 static MkdgIdPair mkdgSpecFlagData[]={
-    {"FIXED_SET",		MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET},
-    {"PREFER_RADIO_BUTTONS",	MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS},
+    {"FIXED_SET",		MKDG_PROPERTY_FLAG_FIXED_SET},
+    {"PREFER_RADIO_BUTTONS",	MKDG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS},
     {NULL,			0},
 };
 
-MkdgPropertyFlags maker_dialog_property_flags_parse(const gchar *str){
-    return maker_dialog_flag_parse(mkdgSpecFlagData, str, FALSE);
+MkdgPropertyFlags mkdg_property_flags_parse(const gchar *str){
+    return mkdg_flag_parse(mkdgSpecFlagData, str, FALSE);
 }
 
 static MkdgIdPair mkdgWidgetControlData[]={
-    {"SHOW",		MAKER_DIALOG_WIDGET_CONTROL_SHOW},
-    {"HIDE",		MAKER_DIALOG_WIDGET_CONTROL_HIDE},
-    {"SENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE},
-    {"INSENSITIVE",	MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE},
-    {NULL,		MAKER_DIALOG_WIDGET_CONTROL_NOTHING},
+    {"SHOW",		MKDG_WIDGET_CONTROL_SHOW},
+    {"HIDE",		MKDG_WIDGET_CONTROL_HIDE},
+    {"SENSITIVE",	MKDG_WIDGET_CONTROL_SENSITIVE},
+    {"INSENSITIVE",	MKDG_WIDGET_CONTROL_INSENSITIVE},
+    {NULL,		MKDG_WIDGET_CONTROL_NOTHING},
 };
 
-MkdgWidgetControl maker_dialog_widget_control_parse(const gchar *str){
-    return maker_dialog_flag_parse(mkdgWidgetControlData, str, FALSE);
+MkdgWidgetControl mkdg_widget_control_parse(const gchar *str){
+    return mkdg_flag_parse(mkdgWidgetControlData, str, FALSE);
 }
 
-MkdgControlRule  *maker_dialog_control_rules_parse(const gchar *str){
-    gchar **ctrlList=maker_dialog_string_split_set(str, ";", '\\', FALSE, -1);
+MkdgControlRule  *mkdg_control_rules_parse(const gchar *str){
+    gchar **ctrlList=mkdg_string_split_set(str, ";", '\\', FALSE, -1);
     GArray *ctrlArray=g_array_new(FALSE, FALSE, sizeof(MkdgControlRule));
     MkdgControlRule *rule=NULL;
     gint i;
     for(i=0;ctrlList[i]!=NULL;i++){
-	gchar **strList=maker_dialog_string_split_set(ctrlList[i], ",", '\\', FALSE, 5);
+	gchar **strList=mkdg_string_split_set(ctrlList[i], ",", '\\', FALSE, 5);
 	/* StrList[0] is relation */
-	MkdgRelation relation=maker_dialog_relation_parse(strList[0]);
+	MkdgRelation relation=mkdg_relation_parse(strList[0]);
 	if (relation<=0){
 	    goto END_WIDGET_CONTROL_RULE;
 	}
 	g_array_set_size(ctrlArray, ctrlArray->len+1);
 	rule=&g_array_index(ctrlArray, MkdgControlRule, ctrlArray->len-1);
-	MkdgWidgetControl match=maker_dialog_widget_control_parse(strList[3]);
-	MkdgWidgetControl notMatch=maker_dialog_widget_control_parse(strList[4]);
-	maker_dialog_control_rule_set(rule, relation,strList[1],strList[2],match,notMatch);
+	MkdgWidgetControl match=mkdg_widget_control_parse(strList[3]);
+	MkdgWidgetControl notMatch=mkdg_widget_control_parse(strList[4]);
+	mkdg_control_rule_set(rule, relation,strList[1],strList[2],match,notMatch);
 END_WIDGET_CONTROL_RULE:
 	g_strfreev(strList);
     }
     g_strfreev(ctrlList);
     g_array_set_size(ctrlArray, ctrlArray->len+1);
     rule=&g_array_index(ctrlArray, MkdgControlRule, ctrlArray->len-1);
-    maker_dialog_control_rule_set(rule, MAKER_DIALOG_RELATION_NIL, NULL, NULL, 0, 0);
+    mkdg_control_rule_set(rule, MKDG_RELATION_NIL, NULL, NULL, 0, 0);
     MkdgControlRule *rules=(MkdgControlRule *) g_array_free(ctrlArray, FALSE);
     return rules;
 }

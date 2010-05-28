@@ -1,6 +1,6 @@
 MakerDialogButtonSpec buttonSpecs[]={
-    {MAKER_DIALOG_RESPONSE_CLOSE, NULL},
-    {MAKER_DIALOG_RESPONSE_NIL, NULL}
+    {MKDG_RESPONSE_CLOSE, NULL},
+    {MKDG_RESPONSE_NIL, NULL}
 };
 
 gchar *kbType_ids[]={
@@ -18,11 +18,11 @@ gchar *kbType_ids[]={
 };
 
 MakerDialogControlRule kbRules[]={
-    {MAKER_DIALOG_RELATION_NOT_EQUAL, "hsu", "hsuSelKeyType",  MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE, 0 },
-    {MAKER_DIALOG_RELATION_NOT_EQUAL, "dvorak_hsu", "hsuSelKeyType",  MAKER_DIALOG_WIDGET_CONTROL_INSENSITIVE, 0 },
-    {MAKER_DIALOG_RELATION_EQUAL, "hsu", "hsuSelKeyType",  MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE, 0 },
-    {MAKER_DIALOG_RELATION_EQUAL, "dvorak_hsu", "hsuSelKeyType",  MAKER_DIALOG_WIDGET_CONTROL_SENSITIVE, 0 },
-    {MAKER_DIALOG_RELATION_EQUAL, NULL, NULL, 0, 0 }
+    {MKDG_RELATION_NOT_EQUAL, "hsu", "hsuSelKeyType",  MKDG_WIDGET_CONTROL_INSENSITIVE, 0 },
+    {MKDG_RELATION_NOT_EQUAL, "dvorak_hsu", "hsuSelKeyType",  MKDG_WIDGET_CONTROL_INSENSITIVE, 0 },
+    {MKDG_RELATION_EQUAL, "hsu", "hsuSelKeyType",  MKDG_WIDGET_CONTROL_SENSITIVE, 0 },
+    {MKDG_RELATION_EQUAL, "dvorak_hsu", "hsuSelKeyType",  MKDG_WIDGET_CONTROL_SENSITIVE, 0 },
+    {MKDG_RELATION_EQUAL, NULL, NULL, 0, 0 }
 };
 
 gchar *selKeys_array[]={
@@ -82,8 +82,8 @@ MakerDialogPropertySpec propSpecs[]={
     },
 
     {"KBType", MKDG_TYPE_STRING,
-	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS,
-//	MAKER_DIALOG_PROPERTY_FLAG_FIXED_SET | MAKER_DIALOG_PROPERTY_FLAG_HAS_TRANSLATION ,
+	MKDG_PROPERTY_FLAG_FIXED_SET | MKDG_PROPERTY_FLAG_PREFER_RADIO_BUTTONS,
+//	MKDG_PROPERTY_FLAG_FIXED_SET | MKDG_PROPERTY_FLAG_HAS_TRANSLATION ,
 	"default", kbType_ids, NULL, NULL, NULL,
 	0.0, 25.0, 1.0, 0,
 	"Keyboard",
@@ -115,11 +115,11 @@ MakerDialogPropertySpec propSpecs[]={
 	N_("Hsu's keyboard selection keys, 1 for asdfjkl789, 2 for asdfzxcv89 ."),
 	NULL, NULL, NULL
     },
-    MAKER_DIALOG_PROPERTY_SPEC_ENDER
+    MKDG_PROPERTY_SPEC_ENDER
 };
 
 void applyFunc(MakerDialogPropertyContext *ctx, MkdgValue *value){
-    g_printf("Key %s= %s\n", ctx->spec->key, maker_dialog_value_to_string(value,ctx->spec->toStringFormat));
+    g_printf("Key %s= %s\n", ctx->spec->key, mkdg_value_to_string(value,ctx->spec->toStringFormat));
 }
 
 

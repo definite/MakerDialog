@@ -27,8 +27,8 @@
  *
  * @since 0.3; was included in MkdgConfig.h prior 0.2.
  */
-#ifndef MAKER_DIALOG_CONFIG_FILE_H_
-#define MAKER_DIALOG_CONFIG_FILE_H_
+#ifndef MKDG_CONFIG_FILE_H_
+#define MKDG_CONFIG_FILE_H_
 #include "MkdgConfigDef.h"
 
 /**
@@ -52,7 +52,7 @@ struct _MkdgConfigFile{
  * @param configSet	//!< Associated configuration set.
  * @return A newly allocated MakerDialog configuration file.
  */
-MkdgConfigFile *maker_dialog_config_file_new(const gchar *path, MkdgConfigSet *configSet);
+MkdgConfigFile *mkdg_config_file_new(const gchar *path, MkdgConfigSet *configSet);
 
 /**
  * New a MakerDialog configuration file.
@@ -63,7 +63,7 @@ MkdgConfigFile *maker_dialog_config_file_new(const gchar *path, MkdgConfigSet *c
  * @param configSet	//!< Associated configuration set.
  * @return A newly allocated MakerDialog configuration file.
  */
-MkdgConfigFile *maker_dialog_config_file_new_full(const gchar *path, MkdgConfigFileFlags flags,MkdgConfigSet *configSet);
+MkdgConfigFile *mkdg_config_file_new_full(const gchar *path, MkdgConfigFileFlags flags,MkdgConfigSet *configSet);
 
 
 /**
@@ -72,7 +72,7 @@ MkdgConfigFile *maker_dialog_config_file_new_full(const gchar *path, MkdgConfigF
  * Free a MakerDialog configuration file.
  * @param configFile	//!< The MakerDialog configuration file to be freed.
  */
-void maker_dialog_config_file_free(MkdgConfigFile *configFile);
+void mkdg_config_file_free(MkdgConfigFile *configFile);
 
 /**
  * MakerDialog configuration callback functions to be implemented.
@@ -90,15 +90,15 @@ struct _MkdgConfigFileInterface{
      * This function initializes configuration set by
      * filling \a fileArray with available configuration files and
      * pointing \a writeIndex to proper file, that is:
-     * - last writable file if if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is not set;
-     * - or pointing to first writable file if \c MAKER_DIALOG_CONFIG_NO_OVERRIDE is set.
-     * - -1 if no writable files or \c MAKER_DIALOG_CONFIG_READONLY is set.
+     * - last writable file if if \c MKDG_CONFIG_NO_OVERRIDE is not set;
+     * - or pointing to first writable file if \c MKDG_CONFIG_NO_OVERRIDE is set.
+     * - -1 if no writable files or \c MKDG_CONFIG_READONLY is set.
      *
      * For non-file-based configuration back-end,
      * insert an empty configure file to \a fileArray,
      * and point \a writeIndex is set to:
-     * - 0, if \c MAKER_DIALOG_CONFIG_READONLY is not set;
-     * - or -1, if \c MAKER_DIALOG_CONFIG_READONLY is not set.
+     * - 0, if \c MKDG_CONFIG_READONLY is not set;
+     * - or -1, if \c MKDG_CONFIG_READONLY is not set.
      *
      * @param configSet		A MakerDialog configuration set.
      * @param error		Error return location, or \c NULL.
@@ -146,7 +146,7 @@ struct _MkdgConfigFileInterface{
      * \c FALSE is returned when the file already existed,
      * or failed to create the file.
      *
-     * Called by maker_dialog_config_set_open().
+     * Called by mkdg_config_set_open().
      * @param configFile	The configuration file to be manipulated.
      * @param error		Error return location, or \c NULL.
      * @return \c TRUE if succeed; \c FALSE if the file already exists or failed to create.
@@ -162,7 +162,7 @@ struct _MkdgConfigFileInterface{
      * or failed to open the file.
      *
      *
-     * Called by maker_dialog_config_set_open().
+     * Called by mkdg_config_set_open().
      * @param configFile	The configuration file to be manipulated.
      * @param error		Error return location, or \c NULL.
      * @return \c TRUE if succeed; \c FALSE if the file does not exist or failed to open.
@@ -173,7 +173,7 @@ struct _MkdgConfigFileInterface{
      * Callback function to close a configuration file.
      *
      * This function connects to close function of the configuration back-end.
-     * Called by maker_dialog_config_set_close().
+     * Called by mkdg_config_set_close().
      * @param configFile	The configuration file to be manipulated.
      * @param error		Error return location, or \c NULL.
      * @return \c TRUE if succeed; \c FALSE otherwise.
@@ -185,7 +185,7 @@ struct _MkdgConfigFileInterface{
      *
      * This function connects to function that load all property from a
      * configuration file to a configuration buffer.
-     * Called by maker_dialog_config_set_preload().
+     * Called by mkdg_config_set_preload().
      *
      * @param configFile	The configuration file to be manipulated.
      * @param configBuf		The configuration buffer for storing the loaded property.
@@ -200,7 +200,7 @@ struct _MkdgConfigFileInterface{
      *
      * This function connects to function that save all property from a
      * configuration file.
-     * Called by maker_dialog_config_set_preload().
+     * Called by mkdg_config_set_preload().
      *
      * @param configFile	The configuration file to be manipulated.
      * @param error		Error return location, or \c NULL.
@@ -214,12 +214,12 @@ struct _MkdgConfigFileInterface{
      *
      * This function connects to function which retrieve all pages
      * from a configuration file.
-     * Called by maker_dialog_config_get_pages().
+     * Called by mkdg_config_get_pages().
      *
      * @param configFile	The configuration file to be manipulated.
      * @param error		Error return location, or \c NULL.
      * @return A newly allocated list of strings which contains results;  or \c NULL if no pages are found.
-     * @see maker_dialog_config_get_pages(), config_file_get_keys(), maker_dialog_config_get_keys().
+     * @see mkdg_config_get_pages(), config_file_get_keys(), mkdg_config_get_keys().
      */
     gchar ** (* config_file_get_pages)(MkdgConfigFile *configFile, MkdgError **error);
 
@@ -228,13 +228,13 @@ struct _MkdgConfigFileInterface{
      *
      * This function connects to function which retrieve all keys in a page
      * from a configuration file.
-     * Called by maker_dialog_config_get_keys().
+     * Called by mkdg_config_get_keys().
      *
      * @param configFile	The configuration file to be manipulated.
      * @param pageName		Name of the page.
      * @param error		Error return location, or \c NULL.
      * @return A newly allocated list of strings which contains results;  or \c NULL if no keys are found.
-     * @see config_get_pages(), maker_dialog_config_get_pages(), maker_dialog_config_get_keys().
+     * @see config_get_pages(), mkdg_config_get_pages(), mkdg_config_get_keys().
      */
     gchar ** (* config_file_get_keys)(MkdgConfigFile *configFile, const gchar *pageName, MkdgError **error);
 
@@ -243,7 +243,7 @@ struct _MkdgConfigFileInterface{
      *
      * This function connects to function which retrieve the value of the
      * given key from a configuration file.
-     * Called by maker_dialog_config_get_value().
+     * Called by mkdg_config_get_value().
      *
      * @param configFile	The configuration file to be manipulated.
      * @param pageName		Name of the page.
@@ -252,7 +252,7 @@ struct _MkdgConfigFileInterface{
      * @param parseOption	Parse option. Use \c NULL for default handling.
      * @param error		Error return location, or \c NULL.
      * @return A newly allocated list of strings which contains results;  or \c NULL if no keys are found.
-     * @see config_get_pages(), maker_dialog_config_get_pages(), maker_dialog_config_get_keys().
+     * @see config_get_pages(), mkdg_config_get_pages(), mkdg_config_get_keys().
      */
     MkdgValue * (* config_file_get_value)(MkdgConfigFile *configFile, const gchar *pageName, const gchar *key,
 	    MkdgType valueType, const gchar *parseOption, MkdgError **error);
@@ -271,7 +271,7 @@ struct _MkdgConfigFileInterface{
  * so most people do not need to call it.
  * @return A newly allocated MkdgConfigBuffer instance.
  */
-MkdgConfigBuffer *maker_dialog_config_buffer_new();
+MkdgConfigBuffer *mkdg_config_buffer_new();
 
 /**
  * Insert a value to a MakerDialog config buffer.
@@ -281,7 +281,7 @@ MkdgConfigBuffer *maker_dialog_config_buffer_new();
  * @param key		Property key to be inserted. This key will be duplicated in MakerDialog config buffer.
  * @param value		Value for the property.
  */
-void maker_dialog_config_buffer_insert(MkdgConfigBuffer *configBuf, const gchar *key, MkdgValue *value);
+void mkdg_config_buffer_insert(MkdgConfigBuffer *configBuf, const gchar *key, MkdgValue *value);
 
 /**
  * Lookup the associated value of a key in MakerDialog config buffer.
@@ -291,7 +291,7 @@ void maker_dialog_config_buffer_insert(MkdgConfigBuffer *configBuf, const gchar 
  * @param key		Property key to be inserted. This key will be duplicated in MakerDialog config buffer.
  * @return The associated value of a key, or \c NULL the no such key in the config buffer.
  */
-MkdgValue *maker_dialog_config_buffer_lookup(MkdgConfigBuffer *configBuf, const gchar *key);
+MkdgValue *mkdg_config_buffer_lookup(MkdgConfigBuffer *configBuf, const gchar *key);
 
 /**
  * Free a MakerDialog config buffer.
@@ -302,7 +302,7 @@ MkdgValue *maker_dialog_config_buffer_lookup(MkdgConfigBuffer *configBuf, const 
  * so most people do not need to call it.
  * @param configBuf A MakerDialog config buffer.
  */
-void maker_dialog_config_buffer_free(MkdgConfigBuffer *configBuf);
+void mkdg_config_buffer_free(MkdgConfigBuffer *configBuf);
 
-#endif /* MAKER_DIALOG_CONFIG_FILE_H_ */
+#endif /* MKDG_CONFIG_FILE_H_ */
 

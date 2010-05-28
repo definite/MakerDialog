@@ -31,8 +31,8 @@
 /**
  * Separator used in Widget ID.
  */
-#ifndef MAKER_DIALOG_UI_H_
-#define MAKER_DIALOG_UI_H_
+#ifndef MKDG_UI_H_
+#define MKDG_UI_H_
 #define WIDGET_ID_SEPARATOR "+"
 
 /**
@@ -63,44 +63,44 @@ typedef struct _MkdgAlignment{
  * These ids are actually coming from GTK_RESPONSE ids.
  */
 typedef enum{
-    MAKER_DIALOG_RESPONSE_INVALID=-1,		//!< The respond is invalid. Use in parser.
-    MAKER_DIALOG_RESPONSE_NIL=-2,		//!< Returned if the dialog gets programmatically hidden or destroyed, or serves as button definition terminator.
-    MAKER_DIALOG_RESPONSE_REJECT=-3,		//!< Developers can use this id in their own application. Not internally used by Mkdg.
-    MAKER_DIALOG_RESPONSE_ACCEPT=-4,		//!< Developers can use this id in their own application. Not internally used by Mkdg.
-    MAKER_DIALOG_RESPONSE_DELETE_EVENT=-5,	//!< Returned if the dialog is deleted.
-    MAKER_DIALOG_RESPONSE_OK=-6,		//!< Returned when an "OK" button is pressed.
-    MAKER_DIALOG_RESPONSE_CANCEL=-7,		//!< Returned when a "Cancel" button is pressed.
-    MAKER_DIALOG_RESPONSE_CLOSE=-8,		//!< Returned when a "Close" button is pressed.
-    MAKER_DIALOG_RESPONSE_YES=-9,		//!< Returned when a "Yes" button is pressed.
-    MAKER_DIALOG_RESPONSE_NO=-10,		//!< Returned when a "No" button is pressed.
-    MAKER_DIALOG_RESPONSE_APPLY=-11,		//!< Returned when a "Apply" button is pressed.
-    MAKER_DIALOG_RESPONSE_FILE=-12,		//!< Returned when a "File" button is pressed.
-    MAKER_DIALOG_RESPONSE_NEW=-13,		//!< Returned when a "New" button is pressed.
-    MAKER_DIALOG_RESPONSE_OPEN=-14,		//!< Returned when a "Open" button is pressed.
-    MAKER_DIALOG_RESPONSE_SAVE=-15,		//!< Returned when a "Save" button is pressed.
-    MAKER_DIALOG_RESPONSE_SAVE_AS=-16,		//!< Returned when a "Save As" button is pressed.
-    MAKER_DIALOG_RESPONSE_PRINT=-17,		//!< Returned when a "Print" button is pressed.
-    MAKER_DIALOG_RESPONSE_QUIT=-18,		//!< Returned when a "Apply" button is pressed.
-    MAKER_DIALOG_RESPONSE_EDIT=-19,		//!< Returned when a "Edit" button is pressed.
-    MAKER_DIALOG_RESPONSE_UNDO=-20,		//!< Returned when a "Undo" button is pressed.
-    MAKER_DIALOG_RESPONSE_REDO=-21,		//!< Returned when a "Redo" button is pressed.
-    MAKER_DIALOG_RESPONSE_REFRESH=-22,		//!< Returned when a "Refresh" button is pressed.
-    MAKER_DIALOG_RESPONSE_CUT=-23,		//!< Returned when a "Cut" button is pressed.
-    MAKER_DIALOG_RESPONSE_COPY=-24,		//!< Returned when a "Copy" button is pressed.
-    MAKER_DIALOG_RESPONSE_PASTE=-25,		//!< Returned when a "Paste" button is pressed.
-    MAKER_DIALOG_RESPONSE_SELECT_ALL=-26,	//!< Returned when a "Select all" button is pressed.
-    MAKER_DIALOG_RESPONSE_FIND=-27,		//!< Returned when a "Find" button is pressed.
-    MAKER_DIALOG_RESPONSE_FIND_AND_REPLACE=-28,	//!< Returned when a "Find and replace" button is pressed.
-    MAKER_DIALOG_RESPONSE_HELP=-29,		//!< Returned when a "Help" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_TOP=-30,		//!< Returned when a "Top" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_BOTTOM=-31,	//!< Returned when a "Bottom" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_FIRST=-32,	//!< Returned when a "First" button is pressed.
-    MAKER_DIALOG_RESPONSE_GOTO_LAST=-33,	//!< Returned when a "Last" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_UP=-34,		//!< Returned when a "Up" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_DOWN=-35,		//!< Returned when a "Down" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_BACK=-36,		//!< Returned when a "Back" button is pressed.
-    MAKER_DIALOG_RESPONSE_GO_FORWARD=-37,	//!< Returned when a "Forward" button is pressed.
-} MAKER_DIALOG_RESPONSE;
+    MKDG_RESPONSE_INVALID=-1,		//!< The respond is invalid. Use in parser.
+    MKDG_RESPONSE_NIL=-2,		//!< Returned if the dialog gets programmatically hidden or destroyed, or serves as button definition terminator.
+    MKDG_RESPONSE_REJECT=-3,		//!< Developers can use this id in their own application. Not internally used by Mkdg.
+    MKDG_RESPONSE_ACCEPT=-4,		//!< Developers can use this id in their own application. Not internally used by Mkdg.
+    MKDG_RESPONSE_DELETE_EVENT=-5,	//!< Returned if the dialog is deleted.
+    MKDG_RESPONSE_OK=-6,		//!< Returned when an "OK" button is pressed.
+    MKDG_RESPONSE_CANCEL=-7,		//!< Returned when a "Cancel" button is pressed.
+    MKDG_RESPONSE_CLOSE=-8,		//!< Returned when a "Close" button is pressed.
+    MKDG_RESPONSE_YES=-9,		//!< Returned when a "Yes" button is pressed.
+    MKDG_RESPONSE_NO=-10,		//!< Returned when a "No" button is pressed.
+    MKDG_RESPONSE_APPLY=-11,		//!< Returned when a "Apply" button is pressed.
+    MKDG_RESPONSE_FILE=-12,		//!< Returned when a "File" button is pressed.
+    MKDG_RESPONSE_NEW=-13,		//!< Returned when a "New" button is pressed.
+    MKDG_RESPONSE_OPEN=-14,		//!< Returned when a "Open" button is pressed.
+    MKDG_RESPONSE_SAVE=-15,		//!< Returned when a "Save" button is pressed.
+    MKDG_RESPONSE_SAVE_AS=-16,		//!< Returned when a "Save As" button is pressed.
+    MKDG_RESPONSE_PRINT=-17,		//!< Returned when a "Print" button is pressed.
+    MKDG_RESPONSE_QUIT=-18,		//!< Returned when a "Apply" button is pressed.
+    MKDG_RESPONSE_EDIT=-19,		//!< Returned when a "Edit" button is pressed.
+    MKDG_RESPONSE_UNDO=-20,		//!< Returned when a "Undo" button is pressed.
+    MKDG_RESPONSE_REDO=-21,		//!< Returned when a "Redo" button is pressed.
+    MKDG_RESPONSE_REFRESH=-22,		//!< Returned when a "Refresh" button is pressed.
+    MKDG_RESPONSE_CUT=-23,		//!< Returned when a "Cut" button is pressed.
+    MKDG_RESPONSE_COPY=-24,		//!< Returned when a "Copy" button is pressed.
+    MKDG_RESPONSE_PASTE=-25,		//!< Returned when a "Paste" button is pressed.
+    MKDG_RESPONSE_SELECT_ALL=-26,	//!< Returned when a "Select all" button is pressed.
+    MKDG_RESPONSE_FIND=-27,		//!< Returned when a "Find" button is pressed.
+    MKDG_RESPONSE_FIND_AND_REPLACE=-28,	//!< Returned when a "Find and replace" button is pressed.
+    MKDG_RESPONSE_HELP=-29,		//!< Returned when a "Help" button is pressed.
+    MKDG_RESPONSE_GOTO_TOP=-30,		//!< Returned when a "Top" button is pressed.
+    MKDG_RESPONSE_GOTO_BOTTOM=-31,	//!< Returned when a "Bottom" button is pressed.
+    MKDG_RESPONSE_GOTO_FIRST=-32,	//!< Returned when a "First" button is pressed.
+    MKDG_RESPONSE_GOTO_LAST=-33,	//!< Returned when a "Last" button is pressed.
+    MKDG_RESPONSE_GO_UP=-34,		//!< Returned when a "Up" button is pressed.
+    MKDG_RESPONSE_GO_DOWN=-35,		//!< Returned when a "Down" button is pressed.
+    MKDG_RESPONSE_GO_BACK=-36,		//!< Returned when a "Back" button is pressed.
+    MKDG_RESPONSE_GO_FORWARD=-37,	//!< Returned when a "Forward" button is pressed.
+} MKDG_RESPONSE;
 
 /**
  * Response id for UI widgets.
@@ -135,7 +135,7 @@ typedef struct {
     /**
      * Callback function to get the value from UI widget.
      *
-     * Called by maker_dialog_get_value().
+     * Called by mkdg_get_value().
      * @param dlgUi		A MakerDialog UI instance.
      * @param key		Key of a property.
      * @return The value held by UI.
@@ -145,7 +145,7 @@ typedef struct {
     /**
      * Callback function to set a value to an UI widget.
      *
-     * Called by maker_dialog_set_value().
+     * Called by mkdg_set_value().
      * @param dlgUi		A MakerDialog UI instance.
      * @param key		Key of a property.
      * @param value		Value to be set to UI widget.
@@ -155,17 +155,17 @@ typedef struct {
     /**
      * Callback function to control the widget.
      *
-     * Called by maker_dialog_ui_update().
+     * Called by mkdg_ui_update().
      *
      * @param dlgUi		A MakerDialog UI instance.
      * @param key		Key of a property.
-     * @param control		Widget control flag. See #MAKER_DIALOG_WIDGET_CONTROL
+     * @param control		Widget control flag. See #MKDG_WIDGET_CONTROL
      */
     void (* widget_control)(MkdgUi *dlgUi, const gchar *key, MkdgWidgetControl control);
 
     /**
      * Callback function to construct the actual toolkit dialog UI.
-     * Called by maker_dialog_ui_construct().
+     * Called by mkdg_ui_construct().
      *
      * @param dlgUi		A MakerDialog UI instance.
      * @param parentWindow	Parent window of the Mkdg.
@@ -178,7 +178,7 @@ typedef struct {
       * Callback function to execute a dialog UI until the dialog either emits
       * the "response" signal, or is destroyed.
       *
-      * Called by maker_dialog_ui_run().
+      * Called by mkdg_ui_run().
       * @param dlgUi		A MakerDialog UI instance.
       * @return Respond Id.
       */
@@ -187,7 +187,7 @@ typedef struct {
      /**
       * Callback function to show the dialog UI.
       *
-      * Called by maker_dialog_ui_show().
+      * Called by mkdg_ui_show().
       * @param dlgUi		A MakerDialog UI instance.
       */
      void (* dialog_show)(MkdgUi *dlgUi);
@@ -195,7 +195,7 @@ typedef struct {
      /**
       * Callback function to hide the dialog UI.
       *
-      * Called by maker_dialog_ui_hide().
+      * Called by mkdg_ui_hide().
       * @param dlgUi		A MakerDialog UI instance.
       */
     void (* dialog_hide)(MkdgUi *dlgUi);
@@ -203,7 +203,7 @@ typedef struct {
     /**
      * Callback function to destroy the dialog UI.
      *
-     * Called by maker_dialog_ui_destroy().
+     * Called by mkdg_ui_destroy().
      * @param dlgUi		A MakerDialog UI instance.
      */
     void (* dialog_destroy)(MkdgUi *dlgUi);
@@ -211,7 +211,7 @@ typedef struct {
     /**
      * Callback function to get the UI widget.
      *
-     * Called by maker_dialog_ui_get_widget().
+     * Called by mkdg_ui_get_widget().
      * @param dlgUi		A MakerDialog UI instance.
      * @param key		Key of a property.
      */
@@ -233,18 +233,18 @@ struct _MkdgUi{
  * This function initializes an UI front-end using the given toolkit interface
  * for the Mkdg.
  * During initialization, the new MkdgUi is associated to the \a mDialog.
- * Thus, maker_dialog_destroy() can free the associated MkdgUi as well.
+ * Thus, mkdg_destroy() can free the associated MkdgUi as well.
  *
  * This function is meant for toolkit interface developers.
  * For Gtk or Qt users, it is more convenient to call
- * maker_dialog_ui_use_gtk() or maker_dialog_ui_use_qt4() than using this
+ * mkdg_ui_use_gtk() or mkdg_ui_use_qt4() than using this
  * function directly.
  *
  * @param mDialog 		A MakeDialog.
  * @param toolkitInterface 	The toolkit interface for that front end.
  * @return A newly allocated MkdgUi instance; NULL if failed.
  */
-MkdgUi *maker_dialog_ui_init(Mkdg *mDialog, MkdgToolkitInterface *toolkitInterface);
+MkdgUi *mkdg_ui_init(Mkdg *mDialog, MkdgToolkitInterface *toolkitInterface);
 
 /**
  * Construct an UI dialog object (such as GtkDialog or QDialog) for later use.
@@ -255,14 +255,14 @@ MkdgUi *maker_dialog_ui_init(Mkdg *mDialog, MkdgToolkitInterface *toolkitInterfa
  * @param modal Whether the dialog is modal.
  * @return TRUE if succeeded; FALSE otherwise.
  */
-gboolean maker_dialog_ui_construct(MkdgUi *dlgUi, gpointer parentWindow, gboolean modal);
+gboolean mkdg_ui_construct(MkdgUi *dlgUi, gpointer parentWindow, gboolean modal);
 
 /**
  * Destroy and free the UI.
  *
  * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_destroy(MkdgUi *dlgUi);
+void mkdg_ui_destroy(MkdgUi *dlgUi);
 
 /**
  * Blocks in a recursive main loop until the dialog either emits the "response" signal, or is destroyed.
@@ -272,21 +272,21 @@ void maker_dialog_ui_destroy(MkdgUi *dlgUi);
  * @param dlgUi 	A MakerDialog UI instance.
  * @return The respond ID.
  */
-gint maker_dialog_ui_run(MkdgUi *dlgUi);
+gint mkdg_ui_run(MkdgUi *dlgUi);
 
 /**
  * Show the dialog by using dialog_show().
  *
  * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_show(MkdgUi *dlgUi);
+void mkdg_ui_show(MkdgUi *dlgUi);
 
 /**
  * Hide the dialog.
  *
  * @param dlgUi 	A MakerDialog UI instance.
  */
-void maker_dialog_ui_hide(MkdgUi *dlgUi);
+void mkdg_ui_hide(MkdgUi *dlgUi);
 
 /**
  * Update the property value using the value in UI widget.
@@ -303,10 +303,10 @@ void maker_dialog_ui_hide(MkdgUi *dlgUi);
  * @param ctx     A property context to be update.
  * @return TRUE if succeed, FALSE if the property value does not pass
  *  validation, or widget_get_value() does not exist.
- * @see maker_dialog_apply_value()
- * @see maker_dialog_set_value()
+ * @see mkdg_apply_value()
+ * @see mkdg_set_value()
  */
-gboolean maker_dialog_ui_update(MkdgUi *dlgUi, MkdgPropertyContext *ctx);
+gboolean mkdg_ui_update(MkdgUi *dlgUi, MkdgPropertyContext *ctx);
 
 /**
  * Get the corresponding widget.
@@ -320,21 +320,21 @@ gboolean maker_dialog_ui_update(MkdgUi *dlgUi, MkdgPropertyContext *ctx);
  * @param key		Key of a MakerDialog property.
  * @return The corresponding UI widget; or \c NULL if get_widget() in MkdgToolkitInterface is not implemented.
  */
-gpointer maker_dialog_ui_get_widget(MkdgUi *dlgUi, const gchar *key);
+gpointer mkdg_ui_get_widget(MkdgUi *dlgUi, const gchar *key);
 
 /**
  * Parse a button response ID from a string.
  *
  * This function parses two kinds of strings in to response ids.
- * - Pre-defined respond id in #MkdgResponsePredefined without the "MAKER_DIALOG_RESPONSE_" prefix, such as "OK", "CLOSE", "SAVE_AS"; or
+ * - Pre-defined respond id in #MkdgResponsePredefined without the "MKDG_RESPONSE_" prefix, such as "OK", "CLOSE", "SAVE_AS"; or
  * - string that can converted into positive integer.
  *
- * All others string will return \c MAKER_DIALOG_RESPONSE_INVALID.
+ * All others string will return \c MKDG_RESPONSE_INVALID.
  *
  * @param idStr 	The string to be parsed.
- * @return Corresponding response id; or \c MAKER_DIALOG_RESPONSE_INVALID if parse failed.
+ * @return Corresponding response id; or \c MKDG_RESPONSE_INVALID if parse failed.
  */
-MkdgResponse maker_dialog_parse_button_response_id(const gchar *idStr);
+MkdgResponse mkdg_parse_button_response_id(const gchar *idStr);
 
-#endif /* MAKER_DIALOG_UI_H_ */
+#endif /* MKDG_UI_H_ */
 

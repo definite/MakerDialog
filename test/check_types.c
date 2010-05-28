@@ -56,11 +56,11 @@ MkdgComp_TestRec COMPARISON_DATASET[]={
 
 OutputRec compTest_run_func(InputRec inputRec, Param param){
     MkdgComp_InputRec *inRec=(MkdgComp_InputRec *) inputRec;
-    MkdgValue *mValue1=maker_dialog_value_new(inRec->mType, NULL);
-    maker_dialog_value_from_string(mValue1, inRec->value1Str, inRec->parseOpt);
-    MkdgValue *mValue2=maker_dialog_value_new(inRec->mType, NULL);
-    maker_dialog_value_from_string(mValue2, inRec->value2Str, inRec->parseOpt);
-    output_rec_set_int(result,maker_dialog_value_compare(mValue1, mValue2, inRec->cmpOpt));
+    MkdgValue *mValue1=mkdg_value_new(inRec->mType, NULL);
+    mkdg_value_from_string(mValue1, inRec->value1Str, inRec->parseOpt);
+    MkdgValue *mValue2=mkdg_value_new(inRec->mType, NULL);
+    mkdg_value_from_string(mValue2, inRec->value2Str, inRec->parseOpt);
+    output_rec_set_int(result,mkdg_value_compare(mValue1, mValue2, inRec->cmpOpt));
     return result;
 }
 
@@ -131,8 +131,8 @@ MkdgFromStr_TestRec FROM_STR_DATASET[]={
 
 OutputRec fromStrTest_run_func(InputRec inputRec, Param param){
     MkdgFromStr_InputRec *inRec=(MkdgFromStr_InputRec *) inputRec;
-    MkdgValue *mValue=maker_dialog_value_new(inRec->mType, NULL);
-    maker_dialog_value_from_string(mValue, inRec->valueStr, inRec->parseOpt);
+    MkdgValue *mValue=mkdg_value_new(inRec->mType, NULL);
+    mkdg_value_from_string(mValue, inRec->valueStr, inRec->parseOpt);
     OutputRec result=mValue->data[0];
     return result;
 }
@@ -199,7 +199,7 @@ TestSubject TEST_COLLECTION[]={
 };
 
 int main(int argc, char** argv){
-    int testId=get_testId(argc,argv,TEST_COLLECTION, "MAKER_DIALOG_VERBOSE");
+    int testId=get_testId(argc,argv,TEST_COLLECTION, "MKDG_VERBOSE");
     if (testId<0){
 	return testId;
     }

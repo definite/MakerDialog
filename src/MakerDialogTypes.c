@@ -93,19 +93,19 @@ typedef struct{
 /*=== Start pointer type ===*/
 static void md_pointer_extract(MkdgValue *mValue, gpointer ptr){
     gpointer *ptr2=(gpointer *) ptr;
-    *ptr2=maker_dialog_value_get_pointer(mValue);
+    *ptr2=mkdg_value_get_pointer(mValue);
 }
 
 static void md_pointer_set(MkdgValue *mValue, gpointer setValue){
-    maker_dialog_value_set_pointer(mValue,setValue);
+    mkdg_value_set_pointer(mValue,setValue);
 }
 
 static gint md_pointer_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption){
     if (mValue2->mType!=MKDG_TYPE_POINTER){
 	return -3;
     }
-    gpointer val1=maker_dialog_value_get_pointer(mValue1);
-    gpointer val2=maker_dialog_value_get_pointer(mValue2);
+    gpointer val1=mkdg_value_get_pointer(mValue1);
+    gpointer val2=mkdg_value_get_pointer(mValue2);
     if (val1==val2){
 	return 0;
     }
@@ -115,15 +115,15 @@ static gint md_pointer_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gch
 /*=== Start boolean type ===*/
 static void md_boolean_extract(MkdgValue *mValue, gpointer ptr){
     gboolean *ptr2=(gboolean *) ptr;
-    *ptr2=maker_dialog_value_get_boolean(mValue);
+    *ptr2=mkdg_value_get_boolean(mValue);
 }
 
 static void md_boolean_set(MkdgValue *mValue, gpointer setValue){
-    maker_dialog_value_set_boolean(mValue, (setValue) ? *(gboolean *) setValue: FALSE);
+    mkdg_value_set_boolean(mValue, (setValue) ? *(gboolean *) setValue: FALSE);
 }
 
 static MkdgValue *md_boolean_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
-    mValue->data[0].v_boolean=maker_dialog_atob(str);
+    mValue->data[0].v_boolean=mkdg_atob(str);
     return mValue;
 }
 
@@ -149,11 +149,11 @@ static gint md_boolean_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gch
 /*=== End boolean type ===*/
 /*=== Start number type ===*/
 static gint md_number_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption){
-    if (!maker_dialog_type_is_number(mValue2->mType)){
+    if (!mkdg_type_is_number(mValue2->mType)){
 	return -3;
     }
-    gdouble val1=maker_dialog_value_to_double(mValue1);
-    gdouble val2=maker_dialog_value_to_double(mValue2);
+    gdouble val1=mkdg_value_to_double(mValue1);
+    gdouble val2=mkdg_value_to_double(mValue2);
     if (val1==val2){
 	return 0;
     }
@@ -182,7 +182,7 @@ static gint determine_base(const gchar *str, const gchar *parseOption, gchar **s
 
 static void md_int_extract(MkdgValue *mValue, gpointer ptr){
     gint *ptr2=(gint *) ptr;
-    *ptr2=maker_dialog_value_get_int(mValue);
+    *ptr2=mkdg_value_get_int(mValue);
 }
 
 static void md_int_set(MkdgValue *mValue, gpointer setValue){
@@ -191,12 +191,12 @@ static void md_int_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_int_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_int(mValue,0);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_int(mValue,0);
     }else{
 	gint base=determine_base(str, parseOption, &startPtr);
 	gint val=(gint) strtol(startPtr, NULL, base);
-	maker_dialog_value_set_int(mValue,val);
+	mkdg_value_set_int(mValue,val);
     }
     return mValue;
 }
@@ -205,13 +205,13 @@ static gchar *md_int_to_string(MkdgValue *mValue, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%d";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_int(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_int(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_uint_extract(MkdgValue *mValue, gpointer ptr){
     guint *ptr2=(guint *) ptr;
-    *ptr2=maker_dialog_value_get_uint(mValue);
+    *ptr2=mkdg_value_get_uint(mValue);
 }
 
 static void md_uint_set(MkdgValue *mValue, gpointer setValue){
@@ -220,12 +220,12 @@ static void md_uint_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_uint_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_uint(mValue,0);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_uint(mValue,0);
     }else{
 	gint base=determine_base(str, parseOption, &startPtr);
 	guint val=(guint) strtol(startPtr, NULL, base);
-	maker_dialog_value_set_uint(mValue,val);
+	mkdg_value_set_uint(mValue,val);
     }
     return mValue;
 }
@@ -234,13 +234,13 @@ static gchar *md_uint_to_string(MkdgValue *mValue, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%u";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_uint(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_uint(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_int32_extract(MkdgValue *mValue, gpointer ptr){
     gint32 *ptr2=(gint32 *) ptr;
-    *ptr2=maker_dialog_value_get_int32(mValue);
+    *ptr2=mkdg_value_get_int32(mValue);
 }
 
 static void md_int32_set(MkdgValue *mValue, gpointer setValue){
@@ -249,12 +249,12 @@ static void md_int32_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_int32_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_int32(mValue,0);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_int32(mValue,0);
     }else{
 	gint base=determine_base(str, parseOption, &startPtr);
 	gint32 val=(gint32) strtol(startPtr, NULL, base);
-	maker_dialog_value_set_int32(mValue,val);
+	mkdg_value_set_int32(mValue,val);
     }
     return mValue;
 }
@@ -263,13 +263,13 @@ static gchar *md_int32_to_string(MkdgValue *mValue, const gchar *toStringFormat)
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%d";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_int32(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_int32(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_uint32_extract(MkdgValue *mValue, gpointer ptr){
     guint32 *ptr2=(guint32 *) ptr;
-    *ptr2=maker_dialog_value_get_uint32(mValue);
+    *ptr2=mkdg_value_get_uint32(mValue);
 }
 
 static void md_uint32_set(MkdgValue *mValue, gpointer setValue){
@@ -278,12 +278,12 @@ static void md_uint32_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_uint32_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_uint32(mValue,0);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_uint32(mValue,0);
     }else{
 	gint base=determine_base(str, parseOption, &startPtr);
 	guint32 val=(guint32) strtol(startPtr, NULL, base);
-	maker_dialog_value_set_uint32(mValue,val);
+	mkdg_value_set_uint32(mValue,val);
     }
     return mValue;
 }
@@ -292,13 +292,13 @@ static gchar *md_uint32_to_string(MkdgValue *mValue, const gchar *toStringFormat
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%u";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_uint32(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_uint32(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_int64_extract(MkdgValue *mValue, gpointer ptr){
     gint64 *ptr2=(gint64 *) ptr;
-    *ptr2=maker_dialog_value_get_int64(mValue);
+    *ptr2=mkdg_value_get_int64(mValue);
 }
 
 static void md_int64_set(MkdgValue *mValue, gpointer setValue){
@@ -307,12 +307,12 @@ static void md_int64_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_int64_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_int64(mValue,0);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_int64(mValue,0);
     }else{
 	gint base=determine_base(str, parseOption, &startPtr);
 	gint64 val=(gint64) strtol(startPtr, NULL, base);
-	maker_dialog_value_set_int64(mValue,val);
+	mkdg_value_set_int64(mValue,val);
     }
     return mValue;
 }
@@ -321,13 +321,13 @@ static gchar *md_int64_to_string(MkdgValue *mValue, const gchar *toStringFormat)
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%d";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_int64(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_int64(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_uint64_extract(MkdgValue *mValue, gpointer ptr){
     guint64 *ptr2=(guint64 *) ptr;
-    *ptr2=maker_dialog_value_get_uint64(mValue);
+    *ptr2=mkdg_value_get_uint64(mValue);
 }
 
 static void md_uint64_set(MkdgValue *mValue, gpointer setValue){
@@ -336,12 +336,12 @@ static void md_uint64_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_uint64_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_uint64(mValue,0);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_uint64(mValue,0);
     }else{
 	gint base=determine_base(str, parseOption, &startPtr);
 	guint64 val=(guint64) strtol(startPtr, NULL, base);
-	maker_dialog_value_set_uint64(mValue,val);
+	mkdg_value_set_uint64(mValue,val);
     }
     return mValue;
 }
@@ -350,13 +350,13 @@ static gchar *md_uint64_to_string(MkdgValue *mValue, const gchar *toStringFormat
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%u";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_uint64(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_uint64(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_long_extract(MkdgValue *mValue, gpointer ptr){
     glong *ptr2=(glong *) ptr;
-    *ptr2=maker_dialog_value_get_long(mValue);
+    *ptr2=mkdg_value_get_long(mValue);
 }
 
 static void md_long_set(MkdgValue *mValue, gpointer setValue){
@@ -365,12 +365,12 @@ static void md_long_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_long_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_long(mValue,0l);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_long(mValue,0l);
     }else{
 	gint base=determine_base(str,  parseOption, &startPtr);
 	glong val= strtol(startPtr, NULL, base);
-	maker_dialog_value_set_long(mValue,val);
+	mkdg_value_set_long(mValue,val);
     }
     return mValue;
 }
@@ -379,13 +379,13 @@ static gchar *md_long_to_string(MkdgValue *mValue, const gchar *toStringFormat){
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%ld";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_long(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_long(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_ulong_extract(MkdgValue *mValue, gpointer ptr){
     gulong *ptr2=(gulong *) ptr;
-    *ptr2=maker_dialog_value_get_ulong(mValue);
+    *ptr2=mkdg_value_get_ulong(mValue);
 }
 
 static void md_ulong_set(MkdgValue *mValue, gpointer setValue){
@@ -394,12 +394,12 @@ static void md_ulong_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_ulong_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     gchar *startPtr=NULL;
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
-	maker_dialog_value_set_ulong(mValue,0);
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
+	mkdg_value_set_ulong(mValue,0);
     }else{
 	gint base=determine_base(str, parseOption, &startPtr);
 	gulong val= (gulong) strtoll(startPtr, NULL, base);
-	maker_dialog_value_set_ulong(mValue,val);
+	mkdg_value_set_ulong(mValue,val);
     }
     return mValue;
 }
@@ -408,13 +408,13 @@ static gchar *md_ulong_to_string(MkdgValue *mValue, const gchar *toStringFormat)
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%lu";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_ulong(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_ulong(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_float_extract(MkdgValue *mValue, gpointer ptr){
     gfloat *ptr2=(gfloat *) ptr;
-    *ptr2=maker_dialog_value_get_float(mValue);
+    *ptr2=mkdg_value_get_float(mValue);
 }
 
 static void md_float_set(MkdgValue *mValue, gpointer setValue){
@@ -422,8 +422,8 @@ static void md_float_set(MkdgValue *mValue, gpointer setValue){
 }
 
 static MkdgValue *md_float_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
-    gfloat val= (G_UNLIKELY(maker_dialog_string_is_empty(str))) ? 0.0f: (gfloat) strtod(str, NULL);
-    maker_dialog_value_set_float(mValue,val);
+    gfloat val= (G_UNLIKELY(mkdg_string_is_empty(str))) ? 0.0f: (gfloat) strtod(str, NULL);
+    mkdg_value_set_float(mValue,val);
     return mValue;
 }
 
@@ -431,13 +431,13 @@ static gchar *md_float_to_string(MkdgValue *mValue, const gchar *toStringFormat)
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%g";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_float(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_float(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
 static void md_double_extract(MkdgValue *mValue, gpointer ptr){
     gdouble *ptr2=(gdouble *) ptr;
-    *ptr2=maker_dialog_value_get_double(mValue);
+    *ptr2=mkdg_value_get_double(mValue);
 }
 
 static void md_double_set(MkdgValue *mValue, gpointer setValue){
@@ -445,8 +445,8 @@ static void md_double_set(MkdgValue *mValue, gpointer setValue){
 }
 
 static MkdgValue *md_double_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
-    gdouble val= (G_UNLIKELY(maker_dialog_string_is_empty(str))) ? 0.0 : (gdouble) strtod(str, NULL);
-    maker_dialog_value_set_double(mValue,val);
+    gdouble val= (G_UNLIKELY(mkdg_string_is_empty(str))) ? 0.0 : (gdouble) strtod(str, NULL);
+    mkdg_value_set_double(mValue,val);
     return mValue;
 }
 
@@ -454,14 +454,14 @@ static gchar *md_double_to_string(MkdgValue *mValue, const gchar *toStringFormat
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%g";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_double(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_double(mValue));
     return g_string_free(strBuf, FALSE);
 }
 /*=== End number type ===*/
 /*=== Start string type ===*/
 static void md_string_extract(MkdgValue *mValue, gpointer ptr){
     gchar **ptr2=(gchar **) ptr;
-    *ptr2=g_strdup(maker_dialog_value_get_string(mValue));
+    *ptr2=g_strdup(mkdg_value_get_string(mValue));
 }
 
 static void md_string_set(MkdgValue *mValue, gpointer setValue){
@@ -473,8 +473,8 @@ static void md_string_set(MkdgValue *mValue, gpointer setValue){
 }
 
 static MkdgValue *md_string_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
-    gchar *strValue= g_strdup((G_UNLIKELY(maker_dialog_string_is_empty(str))) ? "" : str);
-    maker_dialog_value_set_string(mValue, strValue);
+    gchar *strValue= g_strdup((G_UNLIKELY(mkdg_string_is_empty(str))) ? "" : str);
+    mkdg_value_set_string(mValue, strValue);
     return mValue;
 }
 
@@ -482,7 +482,7 @@ static gchar *md_string_to_string(MkdgValue *mValue, const gchar *toStringFormat
     GString *strBuf=g_string_new(NULL);
     if (!toStringFormat)
 	toStringFormat="%s";
-    g_string_printf(strBuf, toStringFormat ,maker_dialog_value_get_string(mValue));
+    g_string_printf(strBuf, toStringFormat ,mkdg_value_get_string(mValue));
     return g_string_free(strBuf, FALSE);
 }
 
@@ -504,9 +504,9 @@ static gint md_string_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gcha
 	}
 	g_strfreev(options);
     }
-    gchar *str1=maker_dialog_value_get_string(mValue1);
-    gchar *str2=maker_dialog_value_get_string(mValue2);
-    MAKER_DIALOG_DEBUG_MSG(7, "[I7] md_string_compare() str1=%s str2=%s",str1, str2);
+    gchar *str1=mkdg_value_get_string(mValue1);
+    gchar *str2=mkdg_value_get_string(mValue2);
+    MKDG_DEBUG_MSG(7, "[I7] md_string_compare() str1=%s str2=%s",str1, str2);
     if (flags & STRING_COMPARE_CASE_INSENSITIVE_FLAG){
 	ret=g_ascii_strcasecmp(str1, str2);
     }else{
@@ -530,7 +530,7 @@ static gchar *emptyStrList[]={"", NULL};
 
 static void md_string_list_extract(MkdgValue *mValue, gpointer ptr){
     gchar ***ptr2=(gchar ***) ptr;
-    *ptr2=g_strdupv(maker_dialog_value_get_string_list(mValue));
+    *ptr2=g_strdupv(mkdg_value_get_string_list(mValue));
 }
 
 static void md_string_list_set(MkdgValue *mValue, gpointer setValue){
@@ -543,12 +543,12 @@ static void md_string_list_set(MkdgValue *mValue, gpointer setValue){
 
 static MkdgValue *md_string_list_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
     if (!str){
-	maker_dialog_value_set_string_list(mValue, NULL);
+	mkdg_value_set_string_list(mValue, NULL);
 	return mValue;
     }
-    const gchar *delimiters=(maker_dialog_string_is_empty(parseOption))? ";": parseOption;
-    gchar **sList=maker_dialog_string_split_set(str,delimiters, '\\', TRUE, -1);
-    maker_dialog_value_set_string_list(mValue, sList);
+    const gchar *delimiters=(mkdg_string_is_empty(parseOption))? ";": parseOption;
+    gchar **sList=mkdg_string_split_set(str,delimiters, '\\', TRUE, -1);
+    mkdg_value_set_string_list(mValue, sList);
     gint i;
     for(i=0;sList[i]!=NULL;i++);
     // Count number of string length.
@@ -557,7 +557,7 @@ static MkdgValue *md_string_list_from_string(MkdgValue *mValue, const gchar *str
 }
 
 static gchar *md_string_list_to_string(MkdgValue *mValue, const gchar *toStringFormat){
-    return maker_dialog_string_list_combine(maker_dialog_value_get_string_list(mValue), ";",'\\', TRUE);
+    return mkdg_string_list_combine(mkdg_value_get_string_list(mValue), ";",'\\', TRUE);
 }
 
 static gint md_string_list_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption){
@@ -576,8 +576,8 @@ static gint md_string_list_compare(MkdgValue *mValue1, MkdgValue *mValue2, const
 	}
 	g_strfreev(options);
     }
-    gchar **strList1=maker_dialog_value_get_string_list(mValue1);
-    gchar **strList2=maker_dialog_value_get_string_list(mValue2);
+    gchar **strList1=mkdg_value_get_string_list(mValue1);
+    gchar **strList2=mkdg_value_get_string_list(mValue2);
     if (strList1==NULL){
 	if (strList2==NULL)
 	    return 0;
@@ -621,27 +621,27 @@ static void md_string_list_free(MkdgValue *mValue){
 /*=== Start color type ===*/
 static void md_color_extract(MkdgValue *mValue, gpointer ptr){
     MkdgColor *ptr2=(MkdgColor *) ptr;
-    *ptr2=maker_dialog_value_get_color(mValue);
+    *ptr2=mkdg_value_get_color(mValue);
 }
 
 static void md_color_set(MkdgValue *mValue, gpointer setValue){
-    maker_dialog_value_set_color(mValue, (setValue) ? *(guint32 *) setValue: 0);
+    mkdg_value_set_color(mValue, (setValue) ? *(guint32 *) setValue: 0);
 }
 
 static MkdgValue *md_color_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
-    if (G_UNLIKELY(maker_dialog_string_is_empty(str))){
+    if (G_UNLIKELY(mkdg_string_is_empty(str))){
 	/* Default is black */
-	maker_dialog_value_set_color(mValue, 0);
+	mkdg_value_set_color(mValue, 0);
     }else{
 	if (str[0]=='#'){
-	    maker_dialog_value_set_color(mValue, (MkdgColor) strtol(str+sizeof(gchar), NULL, 16));
+	    mkdg_value_set_color(mValue, (MkdgColor) strtol(str+sizeof(gchar), NULL, 16));
 	}else{
 	    gint index=find_color_index_by_name(str);
 	    if (index>=0){
-		maker_dialog_value_set_color(mValue, mkdgColorList[index].value);
+		mkdg_value_set_color(mValue, mkdgColorList[index].value);
 	    }else{
 		/* Default is black */
-		maker_dialog_value_set_color(mValue, 0);
+		mkdg_value_set_color(mValue, 0);
 	    }
 	}
     }
@@ -653,9 +653,9 @@ static gchar *md_color_to_string(MkdgValue *mValue, const gchar *toStringFormat)
     gchar buf[12];
     if (!toStringFormat)
 	toStringFormat="%s";
-    MkdgColor color=maker_dialog_value_get_color(mValue);
+    MkdgColor color=mkdg_value_get_color(mValue);
     gint index=find_color_index_by_value(color);
-    MAKER_DIALOG_DEBUG_MSG(5,"[I5] md_color_to_string(): color=%X index=%d",color,index);
+    MKDG_DEBUG_MSG(5,"[I5] md_color_to_string(): color=%X index=%d",color,index);
     if (index>=0){
 	g_string_printf(strBuf, toStringFormat, mkdgColorList[index].name);
     }else{
@@ -669,8 +669,8 @@ static gint md_color_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar
     if (G_VALUE_TYPE(mValue2)!=MKDG_TYPE_COLOR){
 	return -3;
     }
-    MkdgColor v1=maker_dialog_value_get_color(mValue1);
-    MkdgColor v2=maker_dialog_value_get_color(mValue2);
+    MkdgColor v1=mkdg_value_get_color(mValue1);
+    MkdgColor v2=mkdg_value_get_color(mValue2);
     return (v1==v2) ? 0 : (v1>v2)? 1: -1;
 }
 
@@ -740,7 +740,7 @@ const MkdgTypeInterfaceMkdgType mkdgTypeInterfaces[]={
 	    NULL,			NULL}},
 };
 
-static const MkdgTypeInterface *maker_dialog_find_type_interface(MkdgType mType){
+static const MkdgTypeInterface *mkdg_find_type_interface(MkdgType mType){
     if (mType<0 || mType>MKDG_TYPE_NONE){
 	return NULL;
     }
@@ -748,7 +748,7 @@ static const MkdgTypeInterface *maker_dialog_find_type_interface(MkdgType mType)
 }
 
 /*=== End Type Interface functions ===*/
-MkdgType maker_dialog_type_parse(const gchar *str){
+MkdgType mkdg_type_parse(const gchar *str){
     MkdgType mType;
     for(mType=0; mType<=MKDG_TYPE_NONE; mType++){
 	if (g_ascii_strcasecmp(str,mkdgTypeInterfaces[mType].name)==0)
@@ -757,15 +757,15 @@ MkdgType maker_dialog_type_parse(const gchar *str){
     return MKDG_TYPE_INVALID;
 }
 
-const gchar *maker_dialog_type_to_string(MkdgType mType){
+const gchar *mkdg_type_to_string(MkdgType mType){
     if (mType<0 || mType>MKDG_TYPE_NONE){
 	return NULL;
     }
     return mkdgTypeInterfaces[mType].name;
 }
 
-static void maker_dialog_value_set_private(MkdgValue *mValue, gpointer setValue, const MkdgTypeInterface *typeInterface){
-    if (maker_dialog_type_is_pointer(mValue->mType)){
+static void mkdg_value_set_private(MkdgValue *mValue, gpointer setValue, const MkdgTypeInterface *typeInterface){
+    if (mkdg_type_is_pointer(mValue->mType)){
 	if (mValue->data[0].v_pointer && (mValue->flags & MKDG_VALUE_FLAG_NEED_FREE)){
 	    /* Free old data */
 	    typeInterface->free(mValue);
@@ -774,41 +774,41 @@ static void maker_dialog_value_set_private(MkdgValue *mValue, gpointer setValue,
     typeInterface->set(mValue, setValue);
 }
 
-MkdgValue *maker_dialog_value_new(MkdgType mType, gpointer setValue){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mType);
+MkdgValue *mkdg_value_new(MkdgType mType, gpointer setValue){
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mType);
     if (!typeInterface)
 	return NULL;
     MkdgValue *mValue=g_new0(MkdgValue, 1);
     mValue->flags=0;
     mValue->mType=mType;
-    if (maker_dialog_type_is_pointer(mValue->mType)){
+    if (mkdg_type_is_pointer(mValue->mType)){
 	mValue->data[0].v_pointer=NULL;
 	mValue->flags |= MKDG_VALUE_FLAG_NEED_FREE;
     }
-    maker_dialog_value_set_private(mValue, setValue, typeInterface);
+    mkdg_value_set_private(mValue, setValue, typeInterface);
     return mValue;
 }
 
-MkdgValue *maker_dialog_value_new_static(MkdgType mType, gpointer setValue){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mType);
+MkdgValue *mkdg_value_new_static(MkdgType mType, gpointer setValue){
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mType);
     if (!typeInterface)
 	return NULL;
     MkdgValue *mValue=g_new0(MkdgValue, 1);
     mValue->flags=0;
     mValue->mType=mType;
-    if (maker_dialog_type_is_pointer(mValue->mType)){
+    if (mkdg_type_is_pointer(mValue->mType)){
 	mValue->data[0].v_pointer=NULL;
     }
-    maker_dialog_value_set_private(mValue, setValue, typeInterface);
+    mkdg_value_set_private(mValue, setValue, typeInterface);
     return mValue;
 }
 
-gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue){
+gboolean mkdg_value_copy(MkdgValue *srcValue, MkdgValue *destValue){
     if (srcValue->mType!=destValue->mType){
 	return FALSE;
     }
-    if (maker_dialog_type_is_pointer(srcValue->mType)){
-	maker_dialog_value_set(destValue, srcValue->data[0].v_pointer);
+    if (mkdg_type_is_pointer(srcValue->mType)){
+	mkdg_value_set(destValue, srcValue->data[0].v_pointer);
     }else{
 	destValue->data[0]=srcValue->data[0];
 	destValue->data[1]=srcValue->data[1];
@@ -816,26 +816,26 @@ gboolean maker_dialog_value_copy(MkdgValue *srcValue, MkdgValue *destValue){
     return TRUE;
 }
 
-void maker_dialog_value_extract(MkdgValue *mValue, gpointer ptr){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
+void mkdg_value_extract(MkdgValue *mValue, gpointer ptr){
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mValue->mType);
     typeInterface->extract(mValue, ptr);
 }
 
-void maker_dialog_value_set(MkdgValue *mValue, gpointer setValue){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
-    maker_dialog_value_set_private(mValue, setValue, typeInterface);
+void mkdg_value_set(MkdgValue *mValue, gpointer setValue){
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mValue->mType);
+    mkdg_value_set_private(mValue, setValue, typeInterface);
 }
 
-void maker_dialog_value_free(gpointer mValue){
+void mkdg_value_free(gpointer mValue){
     MkdgValue *mV=(MkdgValue *) mValue;
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mV->mType);
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mV->mType);
     if (mV->flags  & MKDG_VALUE_FLAG_NEED_FREE){
 	typeInterface->free(mV);
     }
     g_free(mV);
 }
 
-gboolean maker_dialog_type_is_pointer(MkdgType mType){
+gboolean mkdg_type_is_pointer(MkdgType mType){
     switch (mType){
 	case MKDG_TYPE_POINTER:
 	case MKDG_TYPE_STRING:
@@ -847,7 +847,7 @@ gboolean maker_dialog_type_is_pointer(MkdgType mType){
     return FALSE;
 }
 
-gboolean maker_dialog_type_is_number(MkdgType mType){
+gboolean mkdg_type_is_number(MkdgType mType){
     switch (mType){
 	case MKDG_TYPE_INT:
 	case MKDG_TYPE_UINT:
@@ -867,81 +867,81 @@ gboolean maker_dialog_type_is_number(MkdgType mType){
     return FALSE;
 }
 
-void maker_dialog_value_from_double(MkdgValue *value, gdouble number){
+void mkdg_value_from_double(MkdgValue *value, gdouble number){
     switch (value->mType){
 	case MKDG_TYPE_INT:
-	    maker_dialog_value_set_int(value, (gint) number);
+	    mkdg_value_set_int(value, (gint) number);
 	    break;
 	case MKDG_TYPE_UINT:
-	    maker_dialog_value_set_uint(value, (guint) number);
+	    mkdg_value_set_uint(value, (guint) number);
 	    break;
 	case MKDG_TYPE_INT32:
-	    maker_dialog_value_set_int32(value, (gint32) number);
+	    mkdg_value_set_int32(value, (gint32) number);
 	    break;
 	case MKDG_TYPE_UINT32:
-	    maker_dialog_value_set_uint32(value, (guint32) number);
+	    mkdg_value_set_uint32(value, (guint32) number);
 	    break;
 	case MKDG_TYPE_INT64:
-	    maker_dialog_value_set_int64(value, (gint64) number);
+	    mkdg_value_set_int64(value, (gint64) number);
 	    break;
 	case MKDG_TYPE_UINT64:
-	    maker_dialog_value_set_uint64(value, (guint64) number);
+	    mkdg_value_set_uint64(value, (guint64) number);
 	    break;
 	case MKDG_TYPE_LONG:
-	    maker_dialog_value_set_long(value, (glong) number);
+	    mkdg_value_set_long(value, (glong) number);
 	    break;
 	case MKDG_TYPE_ULONG:
-	    maker_dialog_value_set_ulong(value, (gulong) number);
+	    mkdg_value_set_ulong(value, (gulong) number);
 	    break;
 	case MKDG_TYPE_FLOAT:
-	    maker_dialog_value_set_float(value, (gfloat) number);
+	    mkdg_value_set_float(value, (gfloat) number);
 	    break;
 	case MKDG_TYPE_DOUBLE:
-	    maker_dialog_value_set_double(value, (gdouble) number);
+	    mkdg_value_set_double(value, (gdouble) number);
 	    break;
 	case MKDG_TYPE_COLOR:
-	    maker_dialog_value_set_color(value, (guint32) number);
+	    mkdg_value_set_color(value, (guint32) number);
 	    break;
 	default:
 	    break;
     }
 }
 
-gdouble maker_dialog_value_to_double(MkdgValue *value){
+gdouble mkdg_value_to_double(MkdgValue *value){
     switch (value->mType){
 	case MKDG_TYPE_INT:
-	    return (gdouble) maker_dialog_value_get_int(value);
+	    return (gdouble) mkdg_value_get_int(value);
 	case MKDG_TYPE_UINT:
-	    return (gdouble) maker_dialog_value_get_uint(value);
+	    return (gdouble) mkdg_value_get_uint(value);
 	case MKDG_TYPE_INT32:
-	    return (gdouble) maker_dialog_value_get_int32(value);
+	    return (gdouble) mkdg_value_get_int32(value);
 	case MKDG_TYPE_UINT32:
-	    return (gdouble) maker_dialog_value_get_uint32(value);
+	    return (gdouble) mkdg_value_get_uint32(value);
 	case MKDG_TYPE_INT64:
-	    return (gdouble) maker_dialog_value_get_int64(value);
+	    return (gdouble) mkdg_value_get_int64(value);
 	case MKDG_TYPE_UINT64:
-	    return (gdouble) maker_dialog_value_get_uint64(value);
+	    return (gdouble) mkdg_value_get_uint64(value);
 	case MKDG_TYPE_LONG:
-	    return (gdouble) maker_dialog_value_get_long(value);
+	    return (gdouble) mkdg_value_get_long(value);
 	case MKDG_TYPE_ULONG:
-	    return (gdouble) maker_dialog_value_get_ulong(value);
+	    return (gdouble) mkdg_value_get_ulong(value);
 	case MKDG_TYPE_FLOAT:
-	    return (gdouble) maker_dialog_value_get_float(value);
+	    return (gdouble) mkdg_value_get_float(value);
 	case MKDG_TYPE_DOUBLE:
-	    return (gdouble) maker_dialog_value_get_double(value);
+	    return (gdouble) mkdg_value_get_double(value);
 	case MKDG_TYPE_COLOR:
-	    return (gdouble) maker_dialog_value_get_double(value);
+	    return (gdouble) mkdg_value_get_double(value);
 	default:
 	    break;
     }
     return  0.0;
 }
 
-MkdgValue *maker_dialog_value_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
+MkdgValue *mkdg_value_from_string(MkdgValue *mValue, const gchar *str, const gchar *parseOption){
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mValue->mType);
     if (!typeInterface)
 	return NULL;
-    if (maker_dialog_type_is_pointer(mValue->mType)){
+    if (mkdg_type_is_pointer(mValue->mType)){
 	if (mValue->data[0].v_pointer && (mValue->flags  & MKDG_VALUE_FLAG_NEED_FREE)){
 	    /* Free old data */
 	    typeInterface->free(mValue);
@@ -951,30 +951,30 @@ MkdgValue *maker_dialog_value_from_string(MkdgValue *mValue, const gchar *str, c
     return mValue;
 }
 
-gchar *maker_dialog_value_to_string(MkdgValue *mValue, const gchar *toStringFormat){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue->mType);
+gchar *mkdg_value_to_string(MkdgValue *mValue, const gchar *toStringFormat){
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mValue->mType);
     if (!typeInterface)
 	return NULL;
     return typeInterface->to_string(mValue, toStringFormat);
 }
 
-gchar *maker_dialog_string_convert(const gchar *str, MkdgType mType, const gchar *parseOption, const gchar *toStringFormat){
-    MkdgValue *mValue=maker_dialog_value_new(mType,NULL);
-    maker_dialog_value_from_string(mValue, str, parseOption);
-    gchar *result=maker_dialog_value_to_string(mValue, toStringFormat);
-    maker_dialog_value_free(mValue);
+gchar *mkdg_string_convert(const gchar *str, MkdgType mType, const gchar *parseOption, const gchar *toStringFormat){
+    MkdgValue *mValue=mkdg_value_new(mType,NULL);
+    mkdg_value_from_string(mValue, str, parseOption);
+    gchar *result=mkdg_value_to_string(mValue, toStringFormat);
+    mkdg_value_free(mValue);
     return result;
 }
 
-gchar *maker_dialog_string_normalized(const gchar *str, MkdgType mType){
-    return maker_dialog_string_convert(str, mType, NULL, NULL);
+gchar *mkdg_string_normalized(const gchar *str, MkdgType mType){
+    return mkdg_string_convert(str, mType, NULL, NULL);
 }
 
-gint maker_dialog_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption){
-    const MkdgTypeInterface *typeInterface=maker_dialog_find_type_interface(mValue2->mType);
+gint mkdg_value_compare(MkdgValue *mValue1, MkdgValue *mValue2, const gchar *compareOption){
+    const MkdgTypeInterface *typeInterface=mkdg_find_type_interface(mValue2->mType);
     if (!typeInterface)
 	return -2;
-    typeInterface=maker_dialog_find_type_interface(mValue1->mType);
+    typeInterface=mkdg_find_type_interface(mValue1->mType);
     if (!typeInterface)
 	return -2;
     return typeInterface->compare(mValue1,mValue2, compareOption);

@@ -35,8 +35,8 @@
  * A group does not have special meaning in configuration set, however.
  *
  */
-#ifndef MAKER_DIALOG_PAGE_H_
-#define MAKER_DIALOG_PAGE_H_
+#ifndef MKDG_PAGE_H_
+#define MKDG_PAGE_H_
 #include <glib.h>
 #include <glib-object.h>
 
@@ -48,7 +48,7 @@
  * Because some of the configuration back-ends (such as glib KeyFile)
  * expect a page name associate with it.
  */
-#define MAKER_DIALOG_PAGE_UNNAMED "_UNPAGED_"
+#define MKDG_PAGE_UNNAMED "_UNPAGED_"
 
 /**
  * The group name for no group.
@@ -56,18 +56,18 @@
  * If key does not have a group name associate with it,
  * then this name is assigned as the page name.
  */
-#define MAKER_DIALOG_GROUP_UNNAMED "_UNGROUPED_"
+#define MKDG_GROUP_UNNAMED "_UNGROUPED_"
 
 /**
  * Prototype of callback function for foreach property function.
  *
  * The callback function should implement the actions for each property.
- * It will be called by maker_dialog_page_foreach_property() and maker_dialog_pages_foreach_property().
+ * It will be called by mkdg_page_foreach_property() and mkdg_pages_foreach_property().
  *
  * @param mDialog 	A Mkdg.
  * @param ctx  		The property context.
  * @param userData 	User data to be passed into the callback.
- * @see maker_dialog_pages_foreach_property().
+ * @see mkdg_pages_foreach_property().
  */
 typedef void (* MkdgEachPropertyFunc)(Mkdg *mDialog, MkdgPropertyContext *ctx, gpointer userData);
 
@@ -75,13 +75,13 @@ typedef void (* MkdgEachPropertyFunc)(Mkdg *mDialog, MkdgPropertyContext *ctx, g
  * Prototype of callback function for foreach property function.
  *
  * The callback function should implement the actions for each property.
- * It will be called by maker_dialog_page_foreach_property() and maker_dialog_pages_foreach_property().
+ * It will be called by mkdg_page_foreach_property() and mkdg_pages_foreach_property().
  *
  * @param mDialog 	A Mkdg.
  * @param pageNode 	The page node to be working on.
  * @param groupNode 	The group node to be working on.
  * @param userData 	User data to be passed into the callback.
- * @see maker_dialog_pages_foreach_property().
+ * @see mkdg_pages_foreach_property().
  */
 typedef void (* MkdgEachGroupNodeFunc)(Mkdg *mDialog, GNode *pageNode, GNode *groupNode, gpointer userData);
 
@@ -90,12 +90,12 @@ typedef void (* MkdgEachGroupNodeFunc)(Mkdg *mDialog, GNode *pageNode, GNode *gr
  * Prototype of callback function for foreach page function.
  *
  * The callback function should implement the actions for each property.
- * It will be called by maker_dialog_foreach_page().
+ * It will be called by mkdg_foreach_page().
  *
  * @param mDialog 	A Mkdg.
  * @param pageName  	Current page name.
  * @param userData 	User data to be passed into the callback.
- * @see maker_dialog_foreach_page().
+ * @see mkdg_foreach_page().
  */
 typedef void (* MkdgEachPageFunc)(Mkdg *mDialog, const gchar *pageName, gpointer userData);
 
@@ -103,23 +103,23 @@ typedef void (* MkdgEachPageFunc)(Mkdg *mDialog, const gchar *pageName, gpointer
  * Whether the page name is empty.
  *
  * Whether the page name is empty, that is,
- * page name is NULL, "", or MAKER_DIALOG_PAGE_UNNAMED.
+ * page name is NULL, "", or MKDG_PAGE_UNNAMED.
  *
  * @param pageName	Page name to be tested.
  * @return TRUE if page name is empty; FALSE otherwise.
  */
-gboolean maker_dialog_page_name_is_empty(const gchar *pageName);
+gboolean mkdg_page_name_is_empty(const gchar *pageName);
 
 /**
  * Whether the group name is empty.
  *
  * Whether the group name is empty, that is,
- * group name is NULL, "", or MAKER_DIALOG_GROUP_UNNAMED.
+ * group name is NULL, "", or MKDG_GROUP_UNNAMED.
  *
  * @param groupName	Group name to be tested.
  * @return TRUE if group name is empty; FALSE otherwise.
  */
-gboolean maker_dialog_group_name_is_empty(const gchar *groupName);
+gboolean mkdg_group_name_is_empty(const gchar *groupName);
 
 /**
  * Find the page node by page name.
@@ -129,7 +129,7 @@ gboolean maker_dialog_group_name_is_empty(const gchar *groupName);
  * @param pageName Page name to be found.
  * @return GNode that contains the page name; NULL if no such node.
  */
-GNode *maker_dialog_find_page_node(Mkdg *mDialog, const gchar *pageName);
+GNode *mkdg_find_page_node(Mkdg *mDialog, const gchar *pageName);
 
 /**
  * Find the group node by page name and group name.
@@ -140,7 +140,7 @@ GNode *maker_dialog_find_page_node(Mkdg *mDialog, const gchar *pageName);
  * @param groupName Matching group name.
  * @return GNode that contains the group name under given page name; NULL if no such node.
  */
-GNode *maker_dialog_find_group_node(Mkdg *mDialog, const gchar *pageName, const gchar *groupName);
+GNode *mkdg_find_group_node(Mkdg *mDialog, const gchar *pageName, const gchar *groupName);
 
 /**
  * Call callback for each property in a page.
@@ -154,7 +154,7 @@ GNode *maker_dialog_find_group_node(Mkdg *mDialog, const gchar *pageName, const 
  * @param propFunc 		The callback to be run for each property.
  * @param propUserData 		User data to pass to \a propFunc.
  */
-void maker_dialog_page_foreach_property(Mkdg* mDialog, const gchar *pageName, MkdgEachGroupNodeFunc groupFunc, gpointer groupUserData,
+void mkdg_page_foreach_property(Mkdg* mDialog, const gchar *pageName, MkdgEachGroupNodeFunc groupFunc, gpointer groupUserData,
 	MkdgEachPropertyFunc propFunc, gpointer propUserData);
 
 /**
@@ -168,9 +168,9 @@ void maker_dialog_page_foreach_property(Mkdg* mDialog, const gchar *pageName, Mk
  * @param groupUserData 	User data to pass to \a groupFunc.
  * @param propFunc 		The callback to be run for each property.
  * @param propUserData 		User data to pass to \a propFunc.
- * @see maker_dialog_foreach_page_foreach_property().
+ * @see mkdg_foreach_page_foreach_property().
  */
-void maker_dialog_pages_foreach_property(Mkdg* mDialog, const gchar **pageNames,
+void mkdg_pages_foreach_property(Mkdg* mDialog, const gchar **pageNames,
 	MkdgEachGroupNodeFunc groupFunc, gpointer groupUserData,	MkdgEachPropertyFunc propFunc, gpointer propUserData);
 
 
@@ -186,7 +186,7 @@ void maker_dialog_pages_foreach_property(Mkdg* mDialog, const gchar **pageNames,
  * @param propFunc 		The callback to be run for each property.
  * @param propUserData 		User data to pass to \a propFunc.
  */
-void maker_dialog_group_foreach_property(Mkdg* mDialog, const gchar *pageName, const gchar *groupName, MkdgEachPropertyFunc  func, gpointer userData);
+void mkdg_group_foreach_property(Mkdg* mDialog, const gchar *pageName, const gchar *groupName, MkdgEachPropertyFunc  func, gpointer userData);
 
 /**
  * Call callback for each page.
@@ -196,24 +196,24 @@ void maker_dialog_group_foreach_property(Mkdg* mDialog, const gchar *pageName, c
  * @param mDialog 	A Mkdg.
  * @param func 		The callback to be run for each page.
  * @param userData 	User data to pass to \a func
- * @see maker_dialog_foreach_page_foreach_property().
+ * @see mkdg_foreach_page_foreach_property().
  */
-void maker_dialog_foreach_page(Mkdg *mDialog, MkdgEachPageFunc func, gpointer userData);
+void mkdg_foreach_page(Mkdg *mDialog, MkdgEachPageFunc func, gpointer userData);
 
 /**
  * Call callback for each property in all pages.
  *
  * Call callback for each property in all pages.
- * This function is essentially maker_dialog_pages_foreach_property(mDialog, NULL, groupFunc, groupUserData, propFunc, propUserData).
+ * This function is essentially mkdg_pages_foreach_property(mDialog, NULL, groupFunc, groupUserData, propFunc, propUserData).
  *
  * @param mDialog 		A Mkdg.
  * @param groupFunc 		The callback to be run for each group.
  * @param groupUserData 	User data to pass to \a groupFunc.
  * @param propFunc 		The callback to be run for each property.
  * @param propUserData 		User data to pass to \a propFunc.
- * @see maker_dialog_pages_foreach_property().
+ * @see mkdg_pages_foreach_property().
  */
-void maker_dialog_foreach_page_foreach_property(Mkdg *mDialog,
+void mkdg_foreach_page_foreach_property(Mkdg *mDialog,
 	MkdgEachGroupNodeFunc groupFunc, gpointer groupUserData,	MkdgEachPropertyFunc propFunc, gpointer propUserData);
 
 /**
@@ -233,7 +233,7 @@ typedef GNode *MkdgNodeIter;
  * @param mDialog 		A Mkdg.
  * @return The Iteration handle; or \c NULL if no page.
  */
-MkdgNodeIter maker_dialog_page_iter_init(Mkdg* mDialog);
+MkdgNodeIter mkdg_page_iter_init(Mkdg* mDialog);
 
 /**
  * Whether the iteration has more elements.
@@ -244,7 +244,7 @@ MkdgNodeIter maker_dialog_page_iter_init(Mkdg* mDialog);
  * @param iter 			A Mkdg node iteration handle.
  * @return \c TRUE if \a iter has more elements; \c FALSE otherwise.
  */
-gboolean maker_dialog_page_iter_has_next(MkdgNodeIter iter);
+gboolean mkdg_page_iter_has_next(MkdgNodeIter iter);
 
 /**
  * Return the next element in the iteration.
@@ -256,7 +256,7 @@ gboolean maker_dialog_page_iter_has_next(MkdgNodeIter iter);
  * @param iter 			A Mkdg node iteration handle.
  * @return The next element; or \c NULL if not such element.
  */
-GNode *maker_dialog_page_iter_next(MkdgNodeIter *iter);
+GNode *mkdg_page_iter_next(MkdgNodeIter *iter);
 
 /**
  * Initialize a Mkdg property iteration handle for a page.
@@ -269,7 +269,7 @@ GNode *maker_dialog_page_iter_next(MkdgNodeIter *iter);
  * @param pageName 		The page to be working on.
  * @return The Iteration handle; or \c NULL if no such page.
  */
-MkdgNodeIter maker_dialog_page_property_iter_init(Mkdg* mDialog, const gchar *pageName);
+MkdgNodeIter mkdg_page_property_iter_init(Mkdg* mDialog, const gchar *pageName);
 
 /**
  * Whether the iteration has more elements.
@@ -280,7 +280,7 @@ MkdgNodeIter maker_dialog_page_property_iter_init(Mkdg* mDialog, const gchar *pa
  * @param iter 			A Mkdg node iteration handle.
  * @return \c TRUE if \a iter has more elements; \c FALSE otherwise.
  */
-gboolean maker_dialog_page_property_iter_has_next(MkdgNodeIter iter);
+gboolean mkdg_page_property_iter_has_next(MkdgNodeIter iter);
 
 /**
  * Return the next element in the iteration.
@@ -292,6 +292,6 @@ gboolean maker_dialog_page_property_iter_has_next(MkdgNodeIter iter);
  * @param iter 			A Mkdg node iteration handle.
  * @return The next element; or \c NULL if not such element.
  */
-MkdgPropertyContext *maker_dialog_page_property_iter_next(MkdgNodeIter *iter);
+MkdgPropertyContext *mkdg_page_property_iter_next(MkdgNodeIter *iter);
 
-#endif /* MAKER_DIALOG_PAGE_H_ */
+#endif /* MKDG_PAGE_H_ */

@@ -33,14 +33,14 @@
 /*=== Start Error handling ===*/
 #define GCONF_ERROR_FORMAT	"MkdgConfigGConf: In %s, %s Error: %s"
 
-static MkdgError *maker_dialog_config_gconf_error_new(MkdgErrorCode code, const gchar *location, const gchar *cause, const gchar *errorMsg){
-    return maker_dialog_error_new(code, GCONF_ERROR_FORMAT, location, cause,errorMsg);
+static MkdgError *mkdg_config_gconf_error_new(MkdgErrorCode code, const gchar *location, const gchar *cause, const gchar *errorMsg){
+    return mkdg_error_new(code, GCONF_ERROR_FORMAT, location, cause,errorMsg);
 }
 
 static MkdgError *convert_error_code(GError *error, const gchar *location){
     if (error==NULL)
 	return NULL;
-    if (error->domain==MAKER_DIALOG_ERROR)
+    if (error->domain==MKDG_ERROR)
 	return error;
 
     MkdgError *cfgErr=NULL;
@@ -49,55 +49,55 @@ static MkdgError *convert_error_code(GError *error, const gchar *location){
 	    g_error_free(error);
 	    return NULL;
 	case GCONF_ERROR_IN_SHUTDOWN:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_NOT_READY, location, "Database is shutting down", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_NOT_READY, location, "Database is shutting down", error->message);
 	    break;
 	case GCONF_ERROR_NO_SERVER:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_NOT_READY, location, "No server", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_NOT_READY, location, "No server", error->message);
 	    break;
 	case GCONF_ERROR_NO_PERMISSION:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_PERMISSION_DENY, location, "No permission", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_PERMISSION_DENY, location, "No permission", error->message);
 	    break;
 	case GCONF_ERROR_BAD_ADDRESS:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_PERMISSION_DENY, location, "Bad address", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_PERMISSION_DENY, location, "Bad address", error->message);
 	    break;
 	case GCONF_ERROR_PARSE_ERROR:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_INVALID_FORMAT, location,  "Parse error", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_INVALID_FORMAT, location,  "Parse error", error->message);
 	    break;
 	case GCONF_ERROR_CORRUPT:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_INVALID_FORMAT, location,  "Corrupt", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_INVALID_FORMAT, location,  "Corrupt", error->message);
 	    break;
 	case GCONF_ERROR_TYPE_MISMATCH:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_INVALID_FORMAT, location, "Type mismatch", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_INVALID_FORMAT, location, "Type mismatch", error->message);
 	    break;
 	case GCONF_ERROR_BAD_KEY:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_INVALID_KEY, location, "Bad key", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_INVALID_KEY, location, "Bad key", error->message);
 	    break;
 	case GCONF_ERROR_IS_DIR:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_INVALID_KEY, location, "Is dir", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_INVALID_KEY, location, "Is dir", error->message);
 	    break;
 	case GCONF_ERROR_IS_KEY:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_INVALID_PAGE, location, "Is Key", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_INVALID_PAGE, location, "Is Key", error->message);
 	    break;
 	case GCONF_ERROR_OVERRIDDEN:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, location, "Overridden", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_CANT_WRITE, location, "Overridden", error->message);
 	    break;
 	case GCONF_ERROR_LOCK_FAILED:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, location, "Lock failed", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_CANT_WRITE, location, "Lock failed", error->message);
 	    break;
 	case GCONF_ERROR_NO_WRITABLE_DATABASE:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, location, "No writable database", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_CANT_WRITE, location, "No writable database", error->message);
 	    break;
 	case GCONF_ERROR_OAF_ERROR:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_OTHER, location, "liboaf error", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_OTHER, location, "liboaf error", error->message);
 	    break;
 	case GCONF_ERROR_LOCAL_ENGINE:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_OTHER, location, "Trying to use remote method on local engine", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_OTHER, location, "Trying to use remote method on local engine", error->message);
 	    break;
 	case GCONF_ERROR_FAILED :
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_OTHER, location, "Failed", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_OTHER, location, "Failed", error->message);
 	    break;
 	default:
-	    cfgErr=maker_dialog_config_gconf_error_new(MAKER_DIALOG_ERROR_CONFIG_OTHER, location, "Other error", error->message);
+	    cfgErr=mkdg_config_gconf_error_new(MKDG_ERROR_CONFIG_OTHER, location, "Other error", error->message);
 	    break;
     }
     g_error_free(error);
@@ -106,18 +106,18 @@ static MkdgError *convert_error_code(GError *error, const gchar *location){
 /*=== End Error handling ===*/
 
 /*=== Start Config interface callbacks ===*/
-static gboolean maker_dialog_config_set_gconf_init(MkdgConfigSet *configSet, MkdgError **error){
+static gboolean mkdg_config_set_gconf_init(MkdgConfigSet *configSet, MkdgError **error){
     g_assert(configSet);
     configSet->userData=gconf_engine_get_default();
     if (configSet->userData==NULL)
 	return FALSE;
-    MkdgConfigFile *configFile=maker_dialog_config_file_new(configSet->filePattern,configSet);
+    MkdgConfigFile *configFile=mkdg_config_file_new(configSet->filePattern,configSet);
     g_ptr_array_add(configSet->fileArray,configFile);
     configSet->writeIndex=0;
     return TRUE;
 }
 
-static void maker_dialog_config_set_gconf_finalize(MkdgConfigSet *configSet){
+static void mkdg_config_set_gconf_finalize(MkdgConfigSet *configSet){
     gconf_engine_unref((GConfEngine *) configSet->userData);
 }
 
@@ -133,7 +133,7 @@ static void gconf_gslist_free(GSList *sList, GFreeFunc freeFunc){
     g_slist_free(sList);
 }
 
-static gchar **maker_dialog_config_file_gconf_get_pages(MkdgConfigFile *configFile, MkdgError **error){
+static gchar **mkdg_config_file_gconf_get_pages(MkdgConfigFile *configFile, MkdgError **error){
     MkdgError *cfgErr=NULL;
     g_assert(configFile->configSet->userData);
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
@@ -145,20 +145,20 @@ static gchar **maker_dialog_config_file_gconf_get_pages(MkdgConfigFile *configFi
     if (cfgErr==NULL){
 	for(;sList!=NULL; sList=g_slist_next(sList)){
 	    pagePath=(gchar *)sList->data;
-	    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_get_pages(%s, ) path=%s", configFile->path, pagePath);
+	    MKDG_DEBUG_MSG(5, "[I5] config_gconf_get_pages(%s, ) path=%s", configFile->path, pagePath);
 	    page=g_path_get_basename (pagePath);
 	    g_ptr_array_add(ptrArray, page);
 	}
 	/* Free sList */
 	gconf_gslist_free(sListHead, g_free);
     }else{
-	maker_dialog_error_handle(cfgErr,error);
+	mkdg_error_handle(cfgErr,error);
     }
     g_ptr_array_add(ptrArray, NULL);
     return (gchar **) g_ptr_array_free(ptrArray, FALSE);
 }
 
-static gchar **maker_dialog_config_file_gconf_get_keys(MkdgConfigFile *configFile, const gchar *pageName, MkdgError **error){
+static gchar **mkdg_config_file_gconf_get_keys(MkdgConfigFile *configFile, const gchar *pageName, MkdgError **error){
     MkdgError *cfgErr=NULL;
     g_assert(configFile->configSet->userData);
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
@@ -172,64 +172,64 @@ static gchar **maker_dialog_config_file_gconf_get_keys(MkdgConfigFile *configFil
 	for(;sList!=NULL; sList=g_slist_next(sList)){
 	    cfgEntry=(GConfEntry *)sList->data;
 	    key=g_strdup(cfgEntry->key);
-	    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_get_keys(%s, ) path=%s key=%s", configFile->path, path, key );
+	    MKDG_DEBUG_MSG(5, "[I5] config_gconf_get_keys(%s, ) path=%s key=%s", configFile->path, path, key );
 	    g_ptr_array_add(ptrArray,key);
 	}
 	/* Free sList */
 	gconf_gslist_free(sListHead, gconf_entry_free_wrapper);
     }else{
-	maker_dialog_error_handle(cfgErr,error);
+	mkdg_error_handle(cfgErr,error);
     }
     g_ptr_array_add(ptrArray, NULL);
     return (gchar **) g_ptr_array_free(ptrArray, FALSE);
 }
 
-static MkdgValue *maker_dialog_config_gconf_engine_get_value(GConfEngine *engine, const gchar *path,
+static MkdgValue *mkdg_config_gconf_engine_get_value(GConfEngine *engine, const gchar *path,
 	MkdgType valueType, const gchar *parseOption, MkdgError **error){
     MkdgError *cfgErr_prep=NULL;
-    MkdgValue *mValue=maker_dialog_value_new(valueType, NULL);
+    MkdgValue *mValue=mkdg_value_new(valueType, NULL);
     gchar *strValue=NULL;
     switch(valueType){
 	case MKDG_TYPE_BOOLEAN:
-	    maker_dialog_value_set_boolean(mValue, gconf_engine_get_bool(engine, path, &cfgErr_prep));
+	    mkdg_value_set_boolean(mValue, gconf_engine_get_bool(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_INT:
-	    maker_dialog_value_set_int(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_int(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_INT32:
-	    maker_dialog_value_set_int32(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_int32(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_INT64:
-	    maker_dialog_value_set_int64(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_int64(mValue, gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_UINT:
-	    maker_dialog_value_set_uint(mValue, (guint) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_uint(mValue, (guint) gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_UINT32:
-	    maker_dialog_value_set_uint32(mValue, (guint32) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_uint32(mValue, (guint32) gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_UINT64:
-	    maker_dialog_value_set_uint64(mValue, (guint64) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_uint64(mValue, (guint64) gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_LONG:
-	    maker_dialog_value_set_long(mValue,  gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_long(mValue,  gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_ULONG:
-	    maker_dialog_value_set_ulong(mValue, (gulong) gconf_engine_get_int(engine, path, &cfgErr_prep));
+	    mkdg_value_set_ulong(mValue, (gulong) gconf_engine_get_int(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_FLOAT:
-	    maker_dialog_value_set_float(mValue, (gfloat) gconf_engine_get_float(engine, path, &cfgErr_prep));
+	    mkdg_value_set_float(mValue, (gfloat) gconf_engine_get_float(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_DOUBLE:
-	    maker_dialog_value_set_double(mValue, gconf_engine_get_float(engine, path, &cfgErr_prep));
+	    mkdg_value_set_double(mValue, gconf_engine_get_float(engine, path, &cfgErr_prep));
 	    break;
 	case MKDG_TYPE_STRING:
 	case MKDG_TYPE_STRING_LIST:
 	case MKDG_TYPE_COLOR:
 	    strValue=(gchar *) gconf_engine_get_string(engine, path, &cfgErr_prep);
 	    if (strValue!=NULL){
-		MAKER_DIALOG_DEBUG_MSG(6, "[I6] config_gconf_engine_get_value() strValue=%s", strValue);
-		maker_dialog_value_from_string(mValue, strValue, parseOption);
+		MKDG_DEBUG_MSG(6, "[I6] config_gconf_engine_get_value() strValue=%s", strValue);
+		mkdg_value_from_string(mValue, strValue, parseOption);
 		g_free(strValue);
 	    }
 	    break;
@@ -238,64 +238,64 @@ static MkdgValue *maker_dialog_config_gconf_engine_get_value(GConfEngine *engine
     }
     if (cfgErr_prep!=NULL){
 	MkdgError *cfgErr=convert_error_code(cfgErr_prep, "config_gconf_engine_get_value()" );
-	maker_dialog_error_handle(cfgErr, error);
+	mkdg_error_handle(cfgErr, error);
 	return NULL;
     }
     return mValue;
 }
 
-static MkdgValue *maker_dialog_config_file_gconf_get_value(MkdgConfigFile *configFile, const gchar *pageName, const gchar *key,
+static MkdgValue *mkdg_config_file_gconf_get_value(MkdgConfigFile *configFile, const gchar *pageName, const gchar *key,
 	MkdgType valueType, const gchar *parseOption, MkdgError **error){
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
     gchar *path=g_build_filename(configFile->path, pageName, key, NULL);
-    MkdgValue *mValue=maker_dialog_config_gconf_engine_get_value(engine, path, valueType, parseOption, error);
+    MkdgValue *mValue=mkdg_config_gconf_engine_get_value(engine, path, valueType, parseOption, error);
     g_free(path);
     return mValue;
 }
 
-static guint maker_dialog_config_file_gconf_get_access(MkdgConfigFile *configFile, MkdgError **error){
+static guint mkdg_config_file_gconf_get_access(MkdgConfigFile *configFile, MkdgError **error){
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
     guint accessFlags=0;
     if (gconf_engine_dir_exists (engine, configFile->path, error)){
 	accessFlags|=F_OK | R_OK;
 	/* TODO: Test write */
 	/* Assume it is writable */
-	if (!(configFile->flags &MAKER_DIALOG_CONFIG_FILE_FLAG_CANT_WRITE))
+	if (!(configFile->flags &MKDG_CONFIG_FILE_FLAG_CANT_WRITE))
 	    accessFlags|=W_OK;
     }
     return accessFlags;
 }
 
-static gboolean maker_dialog_config_file_gconf_can_access(MkdgConfigFile *configFile, guint permission, MkdgError **error){
+static gboolean mkdg_config_file_gconf_can_access(MkdgConfigFile *configFile, guint permission, MkdgError **error){
     if (!configFile->configSet->userData)
 	return FALSE;
-    guint flags=maker_dialog_config_file_gconf_get_access(configFile, error);
-    MAKER_DIALOG_DEBUG_MSG(5, "**** [I5] gconf_can_access()", flags);
-    return maker_dialog_has_all_flags(permission, flags);
+    guint flags=mkdg_config_file_gconf_get_access(configFile, error);
+    MKDG_DEBUG_MSG(5, "**** [I5] gconf_can_access()", flags);
+    return mkdg_has_all_flags(permission, flags);
 }
 
-static gboolean maker_dialog_config_file_gconf_create(MkdgConfigFile *configFile, MkdgError **error){
+static gboolean mkdg_config_file_gconf_create(MkdgConfigFile *configFile, MkdgError **error){
     g_assert(configFile->configSet->userData);
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_create(%s, )", configFile->path);
+    MKDG_DEBUG_MSG(5, "[I5] config_gconf_create(%s, )", configFile->path);
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
     MkdgError *cfgErr=NULL;
     if (gconf_engine_dir_exists (engine, configFile->path, &cfgErr)){
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_ALREADY_EXIST, "Path %s already exists!", configFile->path);
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_ALREADY_EXIST, "Path %s already exists!", configFile->path);
     }else{
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_OTHER, "No create mode with GConf back-end!");
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_OTHER, "No create mode with GConf back-end!");
     }
-    maker_dialog_error_handle(cfgErr,error);
+    mkdg_error_handle(cfgErr,error);
     return FALSE;
 }
 
-static gboolean maker_dialog_config_file_gconf_open(MkdgConfigFile *configFile, MkdgError **error){
+static gboolean mkdg_config_file_gconf_open(MkdgConfigFile *configFile, MkdgError **error){
     g_assert(configFile->configSet->userData);
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_open(%s, )", configFile->path);
+    MKDG_DEBUG_MSG(5, "[I5] config_gconf_open(%s, )", configFile->path);
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
     MkdgError *cfgErr=NULL;
     if (!gconf_engine_dir_exists (engine, configFile->path, &cfgErr)){
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_NO_FILE, "Path %s does not exist!", configFile->path);
-	maker_dialog_error_handle(cfgErr,error);
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_NO_FILE, "Path %s does not exist!", configFile->path);
+	mkdg_error_handle(cfgErr,error);
 	return FALSE;
     }
     gconf_engine_ref(engine);
@@ -303,7 +303,7 @@ static gboolean maker_dialog_config_file_gconf_open(MkdgConfigFile *configFile, 
     return TRUE;
 }
 
-static gboolean maker_dialog_config_file_gconf_close(MkdgConfigFile *configFile, MkdgError **error){
+static gboolean mkdg_config_file_gconf_close(MkdgConfigFile *configFile, MkdgError **error){
     configFile->fileObj=NULL;
     gconf_engine_unref((GConfEngine *)configFile->configSet->userData);
     return TRUE;
@@ -313,71 +313,71 @@ static gboolean gconf_preload_property(MkdgConfigFile *configFile, MkdgConfigBuf
     MkdgError * cfgErr=NULL;
     GConfEntry *cfgEntry=(GConfEntry *) entryList->data;
     gchar *key=g_path_get_basename(cfgEntry->key);
-    MkdgPropertyContext *ctx=maker_dialog_get_property_context(configFile->configSet->config->mDialog,key);
+    MkdgPropertyContext *ctx=mkdg_get_property_context(configFile->configSet->config->mDialog,key);
     if (ctx==NULL){
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_INVALID_KEY, "config_gconf_preload_property() key=%s, cfgEntry->key=%s", key, cfgEntry->key);
-	maker_dialog_error_handle(cfgErr, error);
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_INVALID_KEY, "config_gconf_preload_property() key=%s, cfgEntry->key=%s", key, cfgEntry->key);
+	mkdg_error_handle(cfgErr, error);
 	g_free(key);
-	if (configFile->configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
+	if (configFile->configSet->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR ){
 	    return FALSE;
 	}
 	return TRUE;
     }
-    MAKER_DIALOG_DEBUG_MSG(3, "[I3] gconf_preload_property(%s,  , %s, )", configFile->path, ctx->spec->key);
+    MKDG_DEBUG_MSG(3, "[I3] gconf_preload_property(%s,  , %s, )", configFile->path, ctx->spec->key);
     gchar *strValue=NULL;
 
-    MkdgValue *mValue=maker_dialog_value_new(ctx->spec->valueType, NULL);
+    MkdgValue *mValue=mkdg_value_new(ctx->spec->valueType, NULL);
     switch(ctx->spec->valueType){
 	case MKDG_TYPE_BOOLEAN:
-	    maker_dialog_value_set_boolean(mValue, gconf_value_get_bool(cfgEntry->value));
+	    mkdg_value_set_boolean(mValue, gconf_value_get_bool(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_INT:
-	    maker_dialog_value_set_int(mValue, gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_int(mValue, gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_INT32:
-	    maker_dialog_value_set_int32(mValue, gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_int32(mValue, gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_INT64:
-	    maker_dialog_value_set_int64(mValue, gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_int64(mValue, gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_UINT:
-	    maker_dialog_value_set_uint(mValue, (guint) gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_uint(mValue, (guint) gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_UINT32:
-	    maker_dialog_value_set_uint32(mValue, (guint32) gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_uint32(mValue, (guint32) gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_UINT64:
-	    maker_dialog_value_set_uint64(mValue, (guint64) gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_uint64(mValue, (guint64) gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_LONG:
-	    maker_dialog_value_set_long(mValue,  gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_long(mValue,  gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_ULONG:
-	    maker_dialog_value_set_ulong(mValue, (gulong) gconf_value_get_int(cfgEntry->value));
+	    mkdg_value_set_ulong(mValue, (gulong) gconf_value_get_int(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_FLOAT:
-	    maker_dialog_value_set_float(mValue, (gfloat) gconf_value_get_float(cfgEntry->value));
+	    mkdg_value_set_float(mValue, (gfloat) gconf_value_get_float(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_DOUBLE:
-	    maker_dialog_value_set_double(mValue, gconf_value_get_float(cfgEntry->value));
+	    mkdg_value_set_double(mValue, gconf_value_get_float(cfgEntry->value));
 	    break;
 	case MKDG_TYPE_STRING:
 	    strValue=(gchar *) gconf_value_get_string(cfgEntry->value);
-	    MAKER_DIALOG_DEBUG_MSG(6, "[I6] gconf_preload_property() strValue=%s", strValue);
-	    maker_dialog_value_from_string(mValue, strValue, NULL);
+	    MKDG_DEBUG_MSG(6, "[I6] gconf_preload_property() strValue=%s", strValue);
+	    mkdg_value_from_string(mValue, strValue, NULL);
 	    break;
 	case MKDG_TYPE_STRING_LIST:
-	    maker_dialog_value_from_string(mValue, gconf_value_get_string(cfgEntry->value),NULL);
+	    mkdg_value_from_string(mValue, gconf_value_get_string(cfgEntry->value),NULL);
 	    break;
 	case MKDG_TYPE_COLOR:
-	    maker_dialog_value_from_string(mValue, gconf_value_get_string(cfgEntry->value), NULL);
+	    mkdg_value_from_string(mValue, gconf_value_get_string(cfgEntry->value), NULL);
 	    break;
 	default:
 	    break;
     }
-    MAKER_DIALOG_DEBUG_MSG(3,
-	    configFile->path, maker_dialog_value_to_string(mValue, ctx->spec->toStringFormat), ctx->spec->key );
-    maker_dialog_config_buffer_insert(configBuf, ctx->spec->key, mValue);
+    MKDG_DEBUG_MSG(3,
+	    configFile->path, mkdg_value_to_string(mValue, ctx->spec->toStringFormat), ctx->spec->key );
+    mkdg_config_buffer_insert(configBuf, ctx->spec->key, mValue);
     return TRUE;
 }
 
@@ -385,8 +385,8 @@ static gboolean gconf_preload_page(MkdgConfigFile *configFile, MkdgConfigBuffer 
     MkdgError * cfgErr=NULL;
     GSList *entryListHead=gconf_engine_all_entries((GConfEngine *)configFile->configSet->userData, pagePath, &cfgErr);
     if (cfgErr!=NULL){
-	maker_dialog_error_handle(cfgErr, error);
-	if (configFile->configSet->config->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
+	mkdg_error_handle(cfgErr, error);
+	if (configFile->configSet->config->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR){
 	    return FALSE;
 	}
     }
@@ -394,8 +394,8 @@ static gboolean gconf_preload_page(MkdgConfigFile *configFile, MkdgConfigBuffer 
     for(;entryList!=NULL;entryList=g_slist_next(entryList)){
 	gconf_preload_property(configFile, configBuf, entryList, &cfgErr);
 	if (cfgErr!=NULL){
-	    maker_dialog_error_handle(cfgErr, error);
-	    if (configFile->configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
+	    mkdg_error_handle(cfgErr, error);
+	    if (configFile->configSet->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR ){
 		gconf_gslist_free(entryListHead, gconf_entry_free_wrapper);
 		return FALSE;
 	    }
@@ -405,15 +405,15 @@ static gboolean gconf_preload_page(MkdgConfigFile *configFile, MkdgConfigBuffer 
     return TRUE;
 }
 
-static gboolean maker_dialog_config_file_gconf_preload(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, MkdgError **error){
+static gboolean mkdg_config_file_gconf_preload(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, MkdgError **error){
     g_assert(configFile->configSet->userData);
-    MAKER_DIALOG_DEBUG_MSG(5, "[I5] config_gconf_preload(%s, , )", configFile->path);
+    MKDG_DEBUG_MSG(5, "[I5] config_gconf_preload(%s, , )", configFile->path);
     GConfEngine *engine=(GConfEngine *)configFile->configSet->userData;
     MkdgError * cfgErr=NULL, *cfgErr_prep=NULL;
     GSList *dirListHead=gconf_engine_all_dirs(engine,configFile->path,&cfgErr_prep);
     if (cfgErr_prep!=NULL){
 	cfgErr=convert_error_code(cfgErr_prep, "config_file_gconf_preload()");
-	maker_dialog_error_handle(cfgErr,error);
+	mkdg_error_handle(cfgErr,error);
         return FALSE;
     }
     GSList *dirList=dirListHead;
@@ -423,8 +423,8 @@ static gboolean maker_dialog_config_file_gconf_preload(MkdgConfigFile *configFil
 	pagePath=(gchar *)dirList->data;
 	gconf_preload_page(configFile, configBuf, pagePath, &cfgErr);
 	if (cfgErr){
-	    maker_dialog_error_handle(cfgErr, error);
-	    if (configFile->configSet->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR ){
+	    mkdg_error_handle(cfgErr, error);
+	    if (configFile->configSet->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR ){
 		gconf_gslist_free(dirListHead, g_free);
 		return FALSE;
 	    }
@@ -442,16 +442,16 @@ static gboolean gconf_save_property(MkdgConfigFile *configFile, MkdgConfigBuffer
 	MkdgPropertyContext *ctx, const gchar *pageName, GConfChangeSet *changeSet, MkdgError **error){
     MkdgError * cfgErr=NULL;
     /* Check whether the line need to be saved */
-    MkdgValue *bufValue=maker_dialog_config_buffer_lookup(configBuf, ctx->spec->key);
+    MkdgValue *bufValue=mkdg_config_buffer_lookup(configBuf, ctx->spec->key);
     gboolean needChange=TRUE;
     if (bufValue!=NULL){
-	if (maker_dialog_value_compare(bufValue, ctx->value, NULL)==0){
+	if (mkdg_value_compare(bufValue, ctx->value, NULL)==0){
 	    /* Same value already in gconf */
-	    MAKER_DIALOG_DEBUG_MSG(4, "[I4] gconf_save_property() same value already in gconf, no need to change.");
+	    MKDG_DEBUG_MSG(4, "[I4] gconf_save_property() same value already in gconf, no need to change.");
 	    needChange=FALSE;
 	}
     }
-    MAKER_DIALOG_DEBUG_MSG(4, "[I4] gconf_save_property(%s, , %s, ) page=%s needChange=%s",
+    MKDG_DEBUG_MSG(4, "[I4] gconf_save_property(%s, , %s, ) page=%s needChange=%s",
 	    configFile->path, ctx->spec->key, (ctx->spec->pageName)? ctx->spec->pageName: "-", (needChange)? "TRUE": "FALSE");
 
     if (needChange){
@@ -459,59 +459,59 @@ static gboolean gconf_save_property(MkdgConfigFile *configFile, MkdgConfigBuffer
 
 	switch (ctx->spec->valueType){
 	    case MKDG_TYPE_BOOLEAN:
-		gconf_change_set_set_bool(changeSet, keyPath, maker_dialog_value_get_boolean(ctx->value));
+		gconf_change_set_set_bool(changeSet, keyPath, mkdg_value_get_boolean(ctx->value));
 		break;
 	    case MKDG_TYPE_INT:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_int(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_int(ctx->value));
 		break;
 	    case MKDG_TYPE_INT32:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_int32(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_int32(ctx->value));
 		break;
 	    case MKDG_TYPE_INT64:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_int64(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_int64(ctx->value));
 		break;
 	    case MKDG_TYPE_UINT:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_uint(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_uint(ctx->value));
 		break;
 	    case MKDG_TYPE_UINT32:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_uint32(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_uint32(ctx->value));
 		break;
 	    case MKDG_TYPE_UINT64:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_uint64(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_uint64(ctx->value));
 		break;
 	    case MKDG_TYPE_LONG:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_long(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_long(ctx->value));
 		break;
 	    case MKDG_TYPE_ULONG:
-		gconf_change_set_set_int(changeSet, keyPath, maker_dialog_value_get_long(ctx->value));
+		gconf_change_set_set_int(changeSet, keyPath, mkdg_value_get_long(ctx->value));
 		break;
 	    case MKDG_TYPE_FLOAT:
-		gconf_change_set_set_float(changeSet, keyPath, maker_dialog_value_get_float(ctx->value));
+		gconf_change_set_set_float(changeSet, keyPath, mkdg_value_get_float(ctx->value));
 		break;
 	    case MKDG_TYPE_DOUBLE:
-		gconf_change_set_set_float(changeSet, keyPath, maker_dialog_value_get_double(ctx->value));
+		gconf_change_set_set_float(changeSet, keyPath, mkdg_value_get_double(ctx->value));
 		break;
 	    case MKDG_TYPE_STRING:
-		gconf_change_set_set_string(changeSet, keyPath, maker_dialog_value_get_string(ctx->value));
+		gconf_change_set_set_string(changeSet, keyPath, mkdg_value_get_string(ctx->value));
 		break;
 	    case MKDG_TYPE_STRING_LIST:
-		gconf_change_set_set_string(changeSet, keyPath, maker_dialog_value_to_string(ctx->value, NULL));
+		gconf_change_set_set_string(changeSet, keyPath, mkdg_value_to_string(ctx->value, NULL));
 		break;
 	    case MKDG_TYPE_COLOR:
-		gconf_change_set_set_string(changeSet, keyPath, maker_dialog_value_to_string(ctx->value, NULL));
+		gconf_change_set_set_string(changeSet, keyPath, mkdg_value_to_string(ctx->value, NULL));
 		break;
 //            case MKDG_TYPE_FILE:
 //            case MKDG_TYPE_KEY:
             case MKDG_TYPE_NONE:
                 break;
             default:
-		cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, "gconf_save_property()");
+		cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_CANT_WRITE, "gconf_save_property()");
 		break;
 	}
 	g_free(keyPath);
     }
     if (cfgErr!=NULL){
-	maker_dialog_error_handle(cfgErr,error);
+	mkdg_error_handle(cfgErr,error);
 	return FALSE;
     }
     return TRUE;
@@ -520,15 +520,15 @@ static gboolean gconf_save_property(MkdgConfigFile *configFile, MkdgConfigBuffer
 static gboolean gconf_save_page(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf,
 	const gchar *pageName, GConfChangeSet *changeSet, MkdgError **error){
     MkdgError * cfgErr=NULL;
-    MkdgNodeIter iter=maker_dialog_page_property_iter_init(configFile->configSet->config->mDialog, pageName);
+    MkdgNodeIter iter=mkdg_page_property_iter_init(configFile->configSet->config->mDialog, pageName);
 
     MkdgPropertyContext *ctx=NULL;
-    while(maker_dialog_page_property_iter_has_next(iter)){
-	ctx=maker_dialog_page_property_iter_next(&iter);
+    while(mkdg_page_property_iter_has_next(iter)){
+	ctx=mkdg_page_property_iter_next(&iter);
 	g_assert(ctx);
 	if (!gconf_save_property(configFile, configBuf, ctx, pageName, changeSet, &cfgErr)){
-	    maker_dialog_error_handle(cfgErr,error);
-	    if (configFile->configSet->config->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
+	    mkdg_error_handle(cfgErr,error);
+	    if (configFile->configSet->config->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR){
 		return FALSE;
 	    }
 	}
@@ -536,20 +536,20 @@ static gboolean gconf_save_page(MkdgConfigFile *configFile, MkdgConfigBuffer *co
     return TRUE;
 }
 
-static gboolean maker_dialog_config_file_gconf_save(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, MkdgError **error){
+static gboolean mkdg_config_file_gconf_save(MkdgConfigFile *configFile, MkdgConfigBuffer *configBuf, MkdgError **error){
     MkdgError * cfgErr=NULL;
     GConfChangeSet *changeSet=gconf_change_set_new();
-//    if (!maker_dialog_config_file_gconf_can_access(configFile, W_OK, error)){
-//	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, "gconf_save()");
+//    if (!mkdg_config_file_gconf_can_access(configFile, W_OK, error)){
+//	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_CANT_WRITE, "gconf_save()");
 //	return FALSE;
 //    }
-    MkdgNodeIter iter=maker_dialog_page_iter_init(configFile->configSet->config->mDialog);
-    while(maker_dialog_page_iter_has_next(iter)){
-	GNode *pageNode=maker_dialog_page_iter_next(&iter);
+    MkdgNodeIter iter=mkdg_page_iter_init(configFile->configSet->config->mDialog);
+    while(mkdg_page_iter_has_next(iter)){
+	GNode *pageNode=mkdg_page_iter_next(&iter);
 	g_assert(pageNode);
 	if (!gconf_save_page(configFile, configBuf, (gchar *) pageNode->data, changeSet, &cfgErr)){
-	    maker_dialog_error_handle(cfgErr, error);
-	    if (configFile->configSet->config->flags & MAKER_DIALOG_CONFIG_FLAG_STOP_ON_ERROR){
+	    mkdg_error_handle(cfgErr, error);
+	    if (configFile->configSet->config->flags & MKDG_CONFIG_FLAG_STOP_ON_ERROR){
 		return FALSE;
 	    }
 	}
@@ -557,7 +557,7 @@ static gboolean maker_dialog_config_file_gconf_save(MkdgConfigFile *configFile, 
     gboolean ret=gconf_engine_commit_change_set (
 	    (GConfEngine *) configFile->configSet->userData, changeSet, TRUE, &cfgErr);
     if (!ret){
-	maker_dialog_error_handle(cfgErr, error);
+	mkdg_error_handle(cfgErr, error);
 	gconf_change_set_clear(changeSet);
     }
     gconf_change_set_unref(changeSet);
@@ -565,22 +565,22 @@ static gboolean maker_dialog_config_file_gconf_save(MkdgConfigFile *configFile, 
 }
 /*=== End Config interface callbacks ===*/
 
-MkdgConfigFileInterface MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF={
-    maker_dialog_config_set_gconf_init,
-    maker_dialog_config_set_gconf_finalize,
-    maker_dialog_config_file_gconf_can_access,
-    maker_dialog_config_file_gconf_create,
-    maker_dialog_config_file_gconf_open,
-    maker_dialog_config_file_gconf_close,
-    maker_dialog_config_file_gconf_preload,
-    maker_dialog_config_file_gconf_save,
-    maker_dialog_config_file_gconf_get_pages,
-    maker_dialog_config_file_gconf_get_keys,
-    maker_dialog_config_file_gconf_get_value,
+MkdgConfigFileInterface MKDG_CONFIG_FILE_INTERFACE_GCONF={
+    mkdg_config_set_gconf_init,
+    mkdg_config_set_gconf_finalize,
+    mkdg_config_file_gconf_can_access,
+    mkdg_config_file_gconf_create,
+    mkdg_config_file_gconf_open,
+    mkdg_config_file_gconf_close,
+    mkdg_config_file_gconf_preload,
+    mkdg_config_file_gconf_save,
+    mkdg_config_file_gconf_get_pages,
+    mkdg_config_file_gconf_get_keys,
+    mkdg_config_file_gconf_get_value,
 };
 
-MkdgConfig *maker_dialog_config_use_gconf(Mkdg *mDialog){
-    MkdgConfig *config=maker_dialog_config_new_full(mDialog, 0, &MAKER_DIALOG_CONFIG_FILE_INTERFACE_GCONF);
+MkdgConfig *mkdg_config_use_gconf(Mkdg *mDialog){
+    MkdgConfig *config=mkdg_config_new_full(mDialog, 0, &MKDG_CONFIG_FILE_INTERFACE_GCONF);
     return config;
 }
 
@@ -617,8 +617,8 @@ static GString *xml_tags_to_string(const gchar *tagName, XmlTagsType type,
     if(type!=XML_TAG_TYPE_NO_TAG){
 	g_string_append_printf(strBuf,"<%s%s%s%s%s>",
 		(type==XML_TAG_TYPE_END_ONLY) ? "/": "",
-		(!maker_dialog_string_is_empty(tagName))? tagName : "",
-		(!maker_dialog_string_is_empty(attribute)) ? " ":"",  (!maker_dialog_string_is_empty(attribute))? attribute : "",
+		(!mkdg_string_is_empty(tagName))? tagName : "",
+		(!mkdg_string_is_empty(attribute)) ? " ":"",  (!mkdg_string_is_empty(attribute))? attribute : "",
 		(type==XML_TAG_TYPE_EMPTY) ? "/": ""
 	);
     }
@@ -665,7 +665,7 @@ static void xml_tags_write(SchemasFileData *sData, const gchar *tagName, XmlTags
 	indentLevel--;
 
     GString *strBuf=xml_tags_to_string(tagName, type, attribute, value, indentLevel, sData->indentSpace);
-    MAKER_DIALOG_DEBUG_MSG(5,"[I5] config_gconf_xml_tags_write:%s",strBuf->str);
+    MKDG_DEBUG_MSG(5,"[I5] config_gconf_xml_tags_write:%s",strBuf->str);
     fprintf(sData->outF,"%s\n",strBuf->str);
 
     if (type==XML_TAG_TYPE_BEGIN_ONLY)
@@ -684,15 +684,15 @@ static void ctx_write_locale(MkdgPropertyContext *ctx, SchemasFileData *sData, c
 }
 
 static void xml_each_page_each_property_func(Mkdg *mDialog, MkdgPropertyContext *ctx, gpointer userData){
-    MAKER_DIALOG_DEBUG_MSG(5,"[I5] xml_each_page_each_property_func()");
-    //    MAKER_DIALOG_DEBUG_MSG(5,"[I5] xml_each_page_each_property_func(%s, %s, )",
+    MKDG_DEBUG_MSG(5,"[I5] xml_each_page_each_property_func()");
+    //    MKDG_DEBUG_MSG(5,"[I5] xml_each_page_each_property_func(%s, %s, )",
 //            mDialog->title, ctx->spec->key);
     SchemasFileData *sData=(SchemasFileData *) userData;
     xml_tags_write(sData,"schema",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
     GString *strBuf=g_string_new(NULL);
     g_string_printf(strBuf, "/schemas%s/%s/%s",
 	    sData->schemasHome,
-	    (maker_dialog_string_is_empty(ctx->spec->pageName)) ? MAKER_DIALOG_PAGE_UNNAMED : ctx->spec->pageName,
+	    (mkdg_string_is_empty(ctx->spec->pageName)) ? MKDG_PAGE_UNNAMED : ctx->spec->pageName,
 	    ctx->spec->key);
     xml_tags_write(sData,"key",XML_TAG_TYPE_SHORT,NULL,strBuf->str);
     xml_tags_write(sData,"applyto",XML_TAG_TYPE_SHORT,NULL,strBuf->str + strlen("/schemas"));
@@ -739,19 +739,19 @@ static void xml_each_page_each_property_func(Mkdg *mDialog, MkdgPropertyContext 
 }
 #undef STRING_BUFFER_SIZE_DEFAULT
 
-gboolean maker_dialog_config_gconf_write_schemas_file
+gboolean mkdg_config_gconf_write_schemas_file
 (Mkdg *mDialog, const gchar *filename, gint indentSpace, const gchar *schemasHome, const gchar *owner, const gchar *locales, GError **error){
     g_assert(filename);
     g_assert(schemasHome);
     g_assert(owner);
-    MAKER_DIALOG_DEBUG_MSG(4,"[I4] config_gconf_write_schemas_file( , %s, %d, %s, %s, %s, )",
+    MKDG_DEBUG_MSG(4,"[I4] config_gconf_write_schemas_file( , %s, %d, %s, %s, %s, )",
 	    filename, indentSpace, schemasHome, owner, (locales)? locales: "");
 
     FILE *outF=fopen(filename,"w");
     GError *cfgErr=NULL;
     if (outF==NULL){
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, "config_gconf_write_schemas_file");
-	maker_dialog_error_handle(cfgErr, error);
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_CANT_WRITE, "config_gconf_write_schemas_file");
+	mkdg_error_handle(cfgErr, error);
 	return FALSE;
     }
     SchemasFileData sData;
@@ -765,12 +765,12 @@ gboolean maker_dialog_config_gconf_write_schemas_file
     sData.outF=outF;
     xml_tags_write(&sData,"gconfschemafile",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
     xml_tags_write(&sData,"schemalist",XML_TAG_TYPE_BEGIN_ONLY,NULL,NULL);
-    maker_dialog_foreach_page_foreach_property(mDialog, NULL, NULL, xml_each_page_each_property_func, &sData);
+    mkdg_foreach_page_foreach_property(mDialog, NULL, NULL, xml_each_page_each_property_func, &sData);
     xml_tags_write(&sData,"schemalist",XML_TAG_TYPE_END_ONLY,NULL,NULL);
     xml_tags_write(&sData,"gconfschemafile",XML_TAG_TYPE_END_ONLY,NULL,NULL);
     if (fclose(outF)){
-	cfgErr=maker_dialog_error_new(MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE, "config_gconf_write_schemas_file fclose()");
-	maker_dialog_error_handle(cfgErr, error);
+	cfgErr=mkdg_error_new(MKDG_ERROR_CONFIG_CANT_WRITE, "config_gconf_write_schemas_file fclose()");
+	mkdg_error_handle(cfgErr, error);
 	return FALSE;
     }
     if (sData.localeArray){

@@ -34,11 +34,11 @@
 
 gint makerDialogVerboseLevel=0;
 
-gboolean MAKER_DIALOG_DEBUG_RUN(gint level){
+gboolean MKDG_DEBUG_RUN(gint level){
     return (level<=makerDialogVerboseLevel)? TRUE : FALSE;
 }
 
-void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
+void MKDG_DEBUG_MSG(gint level, const gchar *format, ...){
     va_list ap;
     if (level<=makerDialogVerboseLevel){
 	va_start(ap, format);
@@ -47,8 +47,8 @@ void MAKER_DIALOG_DEBUG_MSG(gint level, const gchar *format, ...){
     }
 }
 
-gboolean maker_dialog_atob(const gchar *string){
-    if (maker_dialog_string_is_empty(string))
+gboolean mkdg_atob(const gchar *string){
+    if (mkdg_string_is_empty(string))
 	return FALSE;
     if (string[0]=='F' || string[0]=='f' || string[0]=='N' ||  string[0]=='n')
 	return FALSE;
@@ -62,62 +62,62 @@ gboolean maker_dialog_atob(const gchar *string){
     return TRUE;
 }
 
-GQuark maker_dialog_error_quark(){
+GQuark mkdg_error_quark(){
     return g_quark_from_static_string("Mkdg");
 }
 
-MkdgError *maker_dialog_error_new(MkdgErrorCode code, const gchar *formatStr, ...){
+MkdgError *mkdg_error_new(MkdgErrorCode code, const gchar *formatStr, ...){
     va_list ap;
     va_start(ap, formatStr);
     gchar *errMsg=(formatStr) ? g_strdup_vprintf(formatStr, ap): NULL;
-    MkdgError *error=g_error_new_literal(MAKER_DIALOG_ERROR, code, (errMsg)? errMsg : "");
+    MkdgError *error=g_error_new_literal(MKDG_ERROR, code, (errMsg)? errMsg : "");
     g_free(errMsg);
     return error;
 }
 
-const gchar *maker_dialog_get_error_message(MkdgErrorCode code){
+const gchar *mkdg_get_error_message(MkdgErrorCode code){
     switch(code){
-	case MAKER_DIALOG_OK:
+	case MKDG_OK:
 	    return "Ok";
-	case MAKER_DIALOG_ERROR_CONFIG_ALREADY_EXIST:
+	case MKDG_ERROR_CONFIG_ALREADY_EXIST:
 	    return "Config: Already exists";
-	case MAKER_DIALOG_ERROR_CONFIG_CANT_READ:
+	case MKDG_ERROR_CONFIG_CANT_READ:
 	    return "Config: Cannot be read";
-	case MAKER_DIALOG_ERROR_CONFIG_CANT_WRITE:
+	case MKDG_ERROR_CONFIG_CANT_WRITE:
 	    return "Config: Cannot be written";
-	case MAKER_DIALOG_ERROR_CONFIG_INVALID_FORMAT:
+	case MKDG_ERROR_CONFIG_INVALID_FORMAT:
 	    return "Config: Invalid format";
-	case MAKER_DIALOG_ERROR_CONFIG_INVALID_KEY:
+	case MKDG_ERROR_CONFIG_INVALID_KEY:
 	    return "Config: Invalid key";
-	case MAKER_DIALOG_ERROR_CONFIG_INVALID_PAGE:
+	case MKDG_ERROR_CONFIG_INVALID_PAGE:
 	    return "Config: Invalid page";
-	case MAKER_DIALOG_ERROR_CONFIG_INVALID_VALUE:
+	case MKDG_ERROR_CONFIG_INVALID_VALUE:
 	    return "Config: Invalid value";
-	case MAKER_DIALOG_ERROR_CONFIG_NO_CONFIG_SET:
+	case MKDG_ERROR_CONFIG_NO_CONFIG_SET:
 	    return "Config: No config set";
-	case MAKER_DIALOG_ERROR_CONFIG_NO_FILE:
+	case MKDG_ERROR_CONFIG_NO_FILE:
 	    return "Config: No config file";
-	case MAKER_DIALOG_ERROR_CONFIG_NOT_FOUND:
+	case MKDG_ERROR_CONFIG_NOT_FOUND:
 	    return "Config: Not found";
-	case MAKER_DIALOG_ERROR_CONFIG_NOT_READY:
+	case MKDG_ERROR_CONFIG_NOT_READY:
 	    return "Config: Not ready";
-	case MAKER_DIALOG_ERROR_CONFIG_PERMISSION_DENY:
+	case MKDG_ERROR_CONFIG_PERMISSION_DENY:
 	    return "Config: Permission deny";
-	case MAKER_DIALOG_ERROR_CONFIG_OTHER:
+	case MKDG_ERROR_CONFIG_OTHER:
 	    return "Config: Other";
-	case MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_LIB:
+	case MKDG_ERROR_LOADER_CANT_LOAD_LIB:
 	    return "Loader: Cannot load library";
-	case MAKER_DIALOG_ERROR_LOADER_CANT_LOAD_SYM:
+	case MKDG_ERROR_LOADER_CANT_LOAD_SYM:
 	    return "Loader: Cannot load  symbol";
-	case MAKER_DIALOG_ERROR_SPEC_CANT_READ:
+	case MKDG_ERROR_SPEC_CANT_READ:
 	    return "Spec: Cannot be read";
-	case MAKER_DIALOG_ERROR_SPEC_INVALID_FORMAT:
+	case MKDG_ERROR_SPEC_INVALID_FORMAT:
 	    return "Spec: Invalid format";
-	case MAKER_DIALOG_ERROR_SPEC_INVALID_KEY:
+	case MKDG_ERROR_SPEC_INVALID_KEY:
 	    return "Spec: Invalid key";
-	case MAKER_DIALOG_ERROR_SPEC_INVALID_PAGE:
+	case MKDG_ERROR_SPEC_INVALID_PAGE:
 	    return "Spec: Invalid page";
-	case MAKER_DIALOG_ERROR_SPEC_INVALID_VALUE:
+	case MKDG_ERROR_SPEC_INVALID_VALUE:
 	    return "Spec: Invalid value";
 	default:
 	    break;
@@ -125,26 +125,26 @@ const gchar *maker_dialog_get_error_message(MkdgErrorCode code){
     return NULL;
 }
 
-void maker_dialog_error_print(MkdgError *error){
-    if (MAKER_DIALOG_DEBUG_RUN(0)){
-	const gchar *errMsg=(error->domain==MAKER_DIALOG_ERROR) ? maker_dialog_get_error_message(error->code) : "";
+void mkdg_error_print(MkdgError *error){
+    if (MKDG_DEBUG_RUN(0)){
+	const gchar *errMsg=(error->domain==MKDG_ERROR) ? mkdg_get_error_message(error->code) : "";
 	g_warning("[WW] domain:%s [%d] %s, %s", g_quark_to_string(error->domain),
 		error->code, errMsg, error->message);
     }
 }
 
-gboolean maker_dialog_error_handle(MkdgError *errIn, MkdgError **errOut){
-//    MAKER_DIALOG_DEBUG_MSG(4,"[I4] error_handle() errIn=%s errOut:%s", (errIn)? errIn->message : "NULL", (errOut) ? ((*errOut)? (*errOut)->message: "EMPTY") : "NULL");
+gboolean mkdg_error_handle(MkdgError *errIn, MkdgError **errOut){
+//    MKDG_DEBUG_MSG(4,"[I4] error_handle() errIn=%s errOut:%s", (errIn)? errIn->message : "NULL", (errOut) ? ((*errOut)? (*errOut)->message: "EMPTY") : "NULL");
     if (errIn!=NULL){
 	if (errOut!=NULL){
 	    if (*errOut!=NULL){
 		/* Free the old error */
-		maker_dialog_error_print(*errOut);
+		mkdg_error_print(*errOut);
 		g_error_free(*errOut);
 	    }
 	    *errOut=errIn;
 	}else{
-	    maker_dialog_error_print(errIn);
+	    mkdg_error_print(errIn);
 	    g_error_free(errIn);
 	}
 	return TRUE;
@@ -152,7 +152,7 @@ gboolean maker_dialog_error_handle(MkdgError *errIn, MkdgError **errOut){
     return FALSE;
 }
 
-gint maker_dialog_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive){
+gint mkdg_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive){
     gint i=0,ret;
     for(i=0; pairedData[i].strId!=NULL;i++){
 	if (caseSensitive){
@@ -166,7 +166,7 @@ gint maker_dialog_id_parse(MkdgIdPair *pairedData, const gchar *str, gboolean ca
     return pairedData[i].intId;
 }
 
-const gchar *maker_dialog_id_to_string(MkdgIdPair *pairedData, gint intId){
+const gchar *mkdg_id_to_string(MkdgIdPair *pairedData, gint intId){
     gint i=0;
     for(i=0; pairedData[i].strId!=NULL;i++){
 	if (intId==pairedData[i].intId){
@@ -176,17 +176,17 @@ const gchar *maker_dialog_id_to_string(MkdgIdPair *pairedData, gint intId){
     return NULL;
 }
 
-guint32 maker_dialog_flag_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive){
-    gchar **flagList=maker_dialog_string_split_set(str, " \t|;", '\\', FALSE, -1);
+guint32 mkdg_flag_parse(MkdgIdPair *pairedData, const gchar *str, gboolean caseSensitive){
+    gchar **flagList=mkdg_string_split_set(str, " \t|;", '\\', FALSE, -1);
     guint32 flags=0;
     gint i;
     for(i=0; flagList[i]!=NULL;i++){
-	flags|=maker_dialog_id_parse(pairedData, flagList[i], caseSensitive);
+	flags|=mkdg_id_parse(pairedData, flagList[i], caseSensitive);
     }
     return flags;
 }
 
-gint maker_dialog_find_string(const gchar *str, gchar **strlist, gint max_find){
+gint mkdg_find_string(const gchar *str, gchar **strlist, gint max_find){
     gint index=-1,i;
     if (!str){
 	return -2;
@@ -206,7 +206,7 @@ gint maker_dialog_find_string(const gchar *str, gchar **strlist, gint max_find){
     return index;
 }
 
-gboolean maker_dialog_string_is_empty(const gchar *str){
+gboolean mkdg_string_is_empty(const gchar *str){
     if (!str)
 	return TRUE;
     if (str[0]=='\0')
@@ -214,7 +214,7 @@ gboolean maker_dialog_string_is_empty(const gchar *str){
     return FALSE;
 }
 
-static gint maker_dialog_string_char_at(const gchar *str, gchar ch){
+static gint mkdg_string_char_at(const gchar *str, gchar ch){
     gint i;
     for(i=0; str[i]!='\0'; i++){
 	if (str[i]==ch)
@@ -223,7 +223,7 @@ static gint maker_dialog_string_char_at(const gchar *str, gchar ch){
     return -1;
 }
 
-gchar **maker_dialog_string_split_set
+gchar **mkdg_string_split_set
 (const gchar *str, const gchar *delimiters, gchar escapeChar, gboolean emptyToken, gint maxTokens){
     g_return_val_if_fail (str != NULL, NULL);
     g_return_val_if_fail (delimiters != NULL, NULL);
@@ -234,7 +234,7 @@ gchar **maker_dialog_string_split_set
     while(*chPtr!='\0'){
 	if (*chPtr==escapeChar){
 	    chPtr++;
-	}else if (maker_dialog_string_char_at(delimiters, *chPtr)>=0){
+	}else if (mkdg_string_char_at(delimiters, *chPtr)>=0){
 	    if (maxTokens<0 || tokenCount<maxTokens-1){
 		/* Can have more tokens */
 		if (emptyToken || strBuf->len){
@@ -252,7 +252,7 @@ gchar **maker_dialog_string_split_set
 	    g_string_append_unichar(strBuf,wch);
 	    chPtr=g_utf8_next_char(chPtr);
 	}else{
-	    g_warning("maker_dialog_string_split_set(): Invalid format. str=%s",str);
+	    g_warning("mkdg_string_split_set(): Invalid format. str=%s",str);
 	}
     }
 
@@ -269,7 +269,7 @@ gchar **maker_dialog_string_split_set
     return (gchar **) g_ptr_array_free(ptrArray, FALSE);
 }
 
-gchar *maker_dialog_string_list_combine
+gchar *mkdg_string_list_combine
 (gchar **strList, const gchar *delimiters, gchar escapeChar, gboolean emptyToken){
     g_return_val_if_fail (strList != NULL, NULL);
     g_return_val_if_fail (delimiters != NULL, NULL);
@@ -285,7 +285,7 @@ gchar *maker_dialog_string_list_combine
 	if (*chPtr!='\0'){
 	    isPrevEmpty=FALSE;
 	    while(*chPtr!='\0'){
-		if (maker_dialog_string_char_at(delimiters, *chPtr)>=0){
+		if (mkdg_string_char_at(delimiters, *chPtr)>=0){
 		    g_string_append_c(strBuf,escapeChar);
 		}else if (*chPtr==escapeChar){
 		    g_string_append_c(strBuf,escapeChar);
@@ -302,12 +302,12 @@ gchar *maker_dialog_string_list_combine
     return g_string_free(strBuf,FALSE);
 }
 
-gboolean maker_dialog_has_all_flags(guint flagSet, guint specFlags){
+gboolean mkdg_has_all_flags(guint flagSet, guint specFlags){
     return ((~(flagSet & specFlags)) & specFlags)? FALSE : TRUE;
 }
 
 /*=== Start General file functions ===*/
-gboolean maker_dialog_file_isWritable(const gchar *filename){
+gboolean mkdg_file_isWritable(const gchar *filename){
     if (g_access(filename,W_OK)!=0){
 	if (g_access(filename,F_OK)==0){
 	    // Read only.
@@ -322,7 +322,7 @@ gboolean maker_dialog_file_isWritable(const gchar *filename){
     return TRUE;
 }
 
-gchar* maker_dialog_truepath(const gchar *path, gchar *resolved_path){
+gchar* mkdg_truepath(const gchar *path, gchar *resolved_path){
     gchar workingPath[PATH_MAX];
     gchar fullPath[PATH_MAX];
     gchar *result=NULL;

@@ -83,7 +83,7 @@ String_TestRec STRING_TEST_DATASET[]={
 
 OutputRec stringTest_run_func(InputRec inputRec, Param param){
     String_TestRec *recs=(String_TestRec *) inputRec;
-    output_rec_set_pointer(result,maker_dialog_string_split_set(recs->str,recs->delimiters,recs->escapeChar, recs->emptyToken, recs->maxTokens));
+    output_rec_set_pointer(result,mkdg_string_split_set(recs->str,recs->delimiters,recs->escapeChar, recs->emptyToken, recs->maxTokens));
     return result;
 }
 
@@ -123,7 +123,7 @@ String_TestRec STRINGLIST_TEST_DATASET[]={
 
 OutputRec stringListTest_run_func(InputRec inputRec, Param param){
     String_TestRec *recs=(String_TestRec *) inputRec;
-    output_rec_set_pointer(result,maker_dialog_string_list_combine(recs->strList,recs->delimiters,recs->escapeChar, recs->emptyToken));
+    output_rec_set_pointer(result,mkdg_string_list_combine(recs->strList,recs->delimiters,recs->escapeChar, recs->emptyToken));
     return result;
 }
 
@@ -149,11 +149,11 @@ gboolean stringListTest_foreach(TestSubject *testSubject){
 
 
 TestSubject TEST_COLLECTION[]={
-    {"maker_dialog_string_split_set()",
+    {"mkdg_string_split_set()",
 	STRING_TEST_DATASET,
 	{0},
 	stringTest_foreach, stringTest_run_func, string_list_verify_func},
-    {"maker_dialog_string_list_combine()",
+    {"mkdg_string_list_combine()",
 	STRINGLIST_TEST_DATASET,
 	{0},
 	stringListTest_foreach, stringListTest_run_func, string_verify_func},
@@ -161,7 +161,7 @@ TestSubject TEST_COLLECTION[]={
 };
 
 int main(int argc, char** argv){
-    int testId=get_testId(argc,argv,TEST_COLLECTION, "MAKER_DIALOG_VERBOSE");
+    int testId=get_testId(argc,argv,TEST_COLLECTION, "MKDG_VERBOSE");
     if (testId<0){
 	return testId;
     }
