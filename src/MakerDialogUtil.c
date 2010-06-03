@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <glib.h>
 #include <glib/gstdio.h>
-#include "MkdgUtil.h"
+#include "MakerDialogUtil.h"
 
 #ifndef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "Mkdg"

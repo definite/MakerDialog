@@ -18,7 +18,7 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdlib.h>
-#include "Mkdg.h"
+#include "MakerDialog.h"
 
 MkdgUi *mkdg_ui_init(Mkdg *mDialog, MkdgToolkitInterface *toolkitInterface){
     g_assert(mDialog);

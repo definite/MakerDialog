@@ -18,7 +18,7 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgPage.h
+ * @file MakerDialogPage.h
  * Page Specification and Manipulation.
  *
  * A Mkdg page, like a category, holds properties that have semantic

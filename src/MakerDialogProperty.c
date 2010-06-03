@@ -23,7 +23,7 @@
 #include <strings.h>
 #include <glib/gi18n.h>
 #include <locale.h>
-#include "Mkdg.h"
+#include "MakerDialog.h"
 
 MkdgPropertySpec *mkdg_property_spec_new(const gchar *key, MkdgType valueType){
     return mkdg_property_spec_new_full(key, valueType,

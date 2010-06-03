@@ -27,8 +27,8 @@
 #include <gconf/gconf-client.h>
 #include <gconf/gconf-value.h>
 #include <gconf/gconf-changeset.h>
-#include "Mkdg.h"
-#include "MkdgConfigGConf.h"
+#include "MakerDialog.h"
+#include "MakerDialogConfigGConf.h"
 
 /*=== Start Error handling ===*/
 #define GCONF_ERROR_FORMAT	"MkdgConfigGConf: In %s, %s Error: %s"

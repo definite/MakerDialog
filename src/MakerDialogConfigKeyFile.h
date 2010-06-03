@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of Mkdg.
+ *  This file is part of MakerDialog.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,10 +15,10 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgConfigKeyFile.h
+ * @file MakerDialogConfigKeyFile.h
  * Glib key file: Manipulate INI like configuration file.
  *
  * MkdgConfigKeyFile lets you parse, edit or create files containing groups of key-value pairs.
@@ -85,7 +85,7 @@
 #define MKDG_CONFIG_KEY_FILE_H_
 #include <glib.h>
 #include <glib-object.h>
-#include "MkdgConfig.h"
+#include "MakerDialogConfig.h"
 
 /**
  * The configure file interface for GKeyFile.
@@ -103,7 +103,7 @@ extern MkdgConfigFileInterface MKDG_CONFIG_FILE_INTERFACE_KEY_FILE;
  * During construction, the new MkdgConfig is associated to the \a mDialog.
  * Thus, mkdg_destroy() can free the associated MkdgConfig as well.
  *
- * @param mDialog 	A Mkdg.
+ * @param mDialog 	A MakerDialog.
  * @return A newly allocated MkdgConfig with glib GKeyFile back-end.
  * @see mkdg_config_new().
  */

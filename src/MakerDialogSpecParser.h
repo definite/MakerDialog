@@ -39,18 +39,29 @@
  */
 typedef enum{
     /**
+     * "Invalid" section in MakerDialog spec file.
+     *
+     * "Invalid" section in MakerDialog spec file.
+     * Indicates either reached the end, or parse failed.
+     */
+    MKDG_SPEC_SECTION_INVALID=-1,
+
+    /**
      * Main section in MakerDialog spec file.
+     *
      * The section name is "_MAIN_"
      */
     MKDG_SPEC_SECTION_MAIN,
 
     /**
      * Config section in MakerDialog spec file.
+     *
      * The section name is "_CONFIG_"
      */
     MKDG_SPEC_SECTION_CONFIG,
     /**
      * Config set section in MakerDialog spec file.
+     *
      * The section name is "_CONFIG_SET_" and serial number, such as
      * "_CONFIG_SET_01_", "_CONFIG_SET_23_"
      */
@@ -66,42 +77,16 @@ typedef enum{
      * Property section  in MakerDialog spec file.
      * Any section that does not start with "_" is deemed as property.
      */
-    MKDG_SPEC_SECTION_PROPERTY
-} MkdgSectionName;
+    MKDG_SPEC_SECTION_PROPERTY,
+
+} MkdgSpecSection;
 
 /**
  * MakerDialog spec section names.
  *
  * This is the name of MakerDialog spec section names;
  */
-const gchar *MKDG_SPEC_SECTION_NAMES[];
-
-/**
- * Name of config section in MakerDialog spec file.
- *
- * This is the GKeyFile group name for CONFIG section of MakerDialog spec file.
- * MakerDialog config definition and flags are listed in the section.
- */
-#define MKDG_SPEC_SECTION_CONFIG_STRING "_CONFIG_"
-
-/**
- * Name prefix of config set section in MakerDialog spec file.
- *
- * This is the GKeyFile group name prefix for CONFIGSET section of MakerDialog spec file.
- * MakerDialog config set definition and flags are listed in the section.
- *
- * Note that the full cofig set name contains serial numbers.
- * Such as \c _CONFIG_SET_01_ , \c _CONFIG_SET_23_, etc.
- */
-#define MKDG_SPEC_SECTION_CONFIG_SET_STRING "_CONFIG_SET_"
-
-/**
- * Name of UI section in MakerDialog spec file.
- *
- * This is the GKeyFile group name for UI section of MakerDialog spec file.
- * MakerDialog UI definition and flags are listed in the section.
- */
-#define MKDG_SPEC_SECTION_UI_STRING "_UI_"
+extern const gchar *MKDG_SPEC_SECTION_NAMES[];
 
 /**
  * Load MakerDialog setting from a glib key file.
@@ -113,7 +98,7 @@ const gchar *MKDG_SPEC_SECTION_NAMES[];
  * @param error		Returned error is stored here; or \c NULL to ignore error.
  * @return A newly allocated MakerDialog instance; or \c NULL if failed.
  */
-Mkdg *mkdg_new_from_key_file(const gchar *filename, MakerDialogError **error);
+Mkdg *mkdg_new_from_key_file(const gchar *filename, MkdgError **error);
 
 #endif /* MKDG_SPEC_PARSER_H_ */
 

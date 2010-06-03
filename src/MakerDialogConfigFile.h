@@ -18,18 +18,18 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgConfigFile.h
+ * @file MakerDialogConfigFile.h
  * Configuration File for Mkdg.
  *
  * A configuration file stores property values.
  *
  * The configuration back-end interface functions are defined here.
  *
- * @since 0.3; was included in MkdgConfig.h prior 0.2.
+ * @since 0.3; was included in MakerDialogConfig.h prior 0.2.
  */
 #ifndef MKDG_CONFIG_FILE_H_
 #define MKDG_CONFIG_FILE_H_
-#include "MkdgConfigDef.h"
+#include "MakerDialogConfigDef.h"
 
 /**
  * Configuration file.

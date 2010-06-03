@@ -18,7 +18,7 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgUiGtk.h
+ * @file MakerDialogUiGtk.h
  * Gtk UI front-end for Mkdg.
  *
  * This module implements the UI interface to bridge between Gtk and Mkdg.

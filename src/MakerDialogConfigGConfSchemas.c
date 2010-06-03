@@ -3,8 +3,8 @@
 #include <glib/gprintf.h>
 #include <locale.h>
 #include <stdlib.h>
-#include "Mkdg.h"
-#include "MkdgConfigGConf.h"
+#include "MakerDialog.h"
+#include "MakerDialogConfigGConf.h"
 #include "../examples/md-example.c"
 
 static gchar *schemasFilename=NULL;

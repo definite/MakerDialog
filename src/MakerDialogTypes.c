@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glib/gprintf.h>
-#include "MkdgTypes.h"
-#include "MkdgUtil.h"
+#include "MakerDialogTypes.h"
+#include "MakerDialogUtil.h"
 
 typedef struct _{
     const gchar *name;

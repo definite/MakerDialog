@@ -18,7 +18,7 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgUtil.h
+ * @file MakerDialogUtil.h
  * Utility functions for Mkdg.
  *
  * This file lists the utility functions for general purpose.

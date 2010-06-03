@@ -1,6 +1,6 @@
 #include <dlfcn.h>
-#include "MkdgModule.h"
-#include "Mkdg.h"
+#include "MakerDialogModule.h"
+#include "MakerDialog.h"
 static MkdgIdPair mkdgModuleData[]={
     {"GCONF2",			MKDG_MODULE_GCONF2},
     {"GKEYFILE",		MKDG_MODULE_GKEYFILE},

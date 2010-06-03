@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of Mkdg.
+ *  This file is part of MakerDialog.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,17 +15,17 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgConfigSet.h
- * Configuration Set for Mkdg.
+ * @file MakerDialogConfigSet.h
+ * Configuration Set for MakerDialog.
  *
  * A configuration set is a mandatory unit of MakerDialog configuration mechanism,
  * it manages pages of properties and configuration files
  * for storing the values of those properties.
  *
- * Same properties can reside in different configuration files in Mkdg.
+ * Same properties can reside in different configuration files in MakerDialog.
  * So applications can have system-wide configuration as default,
  * yet users are able to override the default with their own configuration file.
  *
@@ -34,11 +34,11 @@
  * Latter is recommend, as it is not only easier to read,
  * but also consistent should API changed.
  *
- * @since 0.3; was included in MkdgConfig.h prior 0.2.
+ * @since 0.3; was included in MakerDialogConfig.h prior 0.2.
  */
 #ifndef MKDG_CONFIG_SET_H_
 #define MKDG_CONFIG_SET_H_
-#include "MkdgConfigDef.h"
+#include "MakerDialogConfigDef.h"
 
 /**
  * @cond

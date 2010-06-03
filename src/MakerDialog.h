@@ -2,7 +2,7 @@
  * Copyright © 2009  Red Hat, Inc. All rights reserved.
  * Copyright © 2009  Ding-Yi Chen <dchen at redhat.com>
  *
- *  This file is part of Mkdg.
+ *  This file is part of MakerDialog.
  *
  *  MakerDialog is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
@@ -15,10 +15,10 @@
  *  GNU Lesser General Public License for more details.
  *
  *  You should have received a copy of the GNU Lesser General Public License
- *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with MakerDialog.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file Mkdg.h
+ * @file MakerDialog.h
  * Mkdg: Make dialog from given data type.
  *
  * Developers can easily make an configuration dialog with maker-dialog.
@@ -39,20 +39,20 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gstdio.h>
-#include "MkdgUtil.h"
-#include "MkdgTypes.h"
+#include "MakerDialogUtil.h"
+#include "MakerDialogTypes.h"
 
 typedef struct _Mkdg Mkdg;
 
-#include "MkdgProperty.h"
-#include "MkdgPage.h"
-#include "MkdgUi.h"
-#include "MkdgConfig.h"
-#include "MkdgConfigSet.h"
-#include "MkdgConfigFile.h"
-#include "MkdgConfigKeyFile.h"
-#include "MkdgModule.h"
-#include "MkdgSpecParser.h"
+#include "MakerDialogProperty.h"
+#include "MakerDialogPage.h"
+#include "MakerDialogUi.h"
+#include "MakerDialogConfig.h"
+#include "MakerDialogConfigSet.h"
+#include "MakerDialogConfigFile.h"
+#include "MakerDialogConfigKeyFile.h"
+#include "MakerDialogModule.h"
+#include "MakerDialogSpecParser.h"
 
 /**
  * Inter-process communication module.
@@ -76,9 +76,9 @@ typedef enum{
 } MKDG_FLAG;
 
 /**
- * Data structure of a Mkdg.
+ * Data structure of a MakerDialog.
  *
- * Data structure of a Mkdg.
+ * Data structure of a MakerDialog.
  */
 struct _Mkdg{
     gchar *title;				//!< Title of the dialog, which will be shown in title bar.
@@ -101,7 +101,7 @@ struct _Mkdg{
 };
 
 /**
- * New an empty Mkdg.
+ * New an empty MakerDialog.
  *
  * This function allocates a new MakerDialog instance and
  * set the struct members to their default value.
@@ -120,7 +120,7 @@ struct _Mkdg{
 Mkdg *mkdg_new();
 
 /**
- * Initialize a Mkdg.
+ * Initialize a MakerDialog.
  *
  * This function initialize a MakerDialog instance.
  * The title and buttons are specified in this function, however,
@@ -131,7 +131,7 @@ Mkdg *mkdg_new();
  * Use \c MKDG_RESPONSE_NIL as respond id at end of button
  * specification to signified the end of \a buttonSpec.
  *
- * @param title 	Title of the dialog. This string will be duplicated in Mkdg.
+ * @param title 	Title of the dialog. This string will be duplicated in MakerDialog.
  * @param buttonSpecs 	Button specification. Can be \c NULL.
  * @return A newly allocated MakerDialog instance.
  *
@@ -162,7 +162,7 @@ void mkdg_set_args(Mkdg *mDialog, gint argc, gchar **argv);
  * @endcode
  * Where @code propertySpec @endcode is the property spec.
  *
- * @param mDialog A Mkdg.
+ * @param mDialog A MakerDialog.
  * @param ctx The property context to be added.
  *
  * @see mkdg_property_table_insert().
@@ -170,8 +170,8 @@ void mkdg_set_args(Mkdg *mDialog, gint argc, gchar **argv);
 void mkdg_add_property(Mkdg *mDialog, MkdgPropertyContext *ctx);
 
 /**
- * Destroy the Mkdg.
- * @param mDialog A Mkdg.
+ * Destroy the MakerDialog.
+ * @param mDialog A MakerDialog.
  *
  * Free all associate memory.
  * Title in the MakerDialog will also be freed.
@@ -186,7 +186,7 @@ void mkdg_destroy(Mkdg *mDialog);
  *
  * The returned value is still useful for property context, so DO NOT free it.
  *
- * @param mDialog A Mkdg.
+ * @param mDialog A MakerDialog.
  * @param key A property key.
  * @return Value of the property; or NULL if no such property, or value have not been set.
  */
@@ -197,7 +197,7 @@ MkdgValue *mkdg_get_value(Mkdg *mDialog, const gchar *key);
  *
  * The returned value is still useful for property context, so DO NOT free it.
  *
- * @param mDialog A Mkdg.
+ * @param mDialog A MakerDialog.
  * @param key A property key.
  * @return Context of the property; or NULL if no such property.
  */
@@ -221,7 +221,7 @@ MkdgPropertyContext *mkdg_get_property_context(Mkdg *mDialog, const gchar *key);
  * - mkdg_set_value() copies argument value to the property value and UI widget value.
  * - mkdg_ui_update_value() copies UI component value to property value.
  *
- * @param mDialog A Mkdg.
+ * @param mDialog A MakerDialog.
  * @param key A property key.
  * @return TRUE if succeed, FALSE if the property value does not pass validation, or applyFunc() does not exist.
  * @see mkdg_set_value()
@@ -241,7 +241,7 @@ gboolean mkdg_apply_value(Mkdg *mDialog, const gchar *key);
  * If \a value is NULL, then default value will be used.
  *
  *
- * @param mDialog A Mkdg.
+ * @param mDialog A MakerDialog.
  * @param key A property key.
  * @param value Argument value to be set. \c NULL for using default.
  * @return TRUE if succeed, FALSE if the property value does not pass validation.

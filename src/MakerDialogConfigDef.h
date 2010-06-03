@@ -23,7 +23,7 @@
  *
  * Data type definition of configuration module for Mkdg.
  *
- * @since 0.3; was included in MkdgConfig.h prior 0.2.
+ * @since 0.3; was included in MakerDialogConfig.h prior 0.2.
  */
 #ifndef MKDG_CONFIG_DEF_H_
 #define MKDG_CONFIG_DEF_H_

@@ -18,7 +18,7 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgConfigGConf.h
+ * @file MakerDialogConfigGConf.h
  * GConf configuration back-end.
  *
  * This module implements the UI interface to bridge between GConf back-end and Mkdg.
@@ -27,7 +27,7 @@
 #define MKDG_CONFIG_G_CONF_H_
 #include <glib.h>
 #include <glib-object.h>
-#include "MkdgConfig.h"
+#include "MakerDialogConfig.h"
 
 /**
  * The configure file interface for GConf.

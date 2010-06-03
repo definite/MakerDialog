@@ -18,7 +18,7 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgProperty.h
+ * @file MakerDialogProperty.h
  * Property Specification and Manipulation.
  *
  * In Mkdg, a property is a configuration option which associate with a

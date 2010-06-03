@@ -30,7 +30,7 @@
  */
 #ifndef MKDG_CONFIG_H_
 #define MKDG_CONFIG_H_
-#include "MkdgConfigDef.h"
+#include "MakerDialogConfigDef.h"
 
 /**
  * Configuration of Mkdg.

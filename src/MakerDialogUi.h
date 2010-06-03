@@ -18,7 +18,7 @@
  *  along with Mkdg.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file MkdgUi.h
+ * @file MakerDialogUi.h
  * UI interface for Mkdg.
  *
  * This interface bridges between  MakerDialog and UI toolkits

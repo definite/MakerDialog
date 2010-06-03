@@ -7,6 +7,7 @@ const gchar *MKDG_SPEC_SECTION_NAMES[]={
     "_CONFIG_",
     "_CONFIG_SET_",
     "_UI_",
+    "_PROPERTY_",
     NULL
 };
 
@@ -37,8 +38,7 @@ typedef gboolean (* MkdgSpecAttrParser)(MkdgSpecData *specData, gpointer attr, c
 #define MKDG_SPEC_NO_DEFAULT			0x2
 
 struct _MkdgSpecData{
-    MAKER_
-    const gchar			*page;
+    MkdgSpecSection             section;
     const gchar			*attr;
     const gchar			*defaultValue;		//<! Only for optional attribute.
     MkdgType			type;
@@ -46,7 +46,7 @@ struct _MkdgSpecData{
     MkdgSpecAttrParser	parser;
 };
 
-#define MKDG_SPEC_DATA_END { NULL, NULL, NULL, MKDG_TYPE_INVALID, 0, NULL, NULL}
+#define MKDG_SPEC_DATA_END { MKDG_SPEC_SECTION_INVALID, NULL, NULL, MKDG_TYPE_INVALID, 0, NULL}
 #define MKDG_SPEC_SECTION_PROPERTY_STRING	"_PROPERTY_"
 
 static gboolean mkdg_spec_attr_parser_check_type(MkdgSpecData *specData){
@@ -83,13 +83,21 @@ static gboolean mkdg_spec_attr_parser_flags(MkdgSpecData *specData, gpointer att
     }
     g_assert(specData->type==MKDG_TYPE_UINT32);
     MkdgConfigFlags ret=0;
-    if (strcmp(MKDG_SPEC_SECTION_UI_STRING, specData->page)==0){
-    } else if (strcmp(MKDG_SPEC_SECTION_CONFIG_STRING, specData->page)==0){
-	ret=mkdg_config_flags_parse(value);
-    } else if (strcmp(MKDG_SPEC_SECTION_CONFIG_SET_STRING, specData->page)==0){
-	ret=mkdg_config_set_flags_parse(value);
-    }else{
-	return FALSE;
+    switch(specData->section){
+	case MKDG_SPEC_SECTION_MAIN:
+	    break;
+	case MKDG_SPEC_SECTION_CONFIG:
+	    ret=mkdg_config_flags_parse(value);
+	    break;
+	case MKDG_SPEC_SECTION_CONFIG_SET:
+	    ret=mkdg_config_set_flags_parse(value);
+	    break;
+	case MKDG_SPEC_SECTION_UI:
+	    return TRUE;
+	case MKDG_SPEC_SECTION_PROPERTY:
+	    break;
+	default:
+	    return FALSE;
     }
     MkdgConfigFlags *attr_ptr_casted = (MkdgConfigFlags *) attr_ptr;
     *attr_ptr_casted=ret;
