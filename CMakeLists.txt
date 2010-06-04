@@ -45,7 +45,6 @@ SET_ENV(PRJ_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib${IS_64}/${PROJECT_NAME})
 #==================================================================
 # Developer setting.
 #
-SET(CVS_DIST_TAGS EL-5 F-11 F-12 F-13)
 SET(HOSTING_SERVICE_PROVIDER "GitHub")
 SET(DEVELOPER_SETTING_FILE "DEVELOPER_SETTING_NO_PACK")
 #SET(DEVELOPER_DEPENDS ***USER_DEFINE***)
@@ -71,6 +70,8 @@ INCLUDE(common.CMakeLists.txt)
 ####################################################################
 # Post Include setting
 ####################################################################
+SET(FEDORA_DIST_TAGS ${FEDORA_DIST_TAGS} EL-5)
+
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/project.pc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc" @ONLY)
 
