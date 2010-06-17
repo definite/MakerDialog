@@ -12,7 +12,7 @@
 # RPM_RELEASE_SUMMARY: Summary of latest change, used in CVS message and Bodhi
 #                 comment.
 #
-# CVS_DIST_TAGS: Distribution tags such as F-10, EL-5 to be committed to CVS
+# FEDORA_DIST_TAGS: Distribution tags such as F-10, EL-5 to be committed to CVS
 #                for koji or plague build. By default, devel is always built,
 #                so no need to explicitly declare it.
 #         Default: built devel.
@@ -20,7 +20,7 @@
 # BODHI_DEPENDS: Files that bodhi targets depends on.
 # BODHI_DIST_TAGS: Distribution tags such as fc9, fc10 to be committed to
 #                  Bodhi.
-#         Default: Derived from CVS_DIST_TAGS.
+#         Default: Derived from FEDORA_DIST_TAGS.
 #
 #===================================================================
 # Targets:
@@ -32,6 +32,7 @@
 
 INCLUDE(RPM)
 SET(RAWHIDE_VER 14)
+SET(FEDORA_DIST_TAGS F-11 F-12 F-13)
 
 IF(NOT DEFINED KOJI_CVS_PATH)
     SET(KOJI_CVS_PATH "./")
@@ -50,7 +51,7 @@ IF (DEFINED RPM_RELEASE_SUMMARY)
 	"${KOJI_CVS_PATH}/${PROJECT_NAME}/common/cvs-import.sh -m \"${RPM_RELEASE_SUMMARY}\" ${SRPM_FILE}"
     )
 
-    FOREACH(_dist_tag ${CVS_DIST_TAGS})
+    FOREACH(_dist_tag ${FEDORA_DIST_TAGS})
 	SET (KOJI_SUBMISSION_CMD
 	    "${KOJI_SUBMISSION_CMD}\;"
 	    "${KOJI_CVS_PATH}/${PROJECT_NAME}/common/cvs-import.sh -b ${_dist_tag} -m \"${RPM_RELEASE_SUMMARY}\" ${SRPM_FILE}"
@@ -60,7 +61,7 @@ ELSE(DEFINED RPM_RELEASE_SUMMARY)
     SET (KOJI_SUBMISSION_CMD
 	"${KOJI_CVS_PATH}/${PROJECT_NAME}/common/cvs-import.sh  ${SRPM_FILE}"
     )
-    FOREACH(_dist_tag ${CVS_DIST_TAGS})
+    FOREACH(_dist_tag ${FEDORA_DIST_TAGS})
 	SET (KOJI_SUBMISSION_CMD
 	    "${KOJI_SUBMISSION_CMD}\;"
 	    "${KOJI_CVS_PATH}/${PROJECT_NAME}/common/cvs-import.sh -b ${_dist_tag}  ${SRPM_FILE}"
@@ -77,7 +78,7 @@ SET (KOJI_SCRATCH_BUILD_CMD
     )
 
 
-FOREACH(_dist_tag ${CVS_DIST_TAGS})
+FOREACH(_dist_tag ${FEDORA_DIST_TAGS})
     SET (KOJI_BUILD_CMD
 	"${KOJI_BUILD_CMD} && cd ${_dist_tag} && make build && cd .."
 	)
@@ -145,14 +146,12 @@ FOREACH(_bodhi_tag ${_bodhi_dist_tags})
 	SET (BODHI_NEW_CMD "")
     ENDIF ()
     IF(DEFINED RPM_RELEASE_SUMMARY)
-	SET (BODHI_NEW_CMD
-	    "${BODHI_NEW_CMD} bodhi --new --type=bugfix --comment=\"${RPM_RELEASE_SUMMARY}\" ${PROJECT_NAME}-${PRJ_VER_FULL}.${_bodhi_tag}"
-	    )
-    ELSE(DEFINED RPM_RELEASE_SUMMARY)
-	SET (BODHI_NEW_CMD
-	    "${BODHI_NEW_CMD} bodhi --new --type=bugfix  ${PROJECT_NAME}-${PRJ_VER_FULL}.${_bodhi_tag}"
-	    )
-    ENDIF(DEFINED RPM_RELEASE_SUMMARY)
+	SET(commentArg "--comment=\"${RPM_RELEASE_SUMMARY}\"")
+    ELSEIF(DEFINED CHANGE_SUMMARY)
+	SET(commentArg "--comment=\"${CHANGE_SUMMARY}\"")
+    ENDIF()
+    SET (BODHI_NEW_CMD
+	"${BODHI_NEW_CMD} bodhi --new --type=bugfix ${commentArg} ${PROJECT_NAME}-${PRJ_VER_FULL}.${_bodhi_tag}")
 ENDFOREACH(_bodhi_tag)
 
 #MESSAGE(BODHI_NEW_CMD=${BODHI_NEW_CMD})
@@ -160,7 +159,7 @@ IF(DEFINED BODHI_NEW_CMD)
     ADD_CUSTOM_TARGET(bodhi_new
 	COMMAND eval "${BODHI_NEW_CMD}"
 	DEPENDS ${BODHI_DEPENDS}
-	COMMENT "Send the new package to bodhi"
+	COMMENT "Send new package to bodhi"
 	VERBATIM
 	)
 ENDIF(DEFINED BODHI_NEW_CMD)
